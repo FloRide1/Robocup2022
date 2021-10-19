@@ -99,8 +99,6 @@ namespace Robot
 
         static RobotMode robotMode = RobotMode.Standard;
 
-        static bool usingSimulatedCamera = true;
-        static bool usingPhysicalSimulator = true;
         static bool usingXBoxController = false;
         static bool usingLidar = true;
         static bool usingCamera = true;
@@ -111,7 +109,7 @@ namespace Robot
 
 
         static bool usingRobotInterface = true;
-        static bool usingCameraInterface = true;
+        //static bool usingCameraInterface = true;
         static bool usingReplayNavigator = true;
 
         static ImageSaver.ImageSaver imgSaver;
@@ -128,7 +126,7 @@ namespace Robot
         static TrajectoryGeneratorHolonome trajectoryPlanner;
         static KalmanPositioning.KalmanPositioning kalmanPositioning;
 
-        static HerkulexManager herkulexManager;
+        //static HerkulexManager herkulexManager;
 
         static LocalWorldMapManager localWorldMapManager;
         static ImuProcessor.ImuProcessor imuProcessor;
@@ -249,15 +247,15 @@ namespace Robot
 
             if (usingCamera)
             {
-                omniCamera = new BaslerCameraAdapter();
-                omniCamera.CameraInit();
-                //omniCamera.BitmapPanoramaImageEvent += absolutePositionEstimator.AbsolutePositionEvaluation;
+                //omniCamera = new BaslerCameraAdapter();
+                //omniCamera.CameraInit();
+                ////omniCamera.BitmapPanoramaImageEvent += absolutePositionEstimator.AbsolutePositionEvaluation;
             }
 
             if (usingImageExtractor && usingCamera)
             {
                 imgSaver = new ImageSaver.ImageSaver();
-                omniCamera.BitmapPanoramaImageEvent += imgSaver.OnSaveBitmapImage;
+                //omniCamera.BitmapPanoramaImageEvent += imgSaver.OnSaveBitmapImage;
             }
 
            
@@ -265,8 +263,8 @@ namespace Robot
             //Démarrage des interface de visualisation
             if (usingRobotInterface)
                 StartRobotInterface();
-            if (usingCameraInterface)
-                StartCameraInterface();
+            //if (usingCameraInterface)
+            //    StartCameraInterface();
 
             //Démarrage du logger si besoin
             if (usingLogging)
@@ -323,7 +321,6 @@ namespace Robot
             if (usingLidar)
             {
                 lidar_OMD60M_TCP.OnLidarDecodedFrameEvent += perceptionManager.OnRawLidarDataReceived;
-                lidar_OMD60M_TCP.OnLidarDecodedFrameEvent += localWorldMapManager.OnLidarDataReceived;
                 lidarProcessor.OnLidarProcessedEvent += localWorldMapManager.OnLidarDataReceived;
             }
 
@@ -440,10 +437,8 @@ namespace Robot
                 robotMsgProcessor.OnAsservissementModeStatusFromRobotGeneratedEvent += interfaceRobot.UpdateAsservissementMode;
                 robotMsgProcessor.OnPolarOdometrySpeedFromRobotEvent += interfaceRobot.UpdateSpeedPolarOdometryOnInterface;
                 robotMsgProcessor.OnIndependantOdometrySpeedFromRobotEvent += interfaceRobot.UpdateSpeedIndependantOdometryOnInterface;
-                robotMsgProcessor.On4WheelsSpeedPolarPidErrorCorrectionConsigneDataFromRobotGeneratedEvent += interfaceRobot.UpdateSpeedPolarPidErrorCorrectionConsigneDataOnGraph;
-                robotMsgProcessor.On4WheelsSpeedIndependantPidErrorCorrectionConsigneDataFromRobotGeneratedEvent += interfaceRobot.UpdateSpeedIndependantPidErrorCorrectionConsigneDataOnInterface;
-                robotMsgProcessor.On2WheelsSpeedPolarPidCorrectionDataFromRobotEvent += interfaceRobot.UpdateSpeedPolarPidCorrectionData;
-                robotMsgProcessor.On2WheelsSpeedIndependantPidCorrectionDataFromRobotEvent += interfaceRobot.UpdateSpeedIndependantPidCorrectionData;
+                robotMsgProcessor.On4WheelsSpeedPolarPidErrorCorrectionConsigneDataFromRobotGeneratedEvent += interfaceRobot.Update4WheelsSpeedPolarPidErrorCorrectionConsigneDataOnGraph;
+                robotMsgProcessor.On4WheelsSpeedIndependantPidErrorCorrectionConsigneDataFromRobotGeneratedEvent += interfaceRobot.Update4WheelsSpeedIndependantPidErrorCorrectionConsigneDataOnInterface;
 
                 robotMsgProcessor.OnErrorTextFromRobotGeneratedEvent += interfaceRobot.AppendConsole;
                 robotMsgProcessor.OnPowerMonitoringValuesFromRobotGeneratedEvent += interfaceRobot.UpdatePowerMonitoringValues;
@@ -457,7 +452,7 @@ namespace Robot
             }
             robotMsgGenerator.OnSetSpeedConsigneToRobotReceivedEvent += interfaceRobot.UpdatePolarSpeedConsigneOnGraph; //Valable quelque soit la source des consignes vitesse
             interfaceRobot.OnEnableDisableMotorsFromInterfaceGeneratedEvent += robotMsgGenerator.GenerateMessageEnableDisableMotors;
-            interfaceRobot.OnEnableDisableServosFromInterfaceGeneratedEvent += herkulexManager.OnEnableDisableServosRequestEvent;
+            //interfaceRobot.OnEnableDisableServosFromInterfaceGeneratedEvent += herkulexManager.OnEnableDisableServosRequestEvent;
             interfaceRobot.OnEnableDisableTirFromInterfaceGeneratedEvent += robotMsgGenerator.GenerateMessageEnableDisableTir;
             interfaceRobot.OnEnableDisableControlManetteFromInterfaceGeneratedEvent += ChangeUseOfXBoxController;
             interfaceRobot.OnSetAsservissementModeFromInterfaceGeneratedEvent += robotMsgGenerator.GenerateMessageSetAsservissementMode;
@@ -499,13 +494,12 @@ namespace Robot
         {
             if (usingCamera || usingLogging)
             {
-                omniCamera.BitmapFishEyeImageEvent += ConsoleCamera.DisplayBitmapImage;
-                ////absolutePositionEstimator.OnBitmapImageProcessedEvent += ConsoleCamera.DisplayBitmapImage;
-                omniCamera.BitmapPanoramaImageEvent += ConsoleCamera.DisplayBitmapImage;
-                ConsoleCamera.CalibrateCameraEvent += omniCamera.CalibrateFishEye;
-                ConsoleCamera.ResetCalibrationCameraEvent += omniCamera.ResetFishEyeCalibration;
-                ConsoleCamera.StartCameraEvent += omniCamera.StartAcquisition;
-                ConsoleCamera.StopCameraEvent += omniCamera.StopAcquisition;
+                //omniCamera.BitmapFishEyeImageEvent += ConsoleCamera.DisplayBitmapImage;
+                //omniCamera.BitmapPanoramaImageEvent += ConsoleCamera.DisplayBitmapImage;
+                //ConsoleCamera.CalibrateCameraEvent += omniCamera.CalibrateFishEye;
+                //ConsoleCamera.ResetCalibrationCameraEvent += omniCamera.ResetFishEyeCalibration;
+                //ConsoleCamera.StartCameraEvent += omniCamera.StartAcquisition;
+                //ConsoleCamera.StopCameraEvent += omniCamera.StopAcquisition;
             }
 
             if (usingLogReplay)
@@ -515,9 +509,8 @@ namespace Robot
             
             if (usingYolo)
             {
-                omniCamera.BitmapPanoramaImageEvent += yoloDetector.SetNewYoloImageToProcess;        //On envoie l'image dewrappée dans le detecteur Yolo, et on effectue la detection avec les poids UTLN
-                yoloDetector.OnYoloBitmapImageProcessedAndLabelledEvent += ConsoleCamera.DisplayBitmapImage;       //Event d'image processée et labelisée
-                //yoloDetector.OnYoloImageProcessedAndLabelled_LabelEvent += ConsoleCamera.DisplayMessageInConsole;       //Permet d'afficher du txt dans la console camera
+                //omniCamera.BitmapPanoramaImageEvent += yoloDetector.SetNewYoloImageToProcess;        //On envoie l'image dewrappée dans le detecteur Yolo, et on effectue la detection avec les poids UTLN
+                //yoloDetector.OnYoloBitmapImageProcessedAndLabelledEvent += ConsoleCamera.DisplayBitmapImage;       //Event d'image processée et labelisée
             }
 
         }
