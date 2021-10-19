@@ -67,7 +67,7 @@
     <Compile Include="StrategyEurobot\MissionPriseGobelet.cs" />
     <Compile Include="StrategyEurobot\MissionPhare.cs" />
     <Compile Include="StrategyEurobot\MissionZoneMouillage.cs" />
-    <Compile Include="StrategyEurobot\StrategieEurobot2021.cs" />
+    <Compile Include="StrategyEurobot\StrategyEurobot2021.cs" />
     <Compile Include="StrategyEurobot\DescripteurMatch.cs" />
     <Compile Include="StrategyEurobot\EnumsStrategy.cs" />
     <Compile Include="StrategyEurobot\TaskBrasDrapeau.cs" />
