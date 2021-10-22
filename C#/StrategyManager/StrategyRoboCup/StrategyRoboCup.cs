@@ -15,19 +15,23 @@ namespace StrategyManagerNS
 {
     public class StrategyRoboCup : StrategyGenerique
     {
-        Stopwatch sw = new Stopwatch();
+        public bool resetRequired = false;
+
+        public GameState gameState = GameState.STOPPED;
+        public StoppedGameAction stoppedGameAction = StoppedGameAction.NONE;
+
+        public TaskGameManagementRobocup taskGameManagement;
+        public TaskParametersModifiersRoboCup taskParametersModifiers;
+        public TaskAffichageLidarRoboCup taskAffichageLidar;
 
         RoboCupRobotRole role = RoboCupRobotRole.Stopped;
         public PointD robotDestination = new PointD(0, 0);
         PlayingSide playingSide = PlayingSide.Left;
         public BallHandlingState ballHandlingState = BallHandlingState.NoBall;
 
-        public GameState gameState = GameState.STOPPED;
-        public StoppedGameAction stoppedGameAction = StoppedGameAction.NONE;
 
         public string MessageDisplay = "Debug";
                 
-        public Location externalRefBoxPosition = new Location();
         TaskBallHandlingManagement taskBallHandlingManagement;
 
         Timer configTimer;
@@ -35,15 +39,28 @@ namespace StrategyManagerNS
         public StrategyRoboCup(int robotId, int teamId, string multicastIpAddress) : base(robotId, teamId, multicastIpAddress)
         {
             taskBallHandlingManagement = new TaskBallHandlingManagement(this);
+            InitHeatMap();
+            RayonRobot = 0.25*Math.Sqrt(2);
         }
+
+
+        public List<TaskBase> listTasks { get; private set; }
+        public List<MissionBase> listMissions { get; private set; }
 
         public override void InitStrategy(int robotId, int teamId)
         {
-            //On initialisae le timer de réglage récurrent 
-            //Il permet de modifier facilement les paramètre des asservissement durant l'exécution
-            configTimer = new System.Timers.Timer(1000);
-            configTimer.Elapsed += ConfigTimer_Elapsed;
-            configTimer.Start();
+            listTasks = new List<TaskBase>();
+            listMissions = new List<MissionBase>();
+
+            taskGameManagement = new TaskGameManagementRobocup(this);
+            listTasks.Add(taskGameManagement);
+            taskAffichageLidar = new TaskAffichageLidarRoboCup(this);
+            listTasks.Add(taskAffichageLidar);
+            taskParametersModifiers = new TaskParametersModifiersRoboCup(this);
+            listTasks.Add(taskParametersModifiers);
+
+            /// Ajout des events
+            OnIOValuesFromRobotEvent += OnIOValuesFromRobotEventReceived;
 
             //Obtenus directement à partir du script Matlab
             OnOdometryPointToMeter(4.261590e-06);
@@ -73,10 +90,19 @@ namespace StrategyManagerNS
             OnSetAsservissementMode((byte)AsservissementMode.Independant4Wheels);
         }
 
+        public void OnIOValuesFromRobotEventReceived(object sender, IOValuesEventArgs e)
+        {
+            bool config0 = (((e.ioValues >> 0) & 0x01) == 0x01);
+            bool config1 = (((e.ioValues >> 1) & 0x01) == 0x01);
+            bool config2 = (((e.ioValues >> 2) & 0x01) == 0x01);
+            bool config3 = (((e.ioValues >> 3) & 0x01) == 0x01);
+            bool config4 = (((e.ioValues >> 4) & 0x01) == 0x01);
+        }
+
         public override void InitHeatMap()
         {
-            strategyHeatMap = new Heatmap(22.0, 14.0, (int)Math.Pow(2, 6)); //Init HeatMap
-            WayPointHeatMap = new Heatmap(22.0, 14.0, (int)Math.Pow(2, 6)); //Init HeatMap
+            strategyHeatMap = new Heatmap(22.0, 14.0, (int)Math.Pow(2, 7)); //Init HeatMap
+            WayPointHeatMap = new Heatmap(22.0, 14.0, (int)Math.Pow(2, 7)); //Init HeatMap
         }
 
         public override List<LocationExtended> FilterObstacleList(List<LocationExtended> obstacleList)
@@ -95,7 +121,6 @@ namespace StrategyManagerNS
             /// et on détermine le rôle du robot.
             /// 
 
-
             switch (gameState)
             {
                 case GameState.STOPPED:
@@ -110,7 +135,7 @@ namespace StrategyManagerNS
                         /// 
                         /// On regarde si une des équipe a la balle
                         /// 
-                        
+
                         Dictionary<int, TeamMateRoleClassifier> teamRoleClassifier = new Dictionary<int, TeamMateRoleClassifier>();
                         foreach (var teammate in globalWorldMap.teammateLocationList)
                         {
@@ -268,12 +293,9 @@ namespace StrategyManagerNS
             OnRole(robotId, role);
             OnBallHandlingState(robotId, BallHandlingState.NoBall);
             OnMessageDisplay(robotId, MessageDisplay);
-            
-            /// En fonction du rôle attribué, on définit les zones de préférence, les zones à éviter et les zones d'exclusion
-            DefinePlayerZones(role);
         }
 
-        public void DefinePlayerZones(RoboCupRobotRole role)
+        public override void DetermineRobotZones()
         {
             ///On exclut d'emblée les surface de réparation pour tous les joueurs
             if (role != RoboCupRobotRole.Gardien)
@@ -326,7 +348,7 @@ namespace StrategyManagerNS
                     break;
 
                 case RoboCupRobotRole.Positioning:
-                    AddPreferedZone(new PointD(externalRefBoxPosition.X, externalRefBoxPosition.Y), 5);
+                    //AddPreferedZone(new PointD(externalRefBoxPosition.X, externalRefBoxPosition.Y), 5);
                     robotOrientation = 0;
                     break;
 
@@ -415,14 +437,14 @@ namespace StrategyManagerNS
                     ///     Pour cela il faudrait idéalement placer une zone de pénalisation conique de centre le joueur dans l'axe de chaque adversaire
                     /// Il doit également se placer dans un position de tir possible 
                     ///     Pour cela il faudrait idéalement placer une zone de pénalisation conique de centre le but dans l'axe de chaque adversaire
-                    
+
                     if (playingSide == PlayingSide.Left)
                     {
                         AddPreferredSegmentZoneList(new PointD(7, -3), new PointD(7, 3), 3, 1);
                         //AddPreferedZone(new PointD(8, 3), 3, 0.1);
                         //AddPreferedZone(new PointD(8, -3), 3, 0.1);
                     }
-                        else
+                    else
                     {
                         //AddPreferredSegmentZoneList(new PointD(-7, -3), new PointD(-7, 3), 3, 1);
                         //AddPreferedZone(new PointD(-8, 3), 3, 0.1);
@@ -431,7 +453,7 @@ namespace StrategyManagerNS
 
                     foreach (var adversaire in globalWorldMap.obstacleLocationList)
                     {
-                        AddAvoidanceConicalZoneList(new PointD(robotCurrentLocation.X, robotCurrentLocation.Y), new PointD(adversaire.X, adversaire.Y), 1);                        
+                        AddAvoidanceConicalZoneList(new PointD(robotCurrentLocation.X, robotCurrentLocation.Y), new PointD(adversaire.X, adversaire.Y), 1);
                     }
                     if (globalWorldMap.ballLocationList.Count > 0)
                         robotOrientation = Math.Atan2(globalWorldMap.ballLocationList[0].Y - robotCurrentLocation.Y, globalWorldMap.ballLocationList[0].X - robotCurrentLocation.X);
@@ -446,7 +468,7 @@ namespace StrategyManagerNS
                         /// On va placer un défenseur à une distance définie de l'attaquant, sur la ligne attaquant but
                         /// Les zones d'intérêt sont devant les deux attaquants les plus en pointe
                         /// Il faut donc commencer par les trouver
-                        
+
                         Dictionary<int, TeamMateRoleClassifier> adversaireClassifier = new Dictionary<int, TeamMateRoleClassifier>();
                         int i = 0;
                         foreach (var adversaire in globalWorldMap.obstacleLocationList)
@@ -470,8 +492,8 @@ namespace StrategyManagerNS
                                 AddPreferedZone(offensiveGoalPosition, 5);
                                 robotOrientation = Math.Atan2(offensiveGoalPosition.Y - robotCurrentLocation.Y, offensiveGoalPosition.X - robotCurrentLocation.X);
                                 /// Si on est suffisament proche du but, on tire
-                                if(Toolbox.Distance(new PointD(robotCurrentLocation.X, robotCurrentLocation.Y), offensiveGoalPosition) < 4)
-                                    {
+                                if (Toolbox.Distance(new PointD(robotCurrentLocation.X, robotCurrentLocation.Y), offensiveGoalPosition) < 4)
+                                {
                                     ///On tire !
                                     OnShootRequest(robotId, 6);
                                 }
@@ -501,8 +523,9 @@ namespace StrategyManagerNS
                     break;
 
 
-                                }
+            }
         }
+
         public override void IterateStateMachines()
         {
 
@@ -644,7 +667,7 @@ namespace StrategyManagerNS
                     if (e.refBoxMsg.robotID == robotId)
                     {
                         gameState = GameState.STOPPED_GAME_POSITIONING;
-                        externalRefBoxPosition = new Location(e.refBoxMsg.posX, e.refBoxMsg.posY, e.refBoxMsg.posTheta, 0, 0, 0);
+                        //externalRefBoxPosition = new Location(e.refBoxMsg.posX, e.refBoxMsg.posY, e.refBoxMsg.posTheta, 0, 0, 0);
                         if (targetTeam == teamIpAddress)
                             stoppedGameAction = StoppedGameAction.GOTO;
                         else

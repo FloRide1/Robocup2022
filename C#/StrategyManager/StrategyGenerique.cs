@@ -162,10 +162,13 @@ namespace StrategyManagerNS
                     /// On ajoute une zone préférée autour du point RobotDestination
                     preferredZonesList.Add(new Zone(robotDestination, 3.0, 1.0));
                     
-                    //Le joueur détermine sa stratégie
-                    sw.Restart();
+                    /// On commence par définir le rôle du robot
                     DetermineRobotRole();  //if (displayConsole) Console.WriteLine("Tps calcul détermination des rôles : " + sw.Elapsed.TotalMilliseconds.ToString("N4") + " ms"); sw.Restart();
 
+                    /// On défini ensuite les zones autorisées et préférées du robot
+                    DetermineRobotZones();
+
+                    /// Itération sur les machines à états
                     IterateStateMachines(); //if (displayConsole) Console.WriteLine("Tps calcul State machines : " + sw.Elapsed.TotalMilliseconds.ToString("N4") + " ms");  sw.Restart();
 
                     GenerateStrategyHeatMap(); //if (displayConsole) Console.WriteLine("Tps calcul Heatmap Destination : " + sw.Elapsed.TotalMilliseconds.ToString("N4") + " ms");  sw.Restart();
@@ -265,7 +268,9 @@ namespace StrategyManagerNS
             InitPreferredSegmentZoneList();
         }
 
+
         public abstract void DetermineRobotRole(); //A définir dans les classes héritées
+        public abstract void DetermineRobotZones(); //A définir dans les classes héritées
 
         public abstract void IterateStateMachines(); //A définir dans les classes héritées
 

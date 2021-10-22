@@ -63,24 +63,41 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="MissionBase.cs" />
-    <Compile Include="StrategyEurobot\MissionDeposeGobelet.cs" />
-    <Compile Include="StrategyEurobot\MissionPriseGobelet.cs" />
-    <Compile Include="StrategyEurobot\MissionPhare.cs" />
-    <Compile Include="StrategyEurobot\MissionZoneMouillage.cs" />
-    <Compile Include="StrategyEurobot\StrategyEurobot2021.cs" />
-    <Compile Include="StrategyEurobot\DescripteurMatch.cs" />
-    <Compile Include="StrategyEurobot\EnumsStrategy.cs" />
-    <Compile Include="StrategyEurobot\TaskBrasDrapeau.cs" />
-    <Compile Include="StrategyEurobot\TaskBrasDeclencheur.cs" />
-    <Compile Include="StrategyEurobot\TaskParametersModifiers.cs" />
-    <Compile Include="StrategyEurobot\TaskAffichageLidar.cs" />
-    <Compile Include="StrategyEurobot\TaskBrasTurbine.cs" />
-    <Compile Include="StrategyEurobot\TaskGameManagement.cs" />
-    <Compile Include="StrategyEurobot\MissionWindFlag.cs" />
+    <Compile Include="StrategyEurobot2021\Eurobot2021MissionDeposeGobelet.cs" />
+    <Compile Include="StrategyEurobot2021\Eurobot2021MissionPriseGobelet.cs" />
+    <Compile Include="StrategyEurobot2021\Eurobot2021MissionPhare.cs" />
+    <Compile Include="StrategyEurobot2021\Eurobot2021MissionZoneMouillage.cs" />
+    <Compile Include="StrategyEurobot2021\StrategyEurobot2021.cs" />
+    <Compile Include="StrategyEurobot2021\Eurobot2021MatchDescriptor.cs" />
+    <Compile Include="StrategyEurobot2021\Eurobot2021EnumsStrategy.cs" />
+    <Compile Include="StrategyEurobot2021\Eurobot2021TaskBrasDrapeau.cs" />
+    <Compile Include="StrategyEurobot2021\Eurobot2021TaskBrasDeclencheur.cs" />
+    <Compile Include="StrategyEurobot2021\Eurobot2021TaskParametersModifiersEurobot.cs" />
+    <Compile Include="StrategyEurobot2021\Eurobot2021TaskAffichageLidarEurobot.cs" />
+    <Compile Include="StrategyEurobot2021\Eurobot2021TaskBrasTurbine.cs" />
+    <Compile Include="StrategyEurobot2021\Eurobot2021TaskGameManagementEurobot.cs" />
+    <Compile Include="StrategyEurobot2021\Eurobot2021MissionWindFlag.cs" />
+    <Compile Include="StrategyEurobot2022\Eurobot2022MatchDescriptor.cs" />
+    <Compile Include="StrategyEurobot2022\Eurobot2022MissionDeposeGobelet.cs" />
+    <Compile Include="StrategyEurobot2022\Eurobot2022MissionPhare.cs" />
+    <Compile Include="StrategyEurobot2022\Eurobot2022MissionPriseGobelet.cs" />
+    <Compile Include="StrategyEurobot2022\Eurobot2022MissionWindFlag.cs" />
+    <Compile Include="StrategyEurobot2022\Eurobot2022MissionZoneMouillage.cs" />
+    <Compile Include="StrategyEurobot2022\Eurobot2022TaskAffichageLidarEurobot.cs" />
+    <Compile Include="StrategyEurobot2022\Eurobot2022TaskBrasDeclencheur.cs" />
+    <Compile Include="StrategyEurobot2022\Eurobot2022TaskBrasDrapeau.cs" />
+    <Compile Include="StrategyEurobot2022\Eurobot2022TaskBrasTurbine.cs" />
+    <Compile Include="StrategyEurobot2022\Eurobot2022TaskGameManagementEurobot.cs" />
+    <Compile Include="StrategyEurobot2022\Eurobot2022TaskParametersModifiersEurobot.cs" />
+    <Compile Include="StrategyEurobot2022\Eurobot2022EnumsStrategy.cs" />
+    <Compile Include="StrategyEurobot2022\StrategyEurobot2022.cs" />
     <Compile Include="StrategyGenerique.cs" />
-    <Compile Include="StrategyRoboCup\StrategyRoboCup.cs" />
+    <Compile Include="StrategyRoboCup\StrategyRobocup.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="StrategyRoboCup\TaskAffichageLidarRoboCup.cs" />
     <Compile Include="StrategyRoboCup\TaskBallHandlingManagement.cs" />
+    <Compile Include="StrategyRoboCup\TaskGameManagementRobocup.cs" />
+    <Compile Include="StrategyRoboCup\TaskParametersModifiersRoboCup.cs" />
     <Compile Include="TaskBase.cs" />
   </ItemGroup>
   <ItemGroup>
