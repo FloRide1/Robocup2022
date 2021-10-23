@@ -179,6 +179,44 @@ namespace Utilities
             else
                 return null;
         }
+
+        public static Location OffsetLocation(Location l, Location offset)
+        {
+            var angle = l.Theta - offset.Theta;
+            var vangle = l.Vtheta - offset.Vtheta;
+            var xTranslate = l.X - offset.X;
+            var yTranslate = l.Y - offset.Y;
+            var xOffset = Math.Cos(-offset.Theta) * xTranslate - Math.Sin(-offset.Theta) * yTranslate;
+            var yOffset = Math.Sin(-offset.Theta) * xTranslate + Math.Cos(-offset.Theta) * yTranslate;
+            var vxTranslate = l.Vx - offset.Vx;
+            var vyTranslate = l.Vy - offset.Vy;
+            var vxOffset = Math.Cos(-offset.Theta) * vxTranslate - Math.Sin(-offset.Theta) * vyTranslate;
+            var vyOffset = Math.Sin(-offset.Theta) * vxTranslate + Math.Cos(-offset.Theta) * vyTranslate;
+            return new Location(xOffset, yOffset, angle, vxOffset, vyOffset, 0);
+        }
+        public static LocationExtended OffsetLocation(LocationExtended l, Location offset)
+        {
+            var angle = l.Theta - offset.Theta;
+            var vangle = l.Vtheta - offset.Vtheta;
+            var xTranslate = l.X - offset.X;
+            var yTranslate = l.Y - offset.Y;
+            var xOffset = Math.Cos(-offset.Theta) * xTranslate - Math.Sin(-offset.Theta) * yTranslate;
+            var yOffset = Math.Sin(-offset.Theta) * xTranslate + Math.Cos(-offset.Theta) * yTranslate;
+            var vxTranslate = l.Vx - offset.Vx;
+            var vyTranslate = l.Vy - offset.Vy;
+            var vxOffset = Math.Cos(offset.Theta) * vxTranslate - Math.Sin(offset.Theta) * vyTranslate;
+            var vyOffset = Math.Sin(offset.Theta) * vxTranslate + Math.Cos(offset.Theta) * vyTranslate;
+            return new LocationExtended(xOffset, yOffset, angle, vxOffset, vyOffset, 0, l.Type);
+        }
+
+        public static PointD OffsetLocation(PointD pt, Location offset)
+        {
+            var xTranslate = pt.X - offset.X;
+            var yTranslate = pt.Y - offset.Y;
+            var xOffset = Math.Cos(-offset.Theta) * xTranslate - Math.Sin(-offset.Theta) * yTranslate;
+            var yOffset = Math.Sin(-offset.Theta) * xTranslate + Math.Cos(-offset.Theta) * yTranslate;
+            return new PointD(xOffset, yOffset);
+        }
     }
 }
 

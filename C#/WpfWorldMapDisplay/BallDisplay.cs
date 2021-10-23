@@ -77,7 +77,7 @@ namespace WpfWorldMapDisplay
                 double angleTeteFleche = Math.PI / 6;
                 double longueurTeteFleche = 0.30;
                 double LongueurFleche = Math.Sqrt(location.Vx * location.Vx + location.Vy * location.Vy);
-                double headingAngle = Math.Atan2(location.Vy, location.Vx) + location.Theta;
+                double headingAngle = Math.Atan2(location.Vy, location.Vx);// + location.Theta;
                 double xTete = LongueurFleche * Math.Cos(headingAngle);
                 double yTete = LongueurFleche * Math.Sin(headingAngle);
 

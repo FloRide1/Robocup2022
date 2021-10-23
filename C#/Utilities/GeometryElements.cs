@@ -45,6 +45,17 @@ namespace Utilities
             X2 = ptFin.X;
             Y2 = ptFin.Y;
         }
+
+        public PointD PtDebut
+        {
+            get { return new PointD(X1, Y1); }
+            private set { X1 = PtDebut.X; Y1 = PtDebut.Y; }
+        }
+        public PointD PtFin
+        {
+            get { return new PointD(X2, Y2); }
+            private set { X2 = PtFin.X; Y2 = PtFin.Y; }
+        }
     }
 
     public class Point3D
@@ -294,5 +305,7 @@ namespace Utilities
             Strength = strength;
         }
     }
+
+
 
 }

@@ -139,6 +139,7 @@ namespace WorldMapManager
                         //foreach (var obstacle in localMap.Value.obstaclesLocationList)
                         foreach (var obstacle in ObstacleLocationListCopy)
                         {
+
                             if (obstacle != null)
                             {
                                 bool skipNext = false;
@@ -149,48 +150,44 @@ namespace WorldMapManager
                                 ///         Si ce n'est pas le cas, on l'ajoute à la liste des obtacles
                                 ///         Si c'est le cas, on le fusionne en moyennant ses coordonnées de manière pondérée 
                                 ///             et on renforce le poids de cet obstacle
-
-                                try
+                                ///             
+                                bool isObstacleTeamMate = false;
+                                
+                                foreach (var teamMateRobot in globalWorldMap.teammateLocationList)
                                 {
-                                    foreach (var teamMateRobot in globalWorldMap.teammateLocationList)
+                                    if (Toolbox.Distance(new PointD(obstacle.X, obstacle.Y), new PointD(teamMateRobot.Value.X, teamMateRobot.Value.Y)) < distanceMaxFusionTeamMate)
                                     {
-                                        if (Toolbox.Distance(new PointD(obstacle.X, obstacle.Y), new PointD(teamMateRobot.Value.X, teamMateRobot.Value.Y)) < distanceMaxFusionTeamMate)
-                                        {
-                                            /// L'obstacle est un robot, on abandonne
-                                            skipNext = true;
-                                            break;
-                                        }
+                                        /// L'obstacle est un robot, on abandonne
+                                        isObstacleTeamMate = true;
+                                        break;
                                     }
                                 }
-                                catch
-                                {
+                                //if (skipNext == false)
+                                //{
+                                //try
+                                //{
+                                //    /// Si on arrive ici c'est que l'obstacle n'est pas un robot de l'équipe
+                                //    foreach (var obstacleConnu in globalWorldMap.obstacleLocationList)
+                                //    {
+                                //        if (Toolbox.Distance(new PointD(obstacle.X, obstacle.Y), new PointD(obstacleConnu.X, obstacleConnu.Y)) < distanceMaxFusionObstacle)
+                                //        {
+                                //            //L'obstacle est déjà connu, on le fusionne /TODO : améliorer la fusion avec pondération
+                                //            obstacleConnu.X = (obstacleConnu.X + obstacle.X) / 2;
+                                //            obstacleConnu.Y = (obstacleConnu.Y + obstacle.Y) / 2;
+                                //            skipNext = true;
+                                //            break;
+                                //        }
+                                //    }
+                                //}
+                                //catch
+                                //{
 
-                                }
-                                if (skipNext == false)
-                                {
-                                    try
-                                    {
-                                        /// Si on arrive ici c'est que l'obstacle n'est pas un robot de l'équipe
-                                        foreach (var obstacleConnu in globalWorldMap.obstacleLocationList)
-                                        {
-                                            if (Toolbox.Distance(new PointD(obstacle.X, obstacle.Y), new PointD(obstacleConnu.X, obstacleConnu.Y)) < distanceMaxFusionObstacle)
-                                            {
-                                                //L'obstacle est déjà connu, on le fusionne /TODO : améliorer la fusion avec pondération
-                                                obstacleConnu.X = (obstacleConnu.X + obstacle.X) / 2;
-                                                obstacleConnu.Y = (obstacleConnu.Y + obstacle.Y) / 2;
-                                                skipNext = true;
-                                                break;
-                                            }
-                                        }
-                                    }
-                                    catch
-                                    {
+                                //}
+                                //if (skipNext == false)
 
-                                    }
-                                }
-                                if (skipNext == false)
+                                /// Si on arrive ici, c'est que l'obstacle n'était pas connu, on l'ajoute
+                                if (!isObstacleTeamMate)
                                 {
-                                    /// Si on arrive ici, c'est que l'obstacle n'était pas connu, on l'ajoute
                                     try
                                     {
                                         globalWorldMap.obstacleLocationList.Add(obstacle);

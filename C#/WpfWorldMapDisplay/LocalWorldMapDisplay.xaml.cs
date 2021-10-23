@@ -63,6 +63,8 @@ namespace WpfWorldMapDisplay
 
         public bool IsExtended = false;
 
+        public bool robotRefDisplay = false;
+
         double LengthGameArea = 0;
         double WidthGameArea = 0;
         double LengthDisplayArea = 0;
@@ -280,20 +282,22 @@ namespace WpfWorldMapDisplay
                     {
                         PolygonExtended robotShape = new PolygonExtended();
                         robotShape.polygon.Points.Add(new System.Windows.Point(-0.25, -0.25));
-                        robotShape.polygon.Points.Add(new System.Windows.Point(0.25, -0.25));
-                        robotShape.polygon.Points.Add(new System.Windows.Point(0.2, 0));
-                        robotShape.polygon.Points.Add(new System.Windows.Point(0.25, 0.25));
+                        //robotShape.polygon.Points.Add(new System.Windows.Point(0.25, -0.25));
+                        robotShape.polygon.Points.Add(new System.Windows.Point(0.25, 0));
+                        //robotShape.polygon.Points.Add(new System.Windows.Point(0.25, 0.25));
                         robotShape.polygon.Points.Add(new System.Windows.Point(-0.25, 0.25));
+                        robotShape.polygon.Points.Add(new System.Windows.Point(0, 0));
                         robotShape.polygon.Points.Add(new System.Windows.Point(-0.25, -0.25));
                         robotShape.borderColor = System.Drawing.Color.Blue;
                         robotShape.backgroundColor = System.Drawing.Color.Red;
 
                         PolygonExtended ghostShape = new PolygonExtended();
                         ghostShape.polygon.Points.Add(new Point(-0.27, -0.27));
-                        ghostShape.polygon.Points.Add(new Point(0.27, -0.27));
-                        ghostShape.polygon.Points.Add(new Point(0.22, 0.02));
-                        ghostShape.polygon.Points.Add(new Point(0.27, 0.27));
+                        //ghostShape.polygon.Points.Add(new Point(0.27, -0.27));
+                        ghostShape.polygon.Points.Add(new Point(0.27, 0.02));
+                        //ghostShape.polygon.Points.Add(new Point(0.27, 0.27));
                         ghostShape.polygon.Points.Add(new Point(-0.27, 0.27));
+                        ghostShape.polygon.Points.Add(new System.Windows.Point(0, 0));
                         ghostShape.polygon.Points.Add(new Point(-0.27, -0.27));
                         ghostShape.backgroundColor = System.Drawing.Color.FromArgb(20, 0, 255, 0);
                         ghostShape.borderColor = System.Drawing.Color.Black;
@@ -326,14 +330,19 @@ namespace WpfWorldMapDisplay
 
         public void UpdateLocalWorldMap(LocalWorldMap localWorldMap)
         {
+            ///Gestion du décalage d'affichage autour d'un point donné, par exemple le robot lui-même.
+            Location mapCenter = new Location();
+            if (robotRefDisplay)
+                mapCenter = localWorldMap.robotLocation;
+
             swUpdateLWM.Restart();
             int robotId = localWorldMap.RobotId;
-            UpdateRobotLocation(robotId, localWorldMap.robotLocation);
+            UpdateRobotLocation(robotId, localWorldMap.robotLocation, mapCenter);
             UpdateRobotRole(robotId, localWorldMap.robotRole);
             UpdatePlayingSide(robotId, localWorldMap.playingSide);
-            UpdateRobotGhostLocation(robotId, localWorldMap.robotGhostLocation);
-            UpdateRobotDestination(robotId, localWorldMap.destinationLocation);
-            UpdateRobotWaypoint(robotId, localWorldMap.waypointLocation);
+            UpdateRobotGhostLocation(robotId, localWorldMap.robotGhostLocation, mapCenter);
+            UpdateRobotDestination(robotId, localWorldMap.destinationLocation, mapCenter);
+            UpdateRobotWaypoint(robotId, localWorldMap.waypointLocation, mapCenter);
             if (lwmdType == LocalWorldMapDisplayType.StrategyMap)
             {
                 if (localWorldMap.heatMapStrategy != null)
@@ -347,18 +356,30 @@ namespace WpfWorldMapDisplay
             //Affichage du lidar uniquement dans la strategy map
             if (lwmdType == LocalWorldMapDisplayType.StrategyMap)
             {
-                UpdateLidarMap(robotId, localWorldMap.lidarRawPtsList, LidarDataType.RawPtsList);
-                UpdateLidarMap(robotId, localWorldMap.lidarProcessedPtsList, LidarDataType.ProcessedPtsList);
-                UpdateStrategyObjects(robotId, localWorldMap.strategyPtsList);
-                UpdateLidarSegments(robotId, localWorldMap.lidarSegmentList);
+                var lidarRawPtsListRefMapCenter = localWorldMap.lidarRawPtsList.Select(
+                           pt => new PointDExtended(Toolbox.OffsetLocation(pt.Pt, mapCenter),
+                               pt.Color, pt.Width)).ToList();
+                UpdateLidarMap(robotId, lidarRawPtsListRefMapCenter, LidarDataType.RawPtsList);
+
+                var lidarProcessedPtsListRefMapCenter = localWorldMap.lidarProcessedPtsList.Select(
+                           pt => new PointDExtended(Toolbox.OffsetLocation(pt.Pt, mapCenter),
+                               pt.Color, pt.Width)).ToList();
+                UpdateLidarMap(robotId, lidarProcessedPtsListRefMapCenter, LidarDataType.ProcessedPtsList);
+
+                var strategyPtsListRefMapCenter = localWorldMap.strategyPtsList.Select(
+                           pt => new PointDExtended(Toolbox.OffsetLocation(pt.Pt, mapCenter),
+                               pt.Color, pt.Width)).ToList();
+                UpdateStrategyObjects(robotId, strategyPtsListRefMapCenter);
+
+                var lidarSegmentListRefMapCenter = localWorldMap.lidarSegmentList.Select(
+                           segment => new SegmentExtended(Toolbox.OffsetLocation(segment.Segment.PtDebut, mapCenter),
+                           Toolbox.OffsetLocation(segment.Segment.PtFin, mapCenter), segment.Color, segment.Width)).ToList();
+                UpdateLidarSegments(robotId, lidarSegmentListRefMapCenter);
             }
-            //UpdateLidarObjects(robotId, localWorldMap.lidarObjectList);
-            //UpdateStrategyObjects(robotId, localWorldMap.strategyObjectList);
-            UpdateObstacleList(localWorldMap.obstaclesLocationList);
-            UpdateBallLocationList(localWorldMap.ballLocationList);
 
-            /// La demande d'affichage de la World Map reçue est inutile, on le fait sur timer
-
+            UpdateObstacleList(localWorldMap.obstaclesLocationList, mapCenter);
+            UpdateBallLocationList(localWorldMap.ballLocationList, mapCenter);
+                        
             /// Validé en fonctionnnement fluide 100 appels seconde
             //swUpdateLWM.Stop();
             //Console.WriteLine("sw Update LWM - tps global : " + swUpdateLWM.Elapsed.TotalMilliseconds.ToString("N3") + " ms");
@@ -497,13 +518,13 @@ namespace WpfWorldMapDisplay
             SegmentSeries.RedrawAll();
         }               
 
-        private void UpdateRobotLocation(int robotId, Location location)
+        private void UpdateRobotLocation(int robotId, Location location, Location MapCenter)
         {
             if (location == null)
                 return;
             if (TeamMatesDisplayDictionary.ContainsKey(robotId))
             {
-                TeamMatesDisplayDictionary[robotId].SetLocation(location);
+                TeamMatesDisplayDictionary[robotId].SetLocation(Toolbox.OffsetLocation(location, MapCenter));
             }
             else
             {
@@ -533,13 +554,13 @@ namespace WpfWorldMapDisplay
             }
         }
 
-        private void UpdateRobotGhostLocation(int robotId, Location location)
+        private void UpdateRobotGhostLocation(int robotId, Location location, Location mapCenter)
         {
             if (location == null)
                 return;
             if (TeamMatesDisplayDictionary.ContainsKey(robotId))
             {
-                TeamMatesDisplayDictionary[robotId].SetGhostLocation(location);
+                TeamMatesDisplayDictionary[robotId].SetGhostLocation(Toolbox.OffsetLocation(location, mapCenter));
             }
             else
             {
@@ -598,7 +619,7 @@ namespace WpfWorldMapDisplay
             }
         }
 
-        public void UpdateBallLocationList(List<Location> ballLocationList)
+        public void UpdateBallLocationList(List<Location> ballLocationList, Location mapCenter)
         {
             if (ballLocationList != null)
             {
@@ -606,14 +627,14 @@ namespace WpfWorldMapDisplay
                 {
                     BallDisplayList.Clear();
                     foreach (var ballLocation in ballLocationList)
-                    {
-                        BallDisplayList.Add(new BallDisplay(ballLocation));
+                    {                        
+                        BallDisplayList.Add(new BallDisplay(Toolbox.OffsetLocation(ballLocation, mapCenter)));
                     }
                 }
             }
         }
 
-        public void UpdateObstacleList(List<LocationExtended> obstacleList)
+        public void UpdateObstacleList(List<LocationExtended> obstacleList, Location mapCenter)
         {
             if (obstacleList != null)
             {
@@ -624,7 +645,7 @@ namespace WpfWorldMapDisplay
                     {
                         foreach (var obstacleLocation in obstacleList.ToList())
                         {
-                            ObstacleDisplayList.Add(new ObstacleDisplay(obstacleLocation));
+                            ObstacleDisplayList.Add(new ObstacleDisplay(Toolbox.OffsetLocation(obstacleLocation, mapCenter)));
                         }
                     }
                     catch
@@ -635,41 +656,44 @@ namespace WpfWorldMapDisplay
             }
         }
 
-        public void UpdateRobotWaypoint(int robotId, Location waypointLocation)
+        public void UpdateRobotWaypoint(int robotId, Location waypointLocation, Location mapCenter)
         {
             if (waypointLocation == null)
                 return;
             if (TeamMatesDisplayDictionary.ContainsKey(robotId))
             {
-                TeamMatesDisplayDictionary[robotId].SetWayPoint(waypointLocation.X, waypointLocation.Y, waypointLocation.Theta);
+                Location wpRefLocal = Toolbox.OffsetLocation(waypointLocation, mapCenter);
+                TeamMatesDisplayDictionary[robotId].SetWayPoint(wpRefLocal.X, wpRefLocal.Y, wpRefLocal.Theta);
             }
         }
 
 
 
-        public void UpdateRobotDestination(int robotId, Location destinationLocation)
+        public void UpdateRobotDestination(int robotId, Location destinationLocation, Location mapCenter)
         {
             if (destinationLocation == null)
                 return;
             if (TeamMatesDisplayDictionary.ContainsKey(robotId))
             {
-                TeamMatesDisplayDictionary[robotId].SetDestination(destinationLocation.X, destinationLocation.Y, destinationLocation.Theta);
+                Location destRefLocal = Toolbox.OffsetLocation(destinationLocation, mapCenter);
+                TeamMatesDisplayDictionary[robotId].SetDestination(destRefLocal.X, destRefLocal.Y, destRefLocal.Theta);
             }
         }
 
-        public void UpdateOpponentsLocation(int robotId, Location location)
-        {
-            if (location == null)
-                return;
-            if (OpponentDisplayDictionary.ContainsKey(robotId))
-            {
-                OpponentDisplayDictionary[robotId].SetLocation(location);
-            }
-            else
-            {
-                Console.WriteLine("UpdateOpponentsLocation : Robot non trouvé");
-            }
-        }
+        //public void UpdateOpponentsLocation(int robotId, Location location, Location mapCenter)
+        //{
+        //    if (location == null)
+        //        return;
+        //    if (OpponentDisplayDictionary.ContainsKey(robotId))
+        //    {
+        //        Location locRefLocal = Toolbox.OffsetLocation(location, mapCenter);
+        //        OpponentDisplayDictionary[robotId].SetLocation(locRefLocal);
+        //    }
+        //    else
+        //    {
+        //        Console.WriteLine("UpdateOpponentsLocation : Robot non trouvé");
+        //    }
+        //}
 
 
         void InitSoccerField()
