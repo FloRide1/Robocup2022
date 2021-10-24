@@ -345,8 +345,8 @@ namespace StrategyManagerNS
         }
         public override void InitHeatMap()
         {
-            strategyHeatMap = new Heatmap(3.0, 2.0, (int)Math.Pow(2, 7)); //Init HeatMap Strategy Eurobot
-            WayPointHeatMap = new Heatmap(3.0, 2.0, (int)Math.Pow(2, 7)); //Init HeatMap WayPoint Eurobot
+            strategyHeatMap = new Heatmap(3.0, 2.0, (int)Math.Pow(2, 7), robotId); //Init HeatMap Strategy Eurobot
+            WayPointHeatMap = new Heatmap(3.0, 2.0, (int)Math.Pow(2, 7), robotId); //Init HeatMap WayPoint Eurobot
         }
 
 

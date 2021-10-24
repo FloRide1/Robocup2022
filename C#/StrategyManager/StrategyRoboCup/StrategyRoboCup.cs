@@ -36,6 +36,8 @@ namespace StrategyManagerNS
 
         Timer configTimer;
 
+        bool useMulticast;
+
         public StrategyRoboCup(int robotId, int teamId, string multicastIpAddress) : base(robotId, teamId, multicastIpAddress)
         {
             taskBallHandlingManagement = new TaskBallHandlingManagement(this);
@@ -101,8 +103,8 @@ namespace StrategyManagerNS
 
         public override void InitHeatMap()
         {
-            strategyHeatMap = new Heatmap(22.0, 14.0, (int)Math.Pow(2, 7)); //Init HeatMap
-            WayPointHeatMap = new Heatmap(22.0, 14.0, (int)Math.Pow(2, 7)); //Init HeatMap
+            strategyHeatMap = new Heatmap(22.0, 14.0, (int)Math.Pow(2, 7), robotId); //Init HeatMap
+            WayPointHeatMap = new Heatmap(22.0, 14.0, (int)Math.Pow(2, 7), robotId); //Init HeatMap
         }
 
         public override List<LocationExtended> FilterObstacleList(List<LocationExtended> obstacleList)
@@ -167,11 +169,14 @@ namespace StrategyManagerNS
                             int rangDistanceBalle = -1;
                             if (globalWorldMap.ballLocationList.Count > 0)
                             {
-                                var ballPosition = new PointD(globalWorldMap.ballLocationList[0].X, globalWorldMap.ballLocationList[0].Y);
-                                for (int i = 0; i < teamRoleClassifier.Count(); i++)
+                                if (globalWorldMap.ballLocationList[0] != null)
                                 {
-                                    ///On ajoute à la liste en premier la distance à chacun des coéquipiers
-                                    teamRoleClassifier.ElementAt(i).Value.DistanceBalle = Toolbox.Distance(teamRoleClassifier.ElementAt(i).Value.Position, ballPosition);
+                                    var ballPosition = new PointD(globalWorldMap.ballLocationList[0].X, globalWorldMap.ballLocationList[0].Y);
+                                    for (int i = 0; i < teamRoleClassifier.Count(); i++)
+                                    {
+                                        ///On ajoute à la liste en premier la distance à chacun des coéquipiers
+                                        teamRoleClassifier.ElementAt(i).Value.DistanceBalle = Toolbox.Distance(teamRoleClassifier.ElementAt(i).Value.Position, ballPosition);
+                                    }
                                 }
                             }
 
@@ -297,9 +302,15 @@ namespace StrategyManagerNS
 
         public override void DetermineRobotZones()
         {
+            /// Bords du terrain
+            //AddStrictlyAllowedRectangle(new RectangleD(-11 + RayonRobot, 11 - RayonRobot, -7 + RayonRobot, 7 - RayonRobot));
+            //AddStrictlyAllowedConvexPolygon(new ConvexPolygonD(new List<PointD> { new PointD(-11, -7), new PointD(11, -7),
+            //    new PointD(11, 7), new PointD(-11, 7) }));
+
             ///On exclut d'emblée les surface de réparation pour tous les joueurs
             if (role != RoboCupRobotRole.Gardien)
             {
+                AddForbiddenRectangle(new RectangleD(-11, -11 + 0.75 + 0.2, -3.9 / 2 - 0.2, 3.9 / 2 + 0.2));
                 AddForbiddenRectangle(new RectangleD(-11, -11 + 0.75 + 0.2, -3.9 / 2 - 0.2, 3.9 / 2 + 0.2));
                 AddForbiddenRectangle(new RectangleD(+11 - 0.75 + 0.2, +11, -3.9 / 2 - 0.2, 3.9 / 2 + 0.2));
             }
@@ -366,11 +377,14 @@ namespace StrategyManagerNS
                         /// Il faut donc commencer par les trouver
                         Dictionary<int, TeamMateRoleClassifier> adversaireClassifier = new Dictionary<int, TeamMateRoleClassifier>();
                         int i = 0;
-                        foreach (var adversaire in globalWorldMap.obstacleLocationList)
+                        lock (globalWorldMap)
                         {
-                            var adv = new TeamMateRoleClassifier(new PointD(adversaire.X, adversaire.Y), RoboCupRobotRole.Adversaire);
-                            adv.DistanceButDefensif = Toolbox.Distance(new PointD(adversaire.X, adversaire.Y), defensiveGoalPosition);
-                            adversaireClassifier.Add(i++, adv);
+                            foreach (var adversaire in globalWorldMap.obstacleLocationList)
+                            {
+                                var adv = new TeamMateRoleClassifier(new PointD(adversaire.X, adversaire.Y), RoboCupRobotRole.Adversaire);
+                                adv.DistanceButDefensif = Toolbox.Distance(new PointD(adversaire.X, adversaire.Y), defensiveGoalPosition);
+                                adversaireClassifier.Add(i++, adv);
+                            }
                         }
 
                         /// A présent, on filtre la liste des adversaires de manière à trouver les joueurs les plus proches du but en défense
@@ -392,7 +406,10 @@ namespace StrategyManagerNS
                         }
 
                         if (globalWorldMap.ballLocationList.Count > 0)
-                            robotOrientation = Math.Atan2(globalWorldMap.ballLocationList[0].Y - robotCurrentLocation.Y, globalWorldMap.ballLocationList[0].X - robotCurrentLocation.X);
+                        {
+                            if (globalWorldMap.ballLocationList[0] != null)
+                                robotOrientation = Math.Atan2(globalWorldMap.ballLocationList[0].Y - robotCurrentLocation.Y, globalWorldMap.ballLocationList[0].X - robotCurrentLocation.X);
+                        }
 
                     }
                     break;
@@ -453,8 +470,9 @@ namespace StrategyManagerNS
 
                     foreach (var adversaire in globalWorldMap.obstacleLocationList)
                     {
-                        AddAvoidanceConicalZoneList(new PointD(robotCurrentLocation.X, robotCurrentLocation.Y), new PointD(adversaire.X, adversaire.Y), 1);
+                        AddAvoidanceConicalZoneList(Toolbox.OffsetLocation(new PointD(robotCurrentLocation.X, robotCurrentLocation.Y), robotCurrentLocation), Toolbox.OffsetLocation(new PointD(adversaire.X, adversaire.Y), robotCurrentLocation), 2);
                     }
+
                     if (globalWorldMap.ballLocationList.Count > 0)
                         robotOrientation = Math.Atan2(globalWorldMap.ballLocationList[0].Y - robotCurrentLocation.Y, globalWorldMap.ballLocationList[0].X - robotCurrentLocation.X);
 

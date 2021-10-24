@@ -217,6 +217,27 @@ namespace Utilities
             var yOffset = Math.Sin(-offset.Theta) * xTranslate + Math.Cos(-offset.Theta) * yTranslate;
             return new PointD(xOffset, yOffset);
         }
+
+        public static double ScalarProduct(SegmentExtended s1, SegmentExtended s2)
+        {
+            return (s1.Segment.X2 - s1.Segment.X1) * (s2.Segment.X2 - s2.Segment.X1) + (s1.Segment.Y2 - s1.Segment.Y1) * (s2.Segment.Y2 - s2.Segment.Y1);
+        }
+        public static double ScalarProduct(SegmentD s1, SegmentD s2)
+        {
+            return (s1.X2 - s1.X1) * (s2.X2 - s2.X1) + (s1.Y2 - s1.Y1) * (s2.Y2 - s2.Y1);
+        }
+        public static double Angle(SegmentD s1, SegmentD s2)
+        {
+            return Toolbox.Modulo2PiAngleRad(s2.Angle- s1.Angle);
+        }
+        public static double Angle(SegmentExtended s1, SegmentExtended s2)
+        {
+            return Toolbox.Modulo2PiAngleRad(s2.Segment.Angle - s1.Segment.Angle);
+        }
+        public static double VectorProduct(SegmentD s1, SegmentD s2)
+        {
+            return (s1.X2 - s1.X1) * (s2.Y2 - s2.Y1) - (s1.Y2 - s1.Y1) * (s2.X2 - s2.X1);
+        }
     }
 }
 

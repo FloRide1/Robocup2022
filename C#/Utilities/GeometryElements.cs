@@ -32,13 +32,13 @@ namespace Utilities
         }
     }
 
-    public class LineD
+    public class SegmentD
     {
         public double X1 { get; set; }
         public double Y1 { get; set; }
         public double X2 { get; set; }
         public double Y2 { get; set; }
-        public LineD(PointD ptDebut, PointD ptFin)
+        public SegmentD(PointD ptDebut, PointD ptFin)
         {
             X1 = ptDebut.X;
             Y1 = ptDebut.Y;
@@ -55,6 +55,12 @@ namespace Utilities
         {
             get { return new PointD(X2, Y2); }
             private set { X2 = PtFin.X; Y2 = PtFin.Y; }
+        }
+
+        public double Angle
+        {
+            get { return Math.Atan2(Y2 - Y1, X2 - X1); }
+            //private set { }
         }
     }
 
@@ -83,6 +89,80 @@ namespace Utilities
             Xmax = xMax;
             Ymin = yMin;
             Ymax = yMax;
+        }
+    }
+
+    public class ConvexPolygonD
+    {
+        public List<PointD> PtList;
+        public List<SegmentD> SegmentList;
+        public bool isConvex = true;
+
+        public ConvexPolygonD(List<PointD> ptList)
+        {
+            PtList = ptList;
+            SegmentList = new List<SegmentD>();
+
+            ///On génère l'ensemble des segments du polygone dans l'ordre
+            for (int i = 0; i < PtList.Count - 1; i++)
+            {
+                SegmentList.Add(new SegmentD(ptList[i], ptList[i + 1]));
+            }
+            if(PtList.Count>1)
+                SegmentList.Add(new SegmentD(ptList[PtList.Count-1], ptList[0]));
+
+            isConvex = IsConvex();
+        }
+
+        private bool IsConvex()
+        {
+            bool SegmentAngleMustBePositive = false;
+            if (SegmentList.Count >= 3)
+            {
+                if (Toolbox.Angle(SegmentList[SegmentList.Count - 1], SegmentList[0]) > 0)
+                    SegmentAngleMustBePositive = true;
+                else
+                    SegmentAngleMustBePositive = false;
+
+                for (int i = 0; i < SegmentList.Count - 1; i++)
+                {
+                    double angle = Toolbox.Angle(SegmentList[i], SegmentList[i+1]);
+                    if (angle < 0 && SegmentAngleMustBePositive == true)
+                        return false;
+                    if (angle > 0 && SegmentAngleMustBePositive == false)
+                        return false;
+                }
+
+                return true;
+            }
+            else 
+            {
+                return false;
+            }
+        }
+
+        public bool IsInside(PointD pt)
+        {
+            bool positiveSide = false;
+            var ptSegment = new SegmentD(SegmentList[0].PtDebut, pt);
+            double angle = Toolbox.VectorProduct(SegmentList[0], ptSegment);
+
+            if (angle > 0)
+                positiveSide = true;
+            else
+                positiveSide = false;
+
+            for (int i = 1; i < SegmentList.Count; i++)
+            {
+                ptSegment = new SegmentD(SegmentList[i].PtDebut, pt);
+                angle = Toolbox.VectorProduct(SegmentList[i], ptSegment);
+                if (angle < 0 && positiveSide == true)
+                    return false;
+                if (angle > 0 && positiveSide == false)
+                    return false;
+            }
+
+            return true;
         }
     }
 
@@ -220,6 +300,16 @@ namespace Utilities
             Vtheta = 0;
             Type = type;
         }
+        public LocationExtended(Location l, ObjectType type)
+        {
+            X = l.X;
+            Y = l.Y;
+            Theta = l.Theta;
+            Vx = l.Vx;
+            Vy = l.Vy;
+            Vtheta = l.Vtheta;
+            Type = type;
+        }
     }
 
     public class PolygonExtended
@@ -234,7 +324,7 @@ namespace Utilities
 
     public class SegmentExtended
     {
-        public LineD Segment;
+        public SegmentD Segment;
         public double Width = 10;
         public System.Drawing.Color Color = System.Drawing.Color.FromArgb(0xFF, 0xFF, 0xFF, 0xFF);
         public double Opacity = 1;
@@ -242,7 +332,7 @@ namespace Utilities
 
         public SegmentExtended(PointD ptDebut, PointD ptFin, System.Drawing.Color color, double width = 1)
         {
-            Segment = new LineD(ptDebut, ptFin);
+            Segment = new SegmentD(ptDebut, ptFin);
             Color = color;
             Width = width;
         }

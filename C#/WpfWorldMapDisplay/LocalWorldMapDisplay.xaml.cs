@@ -63,7 +63,7 @@ namespace WpfWorldMapDisplay
 
         public bool IsExtended = false;
 
-        public bool robotRefDisplay = false;
+        public bool robotRefDisplay = true;
 
         double LengthGameArea = 0;
         double WidthGameArea = 0;
@@ -429,10 +429,13 @@ namespace WpfWorldMapDisplay
             {
                 foreach (var ball in BallListCopy)
                 {
-                    //Affichage de la balle
-                    BallPolygon.AddOrUpdatePolygonExtended((int)BallId.Ball + indexBall, ball.GetBallPolygon());
-                    BallPolygon.AddOrUpdatePolygonExtended((int)BallId.Ball + indexBall + (int)Caracteristique.Speed, ball.GetBallSpeedArrow());
-                    indexBall++;
+                    if (ball != null)
+                    {
+                        //Affichage de la balle
+                        BallPolygon.AddOrUpdatePolygonExtended((int)BallId.Ball + indexBall, ball.GetBallPolygon());
+                        BallPolygon.AddOrUpdatePolygonExtended((int)BallId.Ball + indexBall + (int)Caracteristique.Speed, ball.GetBallSpeedArrow());
+                        indexBall++;
+                    }
                 }
             }));
 

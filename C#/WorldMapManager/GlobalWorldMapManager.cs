@@ -17,6 +17,12 @@ namespace WorldMapManager
 {
     public class GlobalWorldMapManager
     {
+        /// <summary>
+        /// La classe globalWorldMap ne sert plus à grand chose puisque la décision a été prise de 
+        /// passer à une perception de chacun des robots individuellement
+        /// On la conserve toutefois si on voulait par la suite rajouter des éléments de position des teammates
+        /// </summary>
+        /// 
         int RobotId;
         int TeamId;
         double freqRafraichissementWorldMap = 20;
@@ -50,12 +56,14 @@ namespace WorldMapManager
             switch(sender.GetType().Name)
             {
                 case "UDPMulticastInterpreter":
+                    /// Local World Map en provencance d'un autre robot
                     if (e.LocalWorldMap.RobotId != RobotId)
                         AddOrUpdateLocalWorldMap(e.LocalWorldMap);
                     else
                         ;
                     break;
                 case "LocalWorldMapManager":
+                    /// Local World Map en provenance du robot lui-même
                     if (e.LocalWorldMap.RobotId == RobotId)
                         AddOrUpdateLocalWorldMap(e.LocalWorldMap);
                     else
@@ -139,7 +147,6 @@ namespace WorldMapManager
                         //foreach (var obstacle in localMap.Value.obstaclesLocationList)
                         foreach (var obstacle in ObstacleLocationListCopy)
                         {
-
                             if (obstacle != null)
                             {
                                 bool skipNext = false;
@@ -152,47 +159,52 @@ namespace WorldMapManager
                                 ///             et on renforce le poids de cet obstacle
                                 ///             
                                 bool isObstacleTeamMate = false;
-                                
-                                foreach (var teamMateRobot in globalWorldMap.teammateLocationList)
+                                lock (globalWorldMap)
                                 {
-                                    if (Toolbox.Distance(new PointD(obstacle.X, obstacle.Y), new PointD(teamMateRobot.Value.X, teamMateRobot.Value.Y)) < distanceMaxFusionTeamMate)
+                                    foreach (var teamMateRobot in globalWorldMap.teammateLocationList)
                                     {
-                                        /// L'obstacle est un robot, on abandonne
-                                        isObstacleTeamMate = true;
-                                        break;
+                                        if (Toolbox.Distance(new PointD(obstacle.X, obstacle.Y), new PointD(teamMateRobot.Value.X, teamMateRobot.Value.Y)) < distanceMaxFusionTeamMate)
+                                        {
+                                            /// L'obstacle est un robot, on abandonne
+                                            isObstacleTeamMate = true;
+                                            break;
+                                        }
                                     }
-                                }
-                                //if (skipNext == false)
-                                //{
-                                //try
-                                //{
-                                //    /// Si on arrive ici c'est que l'obstacle n'est pas un robot de l'équipe
-                                //    foreach (var obstacleConnu in globalWorldMap.obstacleLocationList)
-                                //    {
-                                //        if (Toolbox.Distance(new PointD(obstacle.X, obstacle.Y), new PointD(obstacleConnu.X, obstacleConnu.Y)) < distanceMaxFusionObstacle)
-                                //        {
-                                //            //L'obstacle est déjà connu, on le fusionne /TODO : améliorer la fusion avec pondération
-                                //            obstacleConnu.X = (obstacleConnu.X + obstacle.X) / 2;
-                                //            obstacleConnu.Y = (obstacleConnu.Y + obstacle.Y) / 2;
-                                //            skipNext = true;
-                                //            break;
-                                //        }
-                                //    }
-                                //}
-                                //catch
-                                //{
+                                    //if (skipNext == false)
+                                    //{
+                                    //try
+                                    //{
+                                    //    /// Si on arrive ici c'est que l'obstacle n'est pas un robot de l'équipe
+                                    //    foreach (var obstacleConnu in globalWorldMap.obstacleLocationList)
+                                    //    {
+                                    //        if (Toolbox.Distance(new PointD(obstacle.X, obstacle.Y), new PointD(obstacleConnu.X, obstacleConnu.Y)) < distanceMaxFusionObstacle)
+                                    //        {
+                                    //            //L'obstacle est déjà connu, on le fusionne /TODO : améliorer la fusion avec pondération
+                                    //            obstacleConnu.X = (obstacleConnu.X + obstacle.X) / 2;
+                                    //            obstacleConnu.Y = (obstacleConnu.Y + obstacle.Y) / 2;
+                                    //            skipNext = true;
+                                    //            break;
+                                    //        }
+                                    //    }
+                                    //}
+                                    //catch
+                                    //{
 
-                                //}
-                                //if (skipNext == false)
+                                    //}
+                                    //if (skipNext == false)
 
-                                /// Si on arrive ici, c'est que l'obstacle n'était pas connu, on l'ajoute
-                                if (!isObstacleTeamMate)
-                                {
-                                    try
+                                    /// Si on arrive ici, c'est que l'obstacle n'était pas connu, on l'ajoute
+                                    if (!isObstacleTeamMate)
                                     {
-                                        globalWorldMap.obstacleLocationList.Add(obstacle);
+                                        lock (globalWorldMap.obstacleLocationList)
+                                        {
+                                            try
+                                            {
+                                                globalWorldMap.obstacleLocationList.Add(obstacle);
+                                            }
+                                            catch { }
+                                        }
                                     }
-                                    catch { }
                                 }
                             }
                         }
@@ -201,7 +213,7 @@ namespace WorldMapManager
             }
             catch { }
 
-            /// Transfert de la globalworldmap via le Multicast UDP
+            /// Transfert de la globalworldmap localement
             try
             {
                 var s = ZeroFormatterSerializer.Serialize<WorldMap.ZeroFormatterMsg>(globalWorldMap);

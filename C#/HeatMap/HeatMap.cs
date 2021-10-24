@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -26,7 +27,9 @@ namespace HeatMap
 
         public double minimumPossibleValue = -1;
 
-        public Heatmap(double length, double height, int lengthCellNumber)//, int iterations)
+        public int robotId;
+
+        public Heatmap(double length, double height, int lengthCellNumber, int id)//, int iterations)
         {
             BaseXCellSize = length / lengthCellNumber;
             BaseYCellSize = height / Math.Floor(height / BaseXCellSize);// BaseXCellSize * height / length;
@@ -40,6 +43,11 @@ namespace HeatMap
             nbCellInBaseHeatMapHeight = (int)(FieldHeight / BaseYCellSize) +1;
             nbCellInBaseHeatMapWidth = (int)(FieldLength / BaseXCellSize) +1;
             BaseHeatMapData = new double[nbCellInBaseHeatMapHeight, nbCellInBaseHeatMapWidth];
+
+            robotId = id;
+
+            //Trace.Listeners.Add(new TextWriterTraceListener("debug.log"));
+            //Trace.AutoFlush = true;
         }
 
         public PointD GetFieldPosFromBaseHeatMapCoordinates(double xHeatMap, double yHeatMap)
@@ -80,21 +88,73 @@ namespace HeatMap
             return distTerrain / FieldLength * (nbCellInBaseHeatMapWidth - 1);
         }
 
+
+        bool evaluateHeatMapGeneration = true;
+        string heatMapGenerationLog = "";
+
         public void GenerateHeatMap(List<Zone> preferredZonesList, List<Zone> avoidanceZonesList, 
             List<RectangleZone> forbiddenRectangleList,  List<RectangleZone> strictlyAllowedRectangleList,
-            List<RectangleZone> preferredRectangleList, List<ConicalZone> avoidanceConicalZoneList, List<SegmentZone> preferredSegmentZoneList)
+            List<RectangleZone> preferredRectangleList, List<ConicalZone> avoidanceConicalZoneList, 
+            List<SegmentZone> preferredSegmentZoneList, List<ConvexPolygonD> strictlyAllowedPolygonList)
         {
+        Stopwatch sw = new Stopwatch();
+
+            if (evaluateHeatMapGeneration)
+            {
+                sw.Restart();
+                heatMapGenerationLog = "\nRobot : " + robotId + " - Heat Map Generation report";
+            }
 
             /// Initialisation de la HeatMap à 0
-            for (int y = 0; y < nbCellInBaseHeatMapHeight; y++)
+            BaseHeatMapData = new double[nbCellInBaseHeatMapHeight, nbCellInBaseHeatMapWidth];
+            //for (int y = 0; y < nbCellInBaseHeatMapHeight; y++)
+            //{
+            //    for (int x = 0; x < nbCellInBaseHeatMapWidth; x++)
+            //    {
+            //        BaseHeatMapData[y, x] = 0;
+            //    }
+            //}
+            //BaseHeatMapData = Enumerable.Range(0, nbCellInBaseHeatMapHeight)
+            //    .SelectMany(x => Enumerable.Range(0, nbCellInBaseHeatMapWidth), (row, col) => new { row, col })
+            //    .Aggregate(new double[nbCellInBaseHeatMapHeight, nbCellInBaseHeatMapWidth],(board, position) =>
+            //    {
+            //        board[position.row, position.col] = 0;
+            //        return board;
+            //    });
+
+            if (evaluateHeatMapGeneration)
             {
-                for (int x = 0; x < nbCellInBaseHeatMapWidth; x++)
+                sw.Stop();
+                heatMapGenerationLog += "\nHeatMap Init : " + sw.Elapsed.TotalMilliseconds + " ms";
+                sw.Restart();
+            }
+
+            ///Fonction couteuse en temps de calcul...
+            lock (strictlyAllowedPolygonList)
+            {
+                foreach (var allowedPolygon in strictlyAllowedPolygonList)
                 {
-                    BaseHeatMapData[y, x] = 0;
+                    for (int y = 0; y < nbCellInBaseHeatMapHeight; y++)
+                    {
+                        for (int x = 0; x < nbCellInBaseHeatMapWidth; x++)
+                        {
+                            ///Si le pt n'est pas dans le polygone, on l'exclut
+                            PointD ptHeatMapRefTerrain = GetFieldPosFromBaseHeatMapCoordinates(x, y);
+                            if (!allowedPolygon.IsInside(ptHeatMapRefTerrain))
+                                BaseHeatMapData[y, x] = -1;
+                        }
+                    }
                 }
             }
 
-            /// Gestion des zones strictement autorisées (cela signifie que le rectangle est ok, mais pas l'extérieur du rectangle
+            if (evaluateHeatMapGeneration)
+            {
+                sw.Stop();
+                heatMapGenerationLog += "\nHeatMap Strictly Allowed Polygons : " + sw.Elapsed.TotalMilliseconds + " ms - "+ strictlyAllowedPolygonList.Count+" polygons";
+                sw.Restart();
+            }
+
+            /// Gestion des zones strictement autorisées(cela signifie que le rectangle est ok, mais pas l'extérieur du rectangle
             lock (strictlyAllowedRectangleList)
             {
                 foreach (var allowedRectangle in strictlyAllowedRectangleList)
@@ -120,6 +180,14 @@ namespace HeatMap
                     }
                 }
             }
+
+            if (evaluateHeatMapGeneration)
+            {
+                sw.Stop();
+                heatMapGenerationLog += "\nHeatMap Strictly Allowed Rectangles : " + sw.Elapsed.TotalMilliseconds + " ms - " + strictlyAllowedPolygonList.Count + " rectangles";
+                sw.Restart();
+            }
+
             //Gestion des zones interdites
             lock (forbiddenRectangleList)
             {
@@ -138,6 +206,12 @@ namespace HeatMap
                         }
                     }
                 }
+            }
+            if (evaluateHeatMapGeneration)
+            {
+                sw.Stop();
+                heatMapGenerationLog += "\nHeatMap Forbidden Rectangles : " + sw.Elapsed.TotalMilliseconds + " ms - " + forbiddenRectangleList.Count + " rectangles";
+                sw.Restart();
             }
 
             //Gestion des zones rectangulaires préférées
@@ -158,6 +232,13 @@ namespace HeatMap
                         }
                     }
                 }
+            }
+
+            if (evaluateHeatMapGeneration)
+            {
+                sw.Stop();
+                heatMapGenerationLog += "\nHeatMap Prefered Rectangles " + sw.Elapsed.TotalMilliseconds + " ms - " + preferredRectangleList.Count + " rectangles";
+                sw.Restart();
             }
 
             lock (avoidanceZonesList)
@@ -181,6 +262,13 @@ namespace HeatMap
                 }
             }
 
+            if (evaluateHeatMapGeneration)
+            {
+                sw.Stop();
+                heatMapGenerationLog += "\nHeatMap Avoidance Spherical Zones : " + sw.Elapsed.TotalMilliseconds + " ms - " + avoidanceZonesList.Count + " zones";
+                sw.Restart();
+            }
+
             lock (preferredZonesList)
             {
                 foreach (var preferredZone in preferredZonesList)
@@ -202,6 +290,13 @@ namespace HeatMap
                         }
                     }
                 }
+            }
+
+            if (evaluateHeatMapGeneration)
+            {
+                sw.Stop();
+                heatMapGenerationLog += "\nHeatMap Preferred Spherical Zones : " + sw.Elapsed.TotalMilliseconds + " ms - " + preferredZonesList.Count + " zones";
+                sw.Restart();
             }
 
             lock (preferredSegmentZoneList)
@@ -229,6 +324,13 @@ namespace HeatMap
                 }
             }
 
+            if (evaluateHeatMapGeneration)
+            {
+                sw.Stop();
+                heatMapGenerationLog += "\nHeatMap Preferred Segment Zones : " + sw.Elapsed.TotalMilliseconds + " ms - " + preferredSegmentZoneList.Count + " segments";
+                sw.Restart();
+            }
+
             lock (avoidanceConicalZoneList)
             {
                 foreach (var conicalZone in avoidanceConicalZoneList)
@@ -246,21 +348,35 @@ namespace HeatMap
                 }
             }
 
+            if (evaluateHeatMapGeneration)
+            {
+                sw.Stop();
+                heatMapGenerationLog += "\nHeatMap Avoidance Conical Zones : " + sw.Elapsed.TotalMilliseconds + " ms - " + avoidanceConicalZoneList.Count + " zones";
+                Console.WriteLine(heatMapGenerationLog);
+                //Trace.WriteLine(heatMapGenerationLog);
+                sw.Restart();
+            }
+
         }
 
-        public void ExcludeMaskedZones(PointD robotLocation, List<LocationExtended> obstacleLocationList, double exclusionRadius)
+        public void ExcludeMaskedZones(PointD robotLocation, List<LocationExtended> obstacleLocationList, double exclusionRadius, Location mapCenter)
         {
-
-            int nbPolygonPoints = 40;
+            Stopwatch sw = new Stopwatch();
+                        
+            if (evaluateHeatMapGeneration)
+            {
+                sw.Restart();
+            }
 
             /// On calcule la pénalisation sur la liste des obstacles à éviter
+            
             lock (obstacleLocationList)
             {
                 foreach (var obstacle in obstacleLocationList)
                 {
                     int[] listAbscissesZoneExclusionInferieure, listAbscissesZoneExclusionSuperieure;
 
-                    DefineZoneConique(robotLocation, new PointD(obstacle.X, obstacle.Y), exclusionRadius, out listAbscissesZoneExclusionInferieure, out listAbscissesZoneExclusionSuperieure);
+                    DefineZoneConique(Toolbox.OffsetLocation(robotLocation, mapCenter), Toolbox.OffsetLocation(new PointD(obstacle.X, obstacle.Y), mapCenter), exclusionRadius, out listAbscissesZoneExclusionInferieure, out listAbscissesZoneExclusionSuperieure);
                     Parallel.For(0, nbCellInBaseHeatMapWidth, i =>
                     {
                         for (int j = Math.Max(0, listAbscissesZoneExclusionInferieure[i]); j <= Math.Min(nbCellInBaseHeatMapHeight - 1, listAbscissesZoneExclusionSuperieure[i]); j++)
@@ -271,6 +387,16 @@ namespace HeatMap
                     );
                 }
             }
+
+            if (evaluateHeatMapGeneration)
+            {
+                sw.Stop();
+                heatMapGenerationLog = "\nRobot: " + robotId + " - HeatMap Avoidance Conical Zones Obstacles : " + sw.Elapsed.TotalMilliseconds + " ms - " + obstacleLocationList.Count + " obstacles";
+                Console.WriteLine(heatMapGenerationLog);
+                //Trace.WriteLine(heatMapGenerationLog);
+                sw.Restart();
+            }
+
         }
 
         private void DefineZoneConique(PointD initPoint, PointD obstacle, double exclusionRadius, out int[] listAbscissesZoneExclusionInf, out int[] listAbscissesZoneExclusionSup)

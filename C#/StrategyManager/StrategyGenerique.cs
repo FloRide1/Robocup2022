@@ -217,8 +217,8 @@ namespace StrategyManagerNS
 
                     /// Calcul de la HeatMap WayPoint
                     var obstacleListInField = FilterObstacleList(obstacleList);
-                    WayPointHeatMap.ExcludeMaskedZones(new PointD(robotCurrentLocation.X, robotCurrentLocation.Y), obstacleListInField, MovingObstacleAvoidanceDistance); //if (displayConsole) Console.WriteLine("Tps calcul zones exclusion obstacles : " + sw.Elapsed.TotalMilliseconds.ToString("N4") + " ms");  sw.Restart();
-                    WayPointHeatMap.ExcludeMaskedZones(new PointD(robotCurrentLocation.X, robotCurrentLocation.Y), obstacleFixeList, FixedObstacleAvoidanceDistance); //if (displayConsole) Console.WriteLine("Tps calcul zones exclusion obstacles : " + sw.Elapsed.TotalMilliseconds.ToString("N4") + " ms");  sw.Restart();
+                    WayPointHeatMap.ExcludeMaskedZones(new PointD(robotCurrentLocation.X, robotCurrentLocation.Y), obstacleListInField, MovingObstacleAvoidanceDistance, robotCurrentLocation); //if (displayConsole) Console.WriteLine("Tps calcul zones exclusion obstacles : " + sw.Elapsed.TotalMilliseconds.ToString("N4") + " ms");  sw.Restart();
+                    WayPointHeatMap.ExcludeMaskedZones(new PointD(robotCurrentLocation.X, robotCurrentLocation.Y), obstacleFixeList, FixedObstacleAvoidanceDistance, robotCurrentLocation); //if (displayConsole) Console.WriteLine("Tps calcul zones exclusion obstacles : " + sw.Elapsed.TotalMilliseconds.ToString("N4") + " ms");  sw.Restart();
 
                     OnHeatMapWayPoint(robotId, WayPointHeatMap); //if (displayConsole) Console.WriteLine("Tps calcul HeatMap WayPoint : " + sw.Elapsed.TotalMilliseconds.ToString("N4") + " ms"); sw.Restart();
                     var optimalWayPoint = GetOptimalWayPointDestination(); //if (displayConsole) Console.WriteLine("Tps calcul Get Optimal Waypoint : " + sw.Elapsed.TotalMilliseconds.ToString("N4") + " ms"); sw.Restart();
@@ -266,6 +266,7 @@ namespace StrategyManagerNS
             InitPreferredRectangleList();
             InitAvoidanceConicalZoneList();
             InitPreferredSegmentZoneList();
+            InitStrictlyAllowedConvexPolygonList();
         }
 
 
@@ -276,16 +277,9 @@ namespace StrategyManagerNS
 
         private void GenerateStrategyHeatMap()
         {
-            //TestGPU.ActionWithClosure();
-            sw.Reset();
-            sw.Start(); // début de la mesure
-
-            //Génération de la HeatMap
-            
+            //Génération de la HeatMap            
             strategyHeatMap.GenerateHeatMap(preferredZonesList, avoidanceZonesList, forbiddenRectangleList, 
-                strictlyAllowedRectangleList, preferredRectangleList, avoidanceConicalZoneList, preferredSegmentZoneList);
-
-            sw.Stop();
+                strictlyAllowedRectangleList, preferredRectangleList, avoidanceConicalZoneList, preferredSegmentZoneList, strictlyAllowedConvexPolygonList);
         }
 
         public PointD GetOptimalStrategyDestination()
@@ -392,6 +386,24 @@ namespace StrategyManagerNS
             lock (preferredSegmentZoneList)
             {
                 preferredSegmentZoneList.Add(new SegmentZone(ptA, ptB, radius, strength));
+            }
+        }
+
+
+        //Zones polygones convexes autorisées et interdites
+        List<ConvexPolygonD> strictlyAllowedConvexPolygonList = new List<ConvexPolygonD>();
+        public void InitStrictlyAllowedConvexPolygonList()
+        {
+            lock (strictlyAllowedConvexPolygonList)
+            {
+                strictlyAllowedConvexPolygonList = new List<ConvexPolygonD>();
+            }
+        }
+        public void AddStrictlyAllowedConvexPolygon(ConvexPolygonD rect)
+        {
+            lock (strictlyAllowedConvexPolygonList)
+            {
+                strictlyAllowedConvexPolygonList.Add(rect);
             }
         }
 
