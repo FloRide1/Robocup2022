@@ -1,4 +1,5 @@
-﻿using EventArgsLibrary;
+﻿using Constants;
+using EventArgsLibrary;
 using Newtonsoft.Json;
 using PerformanceMonitorTools;
 using System;
@@ -43,14 +44,28 @@ namespace WorldMapManager
                 return;
             if (localWorldMap.RobotId == e.RobotId)
             {
-                //On ajoute les infos à la Local World Map
+                ///On ajoute les infos à la Local World Map
+                ///On commence par la position du robot 
                 localWorldMap.robotLocation = e.Perception.robotKalmanLocation;
-                //lock (obstacleLocationListLock)
+
+                ///On continue avec les positions des teammates et des obstacles
+                ///On fait une copie locale des obstacles vus dans la perception pour casser les références.
+                LocationExtended[] tempArray = new LocationExtended[e.Perception.obstaclesLocationList.Count]; 
+                e.Perception.obstaclesLocationList.CopyTo(tempArray);
+
+                double seuil = 0.3; ///Seuil minimum pour confondre un obstacle perçu avec le robot
+
+                if (localWorldMap.TeamId == (int)TeamId.Team1)
                 {
-                    LocationExtended[] tempArray = new LocationExtended[e.Perception.obstaclesLocationList.Count]; 
-                    e.Perception.obstaclesLocationList.CopyTo(tempArray);
-                    localWorldMap.obstaclesLocationList = tempArray.ToList();
+                    localWorldMap.teammateLocationList = tempArray.Where(p => p.Type == ObjectType.RobotTeam1 && Toolbox.Distance(localWorldMap.robotLocation, new Location(p.X, p.Y, p.Theta, p.Vx, p.Vy, p.Vtheta)) > seuil).ToList();
+                    localWorldMap.obstacleLocationList = tempArray.Where(p => p.Type != ObjectType.RobotTeam1).ToList();
                 }
+                else if (localWorldMap.TeamId == (int)TeamId.Team2)
+                {
+                    localWorldMap.teammateLocationList = tempArray.Where(p => p.Type == ObjectType.RobotTeam2 && Toolbox.Distance(localWorldMap.robotLocation, new Location(p.X, p.Y, p.Theta, p.Vx, p.Vy, p.Vtheta)) > seuil).ToList();
+                    localWorldMap.obstacleLocationList = tempArray.Where(p => p.Type != ObjectType.RobotTeam2).ToList();
+                }
+                
                 localWorldMap.ballLocationList = e.Perception.ballLocationList;
                 
                 //On recopie les infos de la local World Map dans la structure de transfert (sans ce qui coute cher : heatmaps, lidarpoints...)
@@ -65,8 +80,9 @@ namespace WorldMapManager
                 transferLocalWorldMap.ballHandlingState = localWorldMap.ballHandlingState;
                 transferLocalWorldMap.messageDisplay = localWorldMap.messageDisplay;
                 transferLocalWorldMap.playingSide = localWorldMap.playingSide;
-                transferLocalWorldMap.obstaclesLocationList = localWorldMap.obstaclesLocationList;
+                transferLocalWorldMap.obstacleLocationList = localWorldMap.obstacleLocationList;
                 transferLocalWorldMap.ballLocationList = localWorldMap.ballLocationList;
+                transferLocalWorldMap.teammateLocationList = localWorldMap.teammateLocationList;
 
                 if (transferLocalWorldMap.robotLocation != null)
                 {

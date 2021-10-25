@@ -170,7 +170,7 @@ namespace WpfWorldMapDisplay
             {
                 foreach (var robotLoc in globalWorldMap.teammateLocationList)
                 {
-                    UpdateRobotLocation(robotLoc.Key, robotLoc.Value);
+                    //UpdateRobotLocation(robotLoc.Key, robotLoc.Value);
                 }
             }
 
@@ -303,7 +303,7 @@ namespace WpfWorldMapDisplay
 
             }
         }
-        private void UpdateRobotRole(int robotId, RoboCupRobotRole role)
+        private void UpdateRobotRole(int robotId, RoboCupPoste role)
         {
             if (TeamMatesDisplayDictionary.ContainsKey(robotId))
             {

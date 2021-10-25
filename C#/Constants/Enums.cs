@@ -30,7 +30,8 @@ namespace Constants
     {
         Balle,
         Obstacle,
-        Robot,
+        RobotTeam1,
+        RobotTeam2,
         Poteau,
         Balise,
         LimiteHorizontaleHaute,

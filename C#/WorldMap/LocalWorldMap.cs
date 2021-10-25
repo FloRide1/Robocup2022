@@ -26,7 +26,7 @@ namespace WorldMap
         [Index(2)]
         public virtual Location robotLocation { get; set; }
         [Index(3)]
-        public virtual RoboCupRobotRole robotRole { get; set; }
+        public virtual RoboCupPoste robotRole { get; set; }
         [Index(4)]
         public virtual BallHandlingState ballHandlingState { get; set; }
         [Index(5)]
@@ -43,7 +43,9 @@ namespace WorldMap
         [Index(10)]
         public virtual List<Location> ballLocationList { get; set; }
         [Index(11)]
-        public virtual List<LocationExtended> obstaclesLocationList { get; set; }
+        public virtual List<LocationExtended> teammateLocationList { get; set; }
+        [Index(12)]
+        public virtual List<LocationExtended> obstacleLocationList { get; set; }
         [IgnoreFormat]
         public virtual object obstacleLocationListLock { get; set; }
         //[IgnoreFormat]

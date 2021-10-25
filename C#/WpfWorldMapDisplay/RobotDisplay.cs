@@ -20,7 +20,7 @@ namespace WpfWorldMapDisplay
         private Location destinationLocation;
         private Location waypointLocation;
         public string robotName = "";
-        public RoboCupRobotRole robotRole = RoboCupRobotRole.Stopped;
+        public RoboCupPoste robotRole = RoboCupPoste.Unassigned;
         public string DisplayMessage = "";
         public PlayingSide playingSide = PlayingSide.Left;
 
@@ -57,7 +57,7 @@ namespace WpfWorldMapDisplay
             robotLocation = loc;
         }
 
-        public void SetRole(RoboCupRobotRole role)
+        public void SetRole(RoboCupPoste role)
         {
             robotRole = role;
         }

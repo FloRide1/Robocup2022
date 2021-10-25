@@ -73,7 +73,6 @@ namespace StrategyManagerNS
 
         public StrategyEurobot2021(int robotId, int teamId, string teamIpAddress) : base(robotId, teamId, teamIpAddress)
         {
-            globalWorldMap = new GlobalWorldMap();
             InitHeatMap();
             RayonRobot = 0.16;
         }

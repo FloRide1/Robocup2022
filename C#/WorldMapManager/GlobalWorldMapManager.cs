@@ -104,14 +104,15 @@ namespace WorldMapManager
             //Pour l'instant on prend la position de balle vue par le robot 1 comme vérité, mais c'est à améliorer !
             if (localWorldMapDictionary.Count > 0)
                 globalWorldMap.ballLocationList = localWorldMapDictionary.First().Value.ballLocationList;
-            globalWorldMap.teammateLocationList = new Dictionary<int, Location>();
+            //globalWorldMap.teammateLocationList = new Dictionary<int, Location>();
             globalWorldMap.teammateGhostLocationList = new Dictionary<int, Location>();
             globalWorldMap.teammateDestinationLocationList = new Dictionary<int, Location>();
             globalWorldMap.teammateBallHandlingStateList = new Dictionary<int, BallHandlingState>();
             globalWorldMap.teammateWayPointList = new Dictionary<int, Location>();
             globalWorldMap.opponentLocationList = new List<Location>();
             globalWorldMap.obstacleLocationList = new List<LocationExtended>();
-            globalWorldMap.teammateRoleList = new Dictionary<int, RoboCupRobotRole>();
+            globalWorldMap.teammateLocationList = new List<Location>();
+            globalWorldMap.teammateRoleList = new Dictionary<int, RoboCupPoste>();
             globalWorldMap.teammateDisplayMessageList = new Dictionary<int, string>();
             globalWorldMap.teammatePlayingSideList = new Dictionary<int, PlayingSide>();
 
@@ -119,7 +120,11 @@ namespace WorldMapManager
             foreach (var localMap in localWorldMapDictionary)
             {
                 //On ajoute la position des robots de l'équipe dans la WorldMap
-                globalWorldMap.teammateLocationList.AddOrUpdate(localMap.Key, localMap.Value.robotLocation);
+                //foreach(var teammate in localMap.Value.teammatesLocationList)
+                //{
+                //    globalWorldMap.teammateLocationList.Add(new Location(teammate.X, teammate.Y, teammate.Theta, 0, 0, 0));
+                //}
+                //globalWorldMap.teammateLocationList.AddOrUpdate(localMap.Key, localMap.Value.robotLocation);
                 //On ajoute le rôle des robots de l'équipe dans la WorldMap
                 globalWorldMap.teammateRoleList.AddOrUpdate(localMap.Key, localMap.Value.robotRole);
                 //On ajoute l'état de Ball Handling des robots de l'équipe dans la WorldMap
@@ -141,8 +146,8 @@ namespace WorldMapManager
                 //TODO : Fusion des obstacles vus par chacun des robots
                 foreach (var localMap in localWorldMapDictionary)
                 {
-                    LocationExtended[] ObstacleLocationListCopy = new LocationExtended[localMap.Value.obstaclesLocationList.Count];
-                    localMap.Value.obstaclesLocationList.CopyTo(ObstacleLocationListCopy);
+                    LocationExtended[] ObstacleLocationListCopy = new LocationExtended[localMap.Value.obstacleLocationList.Count];
+                    localMap.Value.obstacleLocationList.CopyTo(ObstacleLocationListCopy);
                     {
                         //foreach (var obstacle in localMap.Value.obstaclesLocationList)
                         foreach (var obstacle in ObstacleLocationListCopy)
@@ -163,7 +168,7 @@ namespace WorldMapManager
                                 {
                                     foreach (var teamMateRobot in globalWorldMap.teammateLocationList)
                                     {
-                                        if (Toolbox.Distance(new PointD(obstacle.X, obstacle.Y), new PointD(teamMateRobot.Value.X, teamMateRobot.Value.Y)) < distanceMaxFusionTeamMate)
+                                        if (Toolbox.Distance(new PointD(obstacle.X, obstacle.Y), new PointD(teamMateRobot.X, teamMateRobot.Y)) < distanceMaxFusionTeamMate)
                                         {
                                             /// L'obstacle est un robot, on abandonne
                                             isObstacleTeamMate = true;

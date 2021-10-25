@@ -89,7 +89,7 @@ namespace HeatMap
         }
 
 
-        bool evaluateHeatMapGeneration = true;
+        bool evaluateHeatMapGeneration = false;
         string heatMapGenerationLog = "";
 
         public void GenerateHeatMap(List<Zone> preferredZonesList, List<Zone> avoidanceZonesList, 
@@ -98,7 +98,7 @@ namespace HeatMap
             List<SegmentZone> preferredSegmentZoneList, List<ConvexPolygonD> strictlyAllowedPolygonList)
         {
         Stopwatch sw = new Stopwatch();
-
+            
             if (evaluateHeatMapGeneration)
             {
                 sw.Restart();
@@ -376,7 +376,8 @@ namespace HeatMap
                 {
                     int[] listAbscissesZoneExclusionInferieure, listAbscissesZoneExclusionSuperieure;
 
-                    DefineZoneConique(Toolbox.OffsetLocation(robotLocation, mapCenter), Toolbox.OffsetLocation(new PointD(obstacle.X, obstacle.Y), mapCenter), exclusionRadius, out listAbscissesZoneExclusionInferieure, out listAbscissesZoneExclusionSuperieure);
+                    DefineZoneConique(robotLocation, new PointD(obstacle.X, obstacle.Y), exclusionRadius, out listAbscissesZoneExclusionInferieure, out listAbscissesZoneExclusionSuperieure);
+                    //DefineZoneConique(Toolbox.OffsetLocation(robotLocation, mapCenter), Toolbox.OffsetLocation(new PointD(obstacle.X, obstacle.Y), mapCenter), exclusionRadius, out listAbscissesZoneExclusionInferieure, out listAbscissesZoneExclusionSuperieure);
                     Parallel.For(0, nbCellInBaseHeatMapWidth, i =>
                     {
                         for (int j = Math.Max(0, listAbscissesZoneExclusionInferieure[i]); j <= Math.Min(nbCellInBaseHeatMapHeight - 1, listAbscissesZoneExclusionSuperieure[i]); j++)

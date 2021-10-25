@@ -130,7 +130,7 @@ namespace TeamSimulator
             var trajectoryPlanner = new TrajectoryGeneratorHolonome(robotId, GameMode.RoboCup);
             var sensorSimulator = new SensorSimulator.SensorSimulator(robotId);
             var kalmanPositioning = new KalmanPositioning.KalmanPositioning(robotId, 50, 0.2, 0.2, 0.2, 0.1, 0.1, 0.1, 0.02);
-            var localWorldMapManager = new LocalWorldMapManager(robotId, TeamNumber, useMulticast: true);
+            var localWorldMapManager = new LocalWorldMapManager(robotId, TeamNumber, useMulticast: false);
             //var lidarSimulator = new LidarSimulator.LidarSimulator(robotId);
             var perceptionSimulator = new PerceptionManager(robotId, GameMode.RoboCup);
             var globalWorldMapManager = new GlobalWorldMapManager(robotId, TeamNumber);
@@ -191,13 +191,14 @@ namespace TeamSimulator
             robotUdpMulticastReceiver.OnDataReceivedEvent += robotUdpMulticastInterpreter.OnMulticastDataReceived;
 
             //Event de Transmission des Local World Map du robot vers le multicast
-            localWorldMapManager.OnMulticastSendLocalWorldMapEvent += robotUdpMulticastSender.OnMulticastMessageToSendReceived;            
-            localWorldMapManager.OnLocalWorldMapToGlobalWorldMapGeneratorEvent += globalWorldMapManager.OnLocalWorldMapReceived;
+            //localWorldMapManager.OnMulticastSendLocalWorldMapEvent += robotUdpMulticastSender.OnMulticastMessageToSendReceived;
+            //localWorldMapManager.OnLocalWorldMapToGlobalWorldMapGeneratorEvent += globalWorldMapManager.OnLocalWorldMapReceived;
+            localWorldMapManager.OnLocalWorldMapToGlobalWorldMapGeneratorEvent += strategyManager.OnLocalWorldMapReceived;
             robotUdpMulticastInterpreter.OnLocalWorldMapEvent += globalWorldMapManager.OnLocalWorldMapReceived;
 
             //Event d'interprétation d'une globalWorldMap à sa réception dans le robot
-            globalWorldMapManager.OnGlobalWorldMapEvent += strategyManager.OnGlobalWorldMapReceived;
-            globalWorldMapManager.OnGlobalWorldMapEvent += perceptionSimulator.OnGlobalWorldMapReceived;
+            //globalWorldMapManager.OnGlobalWorldMapEvent += strategyManager.OnGlobalWorldMapReceived;
+            //globalWorldMapManager.OnGlobalWorldMapEvent += perceptionSimulator.OnGlobalWorldMapReceived;
             robotUdpMulticastInterpreter.OnRefBoxMessageEvent += strategyManager.OnRefBoxMsgReceived;
 
 

@@ -82,6 +82,16 @@ namespace Utilities
                 return double.PositiveInfinity;
             //return Math.Sqrt(Math.Pow(pt2.X - pt1.X, 2) + Math.Pow(pt2.Y - pt1.Y, 2));
         }
+
+        public static double Distance(Location pt1, Location pt2)
+        {
+            if (pt1 != null && pt2 != null)
+                return Math.Sqrt((pt2.X - pt1.X) * (pt2.X - pt1.X) + (pt2.Y - pt1.Y) * (pt2.Y - pt1.Y));
+            else
+                return double.PositiveInfinity;
+            //return Math.Sqrt(Math.Pow(pt2.X - pt1.X, 2) + Math.Pow(pt2.Y - pt1.Y, 2));
+        }
+
         public static double Distance(PolarPointRssi pt1, PolarPointRssi pt2)
         {
             return Math.Sqrt(pt1.Distance * pt1.Distance + pt2.Distance * pt2.Distance - 2 * pt1.Distance * pt2.Distance * Math.Cos(pt1.Angle - pt2.Angle));

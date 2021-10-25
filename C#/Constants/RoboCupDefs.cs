@@ -42,23 +42,21 @@ namespace Constants
         PLAYRIGHT,
     }
 
-    public enum RoboCupRobotRole
+    public enum RoboCupPoste
     {
-        Unassigned,
-        Stopped,
-        Positioning,
-        Stone,
-        Gardien,
-        DefenseurContesteur,
-        DefenseurMarquage,
-        DefenseurIntercepteur,
-        AttaquantAvecBalle,
-        AttaquantIntercepteur,
-        AttaquantDemarque,
-        Eurobot_petit_robot,
-        Eurobot_gros_robot,
-        Adversaire
+        Unassigned = 0,
+        GoalKeeper = 1,
+        DefenderLeft = 2,
+        DefenderCenter = 3,
+        DefenderRight = 4,
+        MidfielderLeft = 5,
+        MidfielderCenter = 6,
+        MidfielderRight = 7,
+        ForwardLeft = 8,
+        ForwardCenter = 9,
+        ForwardRight = 10,
     }
+
 
     public enum BallHandlingState
     {
@@ -66,5 +64,10 @@ namespace Constants
         HasBall,
         PassInProgress,
         ShootInProgress,
+    }
+    public static class RoboCupField
+    {
+        public static double Length = 22;
+        public static double Width = 14;
     }
 }

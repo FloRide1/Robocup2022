@@ -303,17 +303,15 @@ namespace PhysicalSimulator
                 OnPhysicalBallListPosition(newBallLocationList);
 
                 List<LocationExtended> objectsLocationList = new List<LocationExtended>();
-                //string rlPhySim = "\nRobotList PhysicalSimulator";
                 foreach (var robot in robotList)
                 {
-                    //rlPhySim += "\nObject found - X : " + robot.Value.X.ToString("N2") + " - Y : " + robot.Value.Y.ToString("N2");
-
-                    objectsLocationList.Add(new LocationExtended(robot.Value.X, robot.Value.Y, robot.Value.Theta, robot.Value.VxRefRobot, robot.Value.VyRefRobot, robot.Value.Vtheta, ObjectType.Robot));
+                    if((robot.Key/10)*10 == (int)TeamId.Team1)
+                        objectsLocationList.Add(new LocationExtended(robot.Value.X, robot.Value.Y, robot.Value.Theta, robot.Value.VxRefRobot, robot.Value.VyRefRobot, robot.Value.Vtheta, ObjectType.RobotTeam1));
+                    else
+                        objectsLocationList.Add(new LocationExtended(robot.Value.X, robot.Value.Y, robot.Value.Theta, robot.Value.VxRefRobot, robot.Value.VyRefRobot, robot.Value.Vtheta, ObjectType.RobotTeam2));
                 }
-                //Console.WriteLine(rlPhySim);
                 OnPhysicalObjectListLocation(objectsLocationList);
             }
-
         }
 
         public void SetRobotSpeed(object sender, PolarSpeedArgs e)

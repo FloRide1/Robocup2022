@@ -445,7 +445,7 @@ namespace EventArgsLibrary
     {
         public int RobotId { get; set; }
 
-        public RoboCupRobotRole Role { get; set; }
+        public RoboCupPoste Role { get; set; }
     }
 
     public class BallHandlingStateArgs : EventArgs

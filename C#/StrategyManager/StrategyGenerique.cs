@@ -53,7 +53,8 @@ namespace StrategyManagerNS
         public string teamIpAddress = "";
         public string DisplayName;
 
-        public GlobalWorldMap globalWorldMap;
+        //public GlobalWorldMap globalWorldMap;
+        public LocalWorldMap localWorldMap;
         public Heatmap WayPointHeatMap;
         public Heatmap strategyHeatMap;
         public double HeatMapPrecision;
@@ -83,7 +84,8 @@ namespace StrategyManagerNS
             this.robotId = robotId;
             this.teamIpAddress = teamIpAddress;
 
-            globalWorldMap = new GlobalWorldMap();
+            //globalWorldMap = new GlobalWorldMap();
+            localWorldMap = new LocalWorldMap();
 
             InitHeatMap();
 
@@ -117,25 +119,26 @@ namespace StrategyManagerNS
         //************************ Events reçus ************************************************/
         public abstract void OnRefBoxMsgReceived(object sender, WorldMap.RefBoxMessageArgs e);
 
-        //Event de récupération d'une GlobalWorldMap mise à jour
-        public void OnGlobalWorldMapReceived(object sender, GlobalWorldMapArgs e)
+        /////Event de récupération d'une GlobalWorldMap mise à jour
+        //public void OnGlobalWorldMapReceived(object sender, GlobalWorldMapArgs e)
+        //{
+        //    //On récupère la nouvelle global worldMap
+        //    lock (globalWorldMap)
+        //    {
+        //        globalWorldMap = e.GlobalWorldMap;
+        //    }
+        //}
+
+        ///Event de récupération d'une GlobalWorldMap mise à jour
+        public void OnLocalWorldMapReceived(object sender, LocalWorldMapArgs e)
         {
-            //On récupère le gameState avant arrivée de la nouvelle worldMap
-            //GameState gameState_1 = globalWorldMap.gameState;
-
-            //On récupère la nouvelle worldMap
-            lock (globalWorldMap)
+            //On récupère la nouvelle global worldMap
+            lock (localWorldMap)
             {
-                globalWorldMap = e.GlobalWorldMap;
+                localWorldMap = e.LocalWorldMap;
             }
-
-            //On regarde si le gamestate a changé
-            //if (globalWorldMap.gameState != gameState_1)
-            //{
-            //    //Le gameState a changé, on envoie un event
-            //    OnGameStateChanged(robotId, globalWorldMap.gameState);
-            //}
         }
+
         public void OnPositionRobotReceived(object sender, LocationArgs location)
         {
             robotCurrentLocation.X = location.Location.X;
@@ -182,33 +185,48 @@ namespace StrategyManagerNS
                             optimalPosition = robotDestination;
                     }
 
-                    List<LocationExtended> obstacleList = new List<LocationExtended>();   
+                    List<LocationExtended> obstacleList = new List<LocationExtended>();
 
-                    //Construction de la liste des obstacles dynamiques en enlevant le robot lui-même
-                    lock (globalWorldMap)
+                    /////Construction de la liste des obstacles dynamiques en enlevant le robot lui-même
+                    //lock (globalWorldMap)
+                    //{
+                    //    if (globalWorldMap.obstacleLocationList != null)
+                    //    {
+                    //        foreach (var obstacle in globalWorldMap.obstacleLocationList)
+                    //        {
+                    //            if (Toolbox.Distance(new PointD(obstacle.X, obstacle.Y), new PointD(robotCurrentLocation.X, robotCurrentLocation.Y)) > RayonRobot)
+                    //                obstacleList.Add(obstacle);
+                    //        }
+                    //    }
+                    //    if (globalWorldMap.teammateLocationList != null)
+                    //    {
+                    //        foreach (var teammate in globalWorldMap.teammateLocationList)
+                    //        {
+                    //            obstacleList.Add(new LocationExtended(teammate.X, teammate.Y, 0, 0, 0, 0, ObjectType.Obstacle)); ///On considère tous les robots et obstacles comme des obstacles
+                    //        }
+                    //    }
+                    //}
+
+                    ///Construction de la liste des obstacles dynamiques en enlevant le robot lui-même
+                    lock (localWorldMap)
                     {
-                        if (globalWorldMap.obstacleLocationList != null)
+                        if (localWorldMap.obstacleLocationList != null)
                         {
-                            foreach (var obstacle in globalWorldMap.obstacleLocationList)
+                            foreach (var obstacle in localWorldMap.obstacleLocationList)
                             {
                                 if (Toolbox.Distance(new PointD(obstacle.X, obstacle.Y), new PointD(robotCurrentLocation.X, robotCurrentLocation.Y)) > RayonRobot)
                                     obstacleList.Add(obstacle);
                             }
                         }
-                        if (globalWorldMap.teammateLocationList != null)
+                        if (localWorldMap.teammateLocationList != null)
                         {
-                            foreach (var teammate in globalWorldMap.teammateLocationList)
+                            foreach (var teammate in localWorldMap.teammateLocationList)
                             {
-                                if (teammate.Key != robotId)
-                                    if(teammate.Value!=null)
-                                        obstacleList.Add(new LocationExtended(teammate.Value.X, teammate.Value.Y, 0, 0, 0, 0, ObjectType.Robot));
+                                obstacleList.Add(new LocationExtended(teammate.X, teammate.Y, 0, 0, 0, 0, ObjectType.Obstacle)); ///On considère tous les robots et obstacles comme des obstacles
                             }
                         }
                     }
 
-
-
-                    
                     // if (displayConsole) Console.WriteLine("Tps calcul Génération obstacles : " + sw.Elapsed.TotalMilliseconds.ToString("N4") + " ms"); sw.Restart();
                     OnHeatMapStrategy(robotId, strategyHeatMap); // if (displayConsole) Console.WriteLine("Tps envoi strat Heatmap : " + sw.Elapsed.TotalMilliseconds.ToString("N4") + " ms"); sw.Restart();                    
                     
@@ -435,11 +453,11 @@ namespace StrategyManagerNS
                 preferredRectangleList = new List<RectangleZone>();
             }
         }
-        public void AddPreferredRectangle(RectangleD rect)
+        public void AddPreferredRectangle(RectangleD rect, double strength)
         {
             lock (preferredRectangleList)
             {
-                preferredRectangleList.Add(new RectangleZone(rect));
+                preferredRectangleList.Add(new RectangleZone(rect, strength));
             }
         }
 
@@ -469,7 +487,7 @@ namespace StrategyManagerNS
         }
 
         public event EventHandler<RoleArgs> OnRoleEvent;
-        public virtual void OnRole(int id, RoboCupRobotRole role)
+        public virtual void OnRole(int id, RoboCupPoste role)
         {
             OnRoleEvent?.Invoke(this, new RoleArgs { RobotId = id, Role = role });
         }

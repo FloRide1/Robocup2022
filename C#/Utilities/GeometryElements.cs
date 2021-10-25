@@ -255,6 +255,11 @@ namespace Utilities
             Vy = vy;
             Vtheta = vtheta;
         }
+
+        public PointD ToPointD()
+        {
+            return new PointD(X, Y);
+        }
     }
 
     //Pose probleme
@@ -309,6 +314,10 @@ namespace Utilities
             Vy = l.Vy;
             Vtheta = l.Vtheta;
             Type = type;
+        }
+        public PointD ToPointD()
+        {
+            return new PointD(X, Y);
         }
     }
 

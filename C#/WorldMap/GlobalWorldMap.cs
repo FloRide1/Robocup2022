@@ -30,7 +30,7 @@ namespace WorldMap
         //[Index(5)]
         public virtual List<Location> ballLocationList { get; set; }
         [Index(6)]
-        public virtual Dictionary<int, Location> teammateLocationList { get; set; }
+        public virtual List<Location> teammateLocationList { get; set; }
         [Index(7)]
         public virtual Dictionary<int, Location> teammateGhostLocationList { get; set; }
         [Index(8)]
@@ -42,7 +42,7 @@ namespace WorldMap
         [Index(11)]
         public virtual List<LocationExtended> obstacleLocationList { get; set; }
         [Index(12)]
-        public virtual Dictionary<int, RoboCupRobotRole> teammateRoleList { get; set; }
+        public virtual Dictionary<int, RoboCupPoste> teammateRoleList { get; set; }
         [Index(13)]
         public virtual Dictionary<int, BallHandlingState> teammateBallHandlingStateList { get; set; }
         [Index(14)]
@@ -64,10 +64,10 @@ namespace WorldMap
             foreach (var teamMate in teammateLocationList)
             {
                 Robot r = new Robot();
-                r.Id = teamMate.Key;
-                r.Pose = new List<double>() { teamMate.Value.X, teamMate.Value.Y, teamMate.Value.Theta };
+                //r.Id = teamMate.Key;
+                //r.Pose = new List<double>() { teamMate.Value.X, teamMate.Value.Y, teamMate.Value.Theta };
                 r.TargetPose = new List<double>() { 0, 0, 0 };
-                r.Velocity = new List<double>() { teamMate.Value.Vx, teamMate.Value.Vy, teamMate.Value.Vtheta };
+                //r.Velocity = new List<double>() { teamMate.Value.Vx, teamMate.Value.Vy, teamMate.Value.Vtheta };
                 r.Intention = "";
                 r.BatteryLevel = 100;
                 r.BallEngaged = 0;

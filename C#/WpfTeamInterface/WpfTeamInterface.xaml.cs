@@ -71,13 +71,13 @@ namespace WpfTeamInterfaceNS
 
             //localWorldMapDisplay6.InitTeamMate((int)TeamId.Team1 + (int)RobotId.Robot6, "RoboCup");
 
-            for (int i = 0; i < 5; i++)
-            {
-                globalWorldMapDisplayTeam1.InitTeamMate((int)TeamId.Team1 + i, team1PlayerNames[i]);
-                globalWorldMapDisplayTeam1.InitOpponent((int)TeamId.Team2 + i, team2PlayerNames[i]);
-                globalWorldMapDisplayTeam2.InitTeamMate((int)TeamId.Team2 + i, team2PlayerNames[i]);
-                globalWorldMapDisplayTeam2.InitOpponent((int)TeamId.Team1 + i, team1PlayerNames[i]);
-            }
+            //for (int i = 0; i < 5; i++)
+            //{
+            //    globalWorldMapDisplayTeam1.InitTeamMate((int)TeamId.Team1 + i, team1PlayerNames[i]);
+            //    globalWorldMapDisplayTeam1.InitOpponent((int)TeamId.Team2 + i, team2PlayerNames[i]);
+            //    globalWorldMapDisplayTeam2.InitTeamMate((int)TeamId.Team2 + i, team2PlayerNames[i]);
+            //    globalWorldMapDisplayTeam2.InitOpponent((int)TeamId.Team1 + i, team1PlayerNames[i]);
+            //}
         }
 
         private void LocalWorldMapDisplay1_OnCtrlClickOnHeatMapEvent(object sender, PositionArgs e)
@@ -174,10 +174,10 @@ namespace WpfTeamInterfaceNS
         }
         public void OnGlobalWorldMapReceived(object sender, GlobalWorldMapArgs e)
         {
-            if (e.GlobalWorldMap.TeamId == (int)TeamId.Team1)
-                globalWorldMapDisplayTeam1.UpdateGlobalWorldMap(e.GlobalWorldMap);
-            else if (e.GlobalWorldMap.TeamId == (int)TeamId.Team2)
-                globalWorldMapDisplayTeam2.UpdateGlobalWorldMap(e.GlobalWorldMap);
+            //if (e.GlobalWorldMap.TeamId == (int)TeamId.Team1)
+            //    globalWorldMapDisplayTeam1.UpdateGlobalWorldMap(e.GlobalWorldMap);
+            //else if (e.GlobalWorldMap.TeamId == (int)TeamId.Team2)
+            //    globalWorldMapDisplayTeam2.UpdateGlobalWorldMap(e.GlobalWorldMap);
         }
 
         private void Window_Closing(object sender, System.ComponentModel.CancelEventArgs e)

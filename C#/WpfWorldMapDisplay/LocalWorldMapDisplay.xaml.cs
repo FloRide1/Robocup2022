@@ -63,7 +63,7 @@ namespace WpfWorldMapDisplay
 
         public bool IsExtended = false;
 
-        public bool robotRefDisplay = true;
+        public bool robotRefDisplay = false;
 
         double LengthGameArea = 0;
         double WidthGameArea = 0;
@@ -71,7 +71,8 @@ namespace WpfWorldMapDisplay
         double WidthDisplayArea = 0;
 
         //Liste des robots à afficher
-        Dictionary<int, RobotDisplay> TeamMatesDisplayDictionary = new Dictionary<int, RobotDisplay>();
+        //ConcurrentDictionary<int, RobotDisplay> TeamMatesDisplayDictionary = new ConcurrentDictionary<int, RobotDisplay>();
+        RobotDisplay robot;
 
         ConcurrentDictionary<int, RobotDisplay> OpponentDisplayDictionary = new ConcurrentDictionary<int, RobotDisplay>();
 
@@ -81,6 +82,9 @@ namespace WpfWorldMapDisplay
         //Liste des obstacles vus par le robot à afficher
         List<ObstacleDisplay> ObstacleDisplayList = new List<ObstacleDisplay>();
 
+        //Liste des teammates vus par le robot à afficher
+        List<LocationExtended> TeammateLocationList = new List<LocationExtended>();
+
         BindingClass imageBinding = new BindingClass();
         Thread tDisplayMap;
         AutoResetEvent waitForDisplayAuthorization = new AutoResetEvent(false);
@@ -88,22 +92,22 @@ namespace WpfWorldMapDisplay
         public LocalWorldMapDisplay()
         {
             InitializeComponent();
+
             this.DataContext = imageBinding;
 
             tDisplayMap = new Thread(DisplayWorldMapSynchronized);
             tDisplayMap.SetApartmentState(ApartmentState.STA);
             tDisplayMap.Start();
-                       
+
             System.Timers.Timer tDisplay = new System.Timers.Timer();
             tDisplay.Interval = 50;
-            tDisplay.Elapsed += TDisplay_Elapsed; 
+            tDisplay.Elapsed += TDisplay_Elapsed;
             tDisplay.Start();
-
         }
 
         //Stopwatch swTimerDisplayLWM = new Stopwatch();
         private void TDisplay_Elapsed(object sender, System.Timers.ElapsedEventArgs e)
-        {            
+        {
             waitForDisplayAuthorization.Set();
         }
 
@@ -190,29 +194,31 @@ namespace WpfWorldMapDisplay
 
         private void DisplayWorldMap()
         {
-            //swDisplayLWM.Restart();
-            UpdateBallPolygons();
-            UpdateObstaclesPolygons();
-            if (TeamMatesDisplayDictionary.Count == 1) //Cas d'un affichage de robot unique (localWorldMap)
+            if (robot != null)
             {
+                //swDisplayLWM.Restart();
+                UpdateBallPolygons();
+                UpdateObstaclesPolygons();
+                UpdateTeammatesDisplay();
+
                 Dispatcher.BeginInvoke(new Action(delegate ()
                 {
-                    AnnotRobotRole.Text = TeamMatesDisplayDictionary.First().Value.robotRole.ToString();
+                    AnnotRobotRole.Text = robot.robotRole.ToString();
                 }));
-                DrawHeatMap(TeamMatesDisplayDictionary.First().Key);
+                DrawHeatMap();
+
+                if (competition == GameMode.RoboCup)
+                    PolygonTerrainSeries.RedrawAll();
+                Dispatcher.BeginInvoke(new Action(delegate ()
+                {
+                    BallPolygon.RedrawAll();
+                    DrawTeam();
+                }));
+                sciChartSurface.InvalidateElement();
+
+                //swDisplayLWM.Stop();
+                //Console.WriteLine("sw Display LWM - tps global : " + swDisplayLWM.Elapsed.TotalMilliseconds.ToString("N3") + " ms");
             }
-
-            if (competition == GameMode.RoboCup)
-                PolygonTerrainSeries.RedrawAll();
-            Dispatcher.BeginInvoke(new Action(delegate ()
-            {
-                BallPolygon.RedrawAll();
-                DrawTeam();
-            }));
-            sciChartSurface.InvalidateElement();
-
-            //swDisplayLWM.Stop();
-            //Console.WriteLine("sw Display LWM - tps global : " + swDisplayLWM.Elapsed.TotalMilliseconds.ToString("N3") + " ms");
         }
 
         public void UpdateWorldMapDisplay()
@@ -248,7 +254,9 @@ namespace WpfWorldMapDisplay
 
                         RobotDisplay rd = new RobotDisplay(robotShape, ghostShape, playerName);
                         rd.SetLocation(new Location(0, 0, 0, 0, 0, 0));
-                        TeamMatesDisplayDictionary.Add(robotId, rd);
+
+                        //TeamMatesDisplayDictionary.AddOrUpdate(robotId, rd, (key, value) => rd);
+                        robot = rd;
                     }
                     break;
                 case GameMode.Eurobot:
@@ -275,16 +283,16 @@ namespace WpfWorldMapDisplay
 
                         RobotDisplay rd = new RobotDisplay(robotShape, ghostShape, playerName);
                         rd.SetLocation(new Location(0, 0, 0, 0, 0, 0));
-                        TeamMatesDisplayDictionary.Add(robotId, rd);
+
+                        //TeamMatesDisplayDictionary.AddOrUpdate(robotId, rd, (key, value) => rd);
+                        robot = rd;
                     }
                     break;
                 default:
                     {
                         PolygonExtended robotShape = new PolygonExtended();
                         robotShape.polygon.Points.Add(new System.Windows.Point(-0.25, -0.25));
-                        //robotShape.polygon.Points.Add(new System.Windows.Point(0.25, -0.25));
                         robotShape.polygon.Points.Add(new System.Windows.Point(0.25, 0));
-                        //robotShape.polygon.Points.Add(new System.Windows.Point(0.25, 0.25));
                         robotShape.polygon.Points.Add(new System.Windows.Point(-0.25, 0.25));
                         robotShape.polygon.Points.Add(new System.Windows.Point(0, 0));
                         robotShape.polygon.Points.Add(new System.Windows.Point(-0.25, -0.25));
@@ -293,9 +301,7 @@ namespace WpfWorldMapDisplay
 
                         PolygonExtended ghostShape = new PolygonExtended();
                         ghostShape.polygon.Points.Add(new Point(-0.27, -0.27));
-                        //ghostShape.polygon.Points.Add(new Point(0.27, -0.27));
                         ghostShape.polygon.Points.Add(new Point(0.27, 0.02));
-                        //ghostShape.polygon.Points.Add(new Point(0.27, 0.27));
                         ghostShape.polygon.Points.Add(new Point(-0.27, 0.27));
                         ghostShape.polygon.Points.Add(new System.Windows.Point(0, 0));
                         ghostShape.polygon.Points.Add(new Point(-0.27, -0.27));
@@ -304,7 +310,9 @@ namespace WpfWorldMapDisplay
 
                         RobotDisplay rd = new RobotDisplay(robotShape, ghostShape, playerName);
                         rd.SetLocation(new Location(0, 0, 0, 0, 0, 0));
-                        TeamMatesDisplayDictionary.Add(robotId, rd);
+
+                        //TeamMatesDisplayDictionary.AddOrUpdate(robotId, rd, (key, value) => rd);
+                        robot = rd;
                     }
                     break;
             }
@@ -337,21 +345,21 @@ namespace WpfWorldMapDisplay
 
             swUpdateLWM.Restart();
             int robotId = localWorldMap.RobotId;
-            UpdateRobotLocation(robotId, localWorldMap.robotLocation, mapCenter);
-            UpdateRobotRole(robotId, localWorldMap.robotRole);
-            UpdatePlayingSide(robotId, localWorldMap.playingSide);
-            UpdateRobotGhostLocation(robotId, localWorldMap.robotGhostLocation, mapCenter);
-            UpdateRobotDestination(robotId, localWorldMap.destinationLocation, mapCenter);
-            UpdateRobotWaypoint(robotId, localWorldMap.waypointLocation, mapCenter);
+            UpdateRobotLocation(localWorldMap.robotLocation, mapCenter);
+            UpdateRobotRole(localWorldMap.robotRole);
+            UpdatePlayingSide(localWorldMap.playingSide);
+            UpdateRobotGhostLocation(localWorldMap.robotGhostLocation, mapCenter);
+            UpdateRobotDestination(localWorldMap.destinationLocation, mapCenter);
+            UpdateRobotWaypoint(localWorldMap.waypointLocation, mapCenter);
             if (lwmdType == LocalWorldMapDisplayType.StrategyMap)
             {
                 if (localWorldMap.heatMapStrategy != null)
-                    UpdateHeatMap(robotId, localWorldMap.heatMapStrategy.BaseHeatMapData);
+                    UpdateHeatMap(localWorldMap.heatMapStrategy.BaseHeatMapData);
             }
             else if (lwmdType == LocalWorldMapDisplayType.WayPointMap)
             {
                 if (localWorldMap.heatMapWaypoint != null)
-                    UpdateHeatMap(robotId, localWorldMap.heatMapWaypoint.BaseHeatMapData);
+                    UpdateHeatMap(localWorldMap.heatMapWaypoint.BaseHeatMapData);
             }
             //Affichage du lidar uniquement dans la strategy map
             if (lwmdType == LocalWorldMapDisplayType.StrategyMap)
@@ -359,55 +367,57 @@ namespace WpfWorldMapDisplay
                 var lidarRawPtsListRefMapCenter = localWorldMap.lidarRawPtsList.Select(
                            pt => new PointDExtended(Toolbox.OffsetLocation(pt.Pt, mapCenter),
                                pt.Color, pt.Width)).ToList();
-                UpdateLidarMap(robotId, lidarRawPtsListRefMapCenter, LidarDataType.RawPtsList);
+                UpdateLidarMap(lidarRawPtsListRefMapCenter, LidarDataType.RawPtsList);
 
                 var lidarProcessedPtsListRefMapCenter = localWorldMap.lidarProcessedPtsList.Select(
                            pt => new PointDExtended(Toolbox.OffsetLocation(pt.Pt, mapCenter),
                                pt.Color, pt.Width)).ToList();
-                UpdateLidarMap(robotId, lidarProcessedPtsListRefMapCenter, LidarDataType.ProcessedPtsList);
+                UpdateLidarMap(lidarProcessedPtsListRefMapCenter, LidarDataType.ProcessedPtsList);
 
                 var strategyPtsListRefMapCenter = localWorldMap.strategyPtsList.Select(
                            pt => new PointDExtended(Toolbox.OffsetLocation(pt.Pt, mapCenter),
                                pt.Color, pt.Width)).ToList();
-                UpdateStrategyObjects(robotId, strategyPtsListRefMapCenter);
+                UpdateStrategyObjects(strategyPtsListRefMapCenter);
 
                 var lidarSegmentListRefMapCenter = localWorldMap.lidarSegmentList.Select(
                            segment => new SegmentExtended(Toolbox.OffsetLocation(segment.Segment.PtDebut, mapCenter),
                            Toolbox.OffsetLocation(segment.Segment.PtFin, mapCenter), segment.Color, segment.Width)).ToList();
-                UpdateLidarSegments(robotId, lidarSegmentListRefMapCenter);
+                UpdateLidarSegments(lidarSegmentListRefMapCenter);
             }
 
-            UpdateObstacleList(localWorldMap.obstaclesLocationList, mapCenter);
+            UpdateTeammateList(localWorldMap.teammateLocationList, mapCenter);
+            UpdateObstacleList(localWorldMap.obstacleLocationList, mapCenter);
             UpdateBallLocationList(localWorldMap.ballLocationList, mapCenter);
-                        
+
             /// Validé en fonctionnnement fluide 100 appels seconde
             //swUpdateLWM.Stop();
             //Console.WriteLine("sw Update LWM - tps global : " + swUpdateLWM.Elapsed.TotalMilliseconds.ToString("N3") + " ms");
             //PerformanceMonitorTools.UpdateLWMMonitoring.UpdateLWMEmiseMonitor();
         }
 
-        private void DrawHeatMap(int robotId)
+        private void DrawHeatMap()
         {
-            if (TeamMatesDisplayDictionary.ContainsKey(robotId))
+            if (robot != null)
             {
                 UniformHeatmapDataSeries<double, double, double> heatmapDataSeries = null;
                 if (lwmdType == LocalWorldMapDisplayType.StrategyMap)
                 {
-                    if (TeamMatesDisplayDictionary[robotId].heatMapStrategy == null)
+                    if (robot.heatMapStrategy == null)
                         return;
                     //heatmapSeries.DataSeries = new UniformHeatmapDataSeries<double, double, double>(data, startX, stepX, startY, stepY);
-                    double xStep = (LengthGameArea) / (TeamMatesDisplayDictionary[robotId].heatMapStrategy.GetUpperBound(1));
-                    double yStep = (WidthGameArea) / (TeamMatesDisplayDictionary[robotId].heatMapStrategy.GetUpperBound(0));
-                    heatmapDataSeries = new UniformHeatmapDataSeries<double, double, double>(TeamMatesDisplayDictionary[robotId].heatMapStrategy, -LengthGameArea / 2 - xStep / 2, xStep, -WidthGameArea / 2 - yStep / 2, yStep);
+                    double xStep = (LengthGameArea) / (robot.heatMapStrategy.GetUpperBound(1));
+                    double yStep = (WidthGameArea) / (robot.heatMapStrategy.GetUpperBound(0));
+                    heatmapDataSeries = new UniformHeatmapDataSeries<double, double, double>(robot.heatMapStrategy, -LengthGameArea / 2 - xStep / 2, xStep, -WidthGameArea / 2 - yStep / 2, yStep);
+
                 }
                 else
                 {
-                    if (TeamMatesDisplayDictionary[robotId].heatMapWaypoint == null)
+                    if (robot.heatMapWaypoint == null)
                         return;
                     //heatmapSeries.DataSeries = new UniformHeatmapDataSeries<double, double, double>(data, startX, stepX, startY, stepY);
-                    double xStep = (LengthGameArea) / (TeamMatesDisplayDictionary[robotId].heatMapWaypoint.GetUpperBound(1));
-                    double yStep = (WidthGameArea) / (TeamMatesDisplayDictionary[robotId].heatMapWaypoint.GetUpperBound(0));
-                    heatmapDataSeries = new UniformHeatmapDataSeries<double, double, double>(TeamMatesDisplayDictionary[robotId].heatMapWaypoint, -LengthGameArea / 2 - xStep / 2, xStep, -WidthGameArea / 2 - yStep / 2, yStep);
+                    double xStep = (LengthGameArea) / (robot.heatMapWaypoint.GetUpperBound(1));
+                    double yStep = (WidthGameArea) / (robot.heatMapWaypoint.GetUpperBound(0));
+                    heatmapDataSeries = new UniformHeatmapDataSeries<double, double, double>(robot.heatMapWaypoint, -LengthGameArea / 2 - xStep / 2, xStep, -WidthGameArea / 2 - yStep / 2, yStep);
                 }
 
                 // Apply the dataseries to the heatmap
@@ -421,8 +431,12 @@ namespace WpfWorldMapDisplay
 
         public void UpdateBallPolygons()
         {
-            BallDisplay[] BallListCopy = new BallDisplay[BallDisplayList.Count];
-            BallDisplayList.CopyTo(BallListCopy);
+            BallDisplay[] BallListCopy;
+            lock (BallDisplayList)
+            {
+                BallListCopy = new BallDisplay[BallDisplayList.Count];
+                BallDisplayList.CopyTo(BallListCopy);
+            }
 
             int indexBall = 0;
             Dispatcher.BeginInvoke(new Action(delegate ()
@@ -452,7 +466,23 @@ namespace WpfWorldMapDisplay
                     var obstaclesPoints = GetXYDataSeriesFromPoints(obstaclesPointsList.ToList());
                     ObstaclePoints.DataSeries = obstaclesPoints;
                 }
-                catch(Exception e)
+                catch (Exception e)
+                {
+                    Console.WriteLine("Exception LocalWordMapDisplay : " + e.ToString());
+                }
+            }
+        }
+        public void UpdateTeammatesDisplay()
+        {
+            lock (TeammateLocationList)
+            {
+                try
+                {
+                    var teammatePointsList = TeammateLocationList.Select(x => new PointD(x.X, x.Y));
+                    var teammatePoints = GetXYDataSeriesFromPoints(teammatePointsList.ToList());
+                    TeammatesPoints.DataSeries = teammatePoints;
+                }
+                catch (Exception e)
                 {
                     Console.WriteLine("Exception LocalWordMapDisplay : " + e.ToString());
                 }
@@ -463,50 +493,45 @@ namespace WpfWorldMapDisplay
         {
             ObjectsPolygonSeries.Clear();
 
-            ///On ne fait un rendu Lidar / ObjetsLidar / PtExtended que pour le premier coéquipier de l'équipe
-            if (TeamMatesDisplayDictionary.Count > 0)
+            ///On ne fait un rendu Lidar / ObjetsLidar / PtExtended que pour le robot considéré
+
+            XyDataSeries<double, double> lidarPts = new XyDataSeries<double, double>();
+            lidarPts.AcceptsUnsortedData = true;
+            var lidarData = robot.GetRobotLidarPoints(LidarDataType.RawPtsList);
+            lidarPts.Append(lidarData.XValues, lidarData.YValues);
+            LidarPoints.DataSeries = lidarPts;
+
+            SegmentSeries.Clear();
+            foreach (var segment in robot.GetRobotLidarSegments())
             {
-                XyDataSeries<double, double> lidarPts = new XyDataSeries<double, double>();
-                lidarPts.AcceptsUnsortedData = true;
-                var lidarData = TeamMatesDisplayDictionary.ElementAt(0).Value.GetRobotLidarPoints(LidarDataType.RawPtsList);
-                lidarPts.Append(lidarData.XValues, lidarData.YValues);
-                LidarPoints.DataSeries = lidarPts;
-
-                SegmentSeries.Clear();
-                foreach (var segment in TeamMatesDisplayDictionary.ElementAt(0).Value.GetRobotLidarSegments())
-                {
-                    SegmentSeries.AddSegmentExtended(0, segment);
-                }
-
-                LidarPtExtendedSeries.Clear();
-                foreach (var pt in TeamMatesDisplayDictionary.ElementAt(0).Value.GetRobotLidarExtendedPoints())
-                {
-                    LidarPtExtendedSeries.AddPtExtended(pt);
-                }
-
-                StrategyPtExtendedSeries.Clear();
-                foreach(var pt in TeamMatesDisplayDictionary.ElementAt(0).Value.GetRobotStrategyPoints())
-                {
-                    StrategyPtExtendedSeries.AddPtExtended(pt);
-                }
+                SegmentSeries.AddSegmentExtended(0, segment);
             }
 
-            ///On itère sur tous les robots de l'équipe
-            foreach (var r in TeamMatesDisplayDictionary)
+            LidarPtExtendedSeries.Clear();
+            foreach (var pt in robot.GetRobotLidarExtendedPoints())
             {
-                //Affichage des robots
-                RobotShapesPolygonSeries.AddOrUpdatePolygonExtended(r.Key + (int)Caracteristique.Ghost, TeamMatesDisplayDictionary[r.Key].GetRobotGhostPolygon());
-                RobotShapesPolygonSeries.AddOrUpdatePolygonExtended(r.Key + (int)Caracteristique.Speed, TeamMatesDisplayDictionary[r.Key].GetRobotSpeedArrow());
-                RobotShapesPolygonSeries.AddOrUpdatePolygonExtended(r.Key + (int)Caracteristique.Destination, TeamMatesDisplayDictionary[r.Key].GetRobotDestinationArrow());
-                RobotShapesPolygonSeries.AddOrUpdatePolygonExtended(r.Key + (int)Caracteristique.WayPoint, TeamMatesDisplayDictionary[r.Key].GetRobotWaypointArrow());
-                
-                //On trace le robot en dernier pour l'avoir en couche de dessus
-                RobotShapesPolygonSeries.AddOrUpdatePolygonExtended(r.Key, TeamMatesDisplayDictionary[r.Key].GetRobotPolygon());
-                               
-                //On affiche en plus les différents objets détectés par chacun des robots
-                foreach (var polygonObject in TeamMatesDisplayDictionary[r.Key].GetRobotLidarObjects())
-                    ObjectsPolygonSeries.AddOrUpdatePolygonExtended(ObjectsPolygonSeries.Count(), polygonObject);
+                LidarPtExtendedSeries.AddPtExtended(pt);
             }
+
+            StrategyPtExtendedSeries.Clear();
+            foreach (var pt in robot.GetRobotStrategyPoints())
+            {
+                StrategyPtExtendedSeries.AddPtExtended(pt);
+            }
+
+            //Affichage du robot
+            RobotShapesPolygonSeries.AddOrUpdatePolygonExtended(0 + (int)Caracteristique.Ghost, robot.GetRobotGhostPolygon());
+            RobotShapesPolygonSeries.AddOrUpdatePolygonExtended(0 + (int)Caracteristique.Speed, robot.GetRobotSpeedArrow());
+            RobotShapesPolygonSeries.AddOrUpdatePolygonExtended(0 + (int)Caracteristique.Destination, robot.GetRobotDestinationArrow());
+            RobotShapesPolygonSeries.AddOrUpdatePolygonExtended(0 + (int)Caracteristique.WayPoint, robot.GetRobotWaypointArrow());
+
+            //On trace le robot en dernier pour l'avoir en couche de dessus
+            RobotShapesPolygonSeries.AddOrUpdatePolygonExtended(0, robot.GetRobotPolygon());
+
+            //On affiche en plus les différents objets détectés par le robot
+            foreach (var polygonObject in robot.GetRobotLidarObjects())
+                ObjectsPolygonSeries.AddOrUpdatePolygonExtended(ObjectsPolygonSeries.Count(), polygonObject);
+
 
             foreach (var r in OpponentDisplayDictionary)
             {
@@ -519,107 +544,70 @@ namespace WpfWorldMapDisplay
             StrategyPtExtendedSeries.RedrawAll();
             ObjectsPolygonSeries.RedrawAll();
             SegmentSeries.RedrawAll();
-        }               
+        }
 
-        private void UpdateRobotLocation(int robotId, Location location, Location MapCenter)
+        private void UpdateRobotLocation(Location location, Location MapCenter)
         {
             if (location == null)
                 return;
-            if (TeamMatesDisplayDictionary.ContainsKey(robotId))
-            {
-                TeamMatesDisplayDictionary[robotId].SetLocation(Toolbox.OffsetLocation(location, MapCenter));
-            }
-            else
-            {
-                Console.WriteLine("UpdateRobotLocation : Robot non trouvé");
-            }
+            robot.SetLocation(Toolbox.OffsetLocation(location, MapCenter));
         }
-        private void UpdateRobotRole(int robotId, RoboCupRobotRole role)
+        private void UpdateRobotRole(RoboCupPoste role)
         {
-            if (TeamMatesDisplayDictionary.ContainsKey(robotId))
-            {
-                TeamMatesDisplayDictionary[robotId].SetRole(role);
-            }
-            else
-            {
-                Console.WriteLine("UpdateRobotRole : Robot non trouvé");
-            }
+            robot.SetRole(role);
         }
-        private void UpdatePlayingSide(int robotId, PlayingSide playSide)
+        private void UpdatePlayingSide(PlayingSide playSide)
         {
-            if (TeamMatesDisplayDictionary.ContainsKey(robotId))
-            {
-                TeamMatesDisplayDictionary[robotId].SetPlayingSide(playSide);
-            }
-            else
-            {
-                Console.WriteLine("UpdatePlayingSide : Robot non trouvé");
-            }
+            robot.SetPlayingSide(playSide);
         }
 
-        private void UpdateRobotGhostLocation(int robotId, Location location, Location mapCenter)
+        private void UpdateRobotGhostLocation(Location location, Location mapCenter)
         {
             if (location == null)
                 return;
-            if (TeamMatesDisplayDictionary.ContainsKey(robotId))
-            {
-                TeamMatesDisplayDictionary[robotId].SetGhostLocation(Toolbox.OffsetLocation(location, mapCenter));
-            }
-            else
-            {
-                Console.WriteLine("UpdateRobotGhostLocation : Robot non trouvé");
-            }
+
+            robot.SetGhostLocation(Toolbox.OffsetLocation(location, mapCenter));
         }
 
-        private void UpdateHeatMap(int robotId, double[,] data)
+        private void UpdateHeatMap(double[,] data)
         {
             if (data == null)
                 return;
-            if (TeamMatesDisplayDictionary.ContainsKey(robotId))
-            {
-                if (lwmdType == LocalWorldMapDisplayType.StrategyMap)
-                    TeamMatesDisplayDictionary[robotId].SetHeatMapStrategy(data);
-                if (lwmdType == LocalWorldMapDisplayType.WayPointMap)
-                    TeamMatesDisplayDictionary[robotId].SetHeatMapWaypoint(data);
-            }
+
+            if (lwmdType == LocalWorldMapDisplayType.StrategyMap)
+                robot.SetHeatMapStrategy(data);
+            if (lwmdType == LocalWorldMapDisplayType.WayPointMap)
+                robot.SetHeatMapWaypoint(data);
         }
 
-        private void UpdateLidarMap(int robotId, List<PointDExtended> lidarMap, LidarDataType type)
+        private void UpdateLidarMap(List<PointDExtended> lidarMap, LidarDataType type)
         {
             if (lidarMap == null)
                 return;
-            if (TeamMatesDisplayDictionary.ContainsKey(robotId))
-            {
-                TeamMatesDisplayDictionary[robotId].SetLidarMap(lidarMap, type);
-            }
+
+            robot.SetLidarMap(lidarMap, type);
         }
-        private void UpdateLidarSegments(int robotId, List<SegmentExtended>  lidarSegmentList)
+        private void UpdateLidarSegments(List<SegmentExtended> lidarSegmentList)
         {
             if (lidarSegmentList == null)
                 return;
-            if (TeamMatesDisplayDictionary.ContainsKey(robotId))
-            {
-                TeamMatesDisplayDictionary[robotId].SetLidarSegmentList(lidarSegmentList);
-            }
+
+            robot.SetLidarSegmentList(lidarSegmentList);
         }
 
-        private void UpdateLidarObjects(int robotId, List<PolarPointListExtended> lidarObjectList)
+        private void UpdateLidarObjects(List<PolarPointListExtended> lidarObjectList)
         {
             if (lidarObjectList == null)
                 return;
-            if (TeamMatesDisplayDictionary.ContainsKey(robotId))
-            {
-                TeamMatesDisplayDictionary[robotId].SetLidarObjectList(lidarObjectList);
-            }
+
+            robot.SetLidarObjectList(lidarObjectList);
         }
-        private void UpdateStrategyObjects(int robotId, List<PointDExtended> strategyPtsList)
+        private void UpdateStrategyObjects(List<PointDExtended> strategyPtsList)
         {
             if (strategyPtsList == null)
                 return;
-            if (TeamMatesDisplayDictionary.ContainsKey(robotId))
-            {
-                TeamMatesDisplayDictionary[robotId].SetStrategyObjectList(strategyPtsList);
-            }
+
+            robot.SetStrategyObjectList(strategyPtsList);
         }
 
         public void UpdateBallLocationList(List<Location> ballLocationList, Location mapCenter)
@@ -630,9 +618,21 @@ namespace WpfWorldMapDisplay
                 {
                     BallDisplayList.Clear();
                     foreach (var ballLocation in ballLocationList)
-                    {                        
+                    {
                         BallDisplayList.Add(new BallDisplay(Toolbox.OffsetLocation(ballLocation, mapCenter)));
                     }
+                }
+            }
+        }
+
+        public void UpdateTeammateList(List<LocationExtended> teammateList, Location mapCenter)
+        {
+            if (teammateList != null)
+            {
+                TeammateLocationList.Clear();
+                foreach (var teammateLocation in teammateList.ToList())
+                {
+                    TeammateLocationList.Add(Toolbox.OffsetLocation(teammateLocation, mapCenter));
                 }
             }
         }
@@ -659,28 +659,24 @@ namespace WpfWorldMapDisplay
             }
         }
 
-        public void UpdateRobotWaypoint(int robotId, Location waypointLocation, Location mapCenter)
+        public void UpdateRobotWaypoint(Location waypointLocation, Location mapCenter)
         {
             if (waypointLocation == null)
                 return;
-            if (TeamMatesDisplayDictionary.ContainsKey(robotId))
-            {
-                Location wpRefLocal = Toolbox.OffsetLocation(waypointLocation, mapCenter);
-                TeamMatesDisplayDictionary[robotId].SetWayPoint(wpRefLocal.X, wpRefLocal.Y, wpRefLocal.Theta);
-            }
+
+            Location wpRefLocal = Toolbox.OffsetLocation(waypointLocation, mapCenter);
+            robot.SetWayPoint(wpRefLocal.X, wpRefLocal.Y, wpRefLocal.Theta);
         }
 
 
 
-        public void UpdateRobotDestination(int robotId, Location destinationLocation, Location mapCenter)
+        public void UpdateRobotDestination(Location destinationLocation, Location mapCenter)
         {
             if (destinationLocation == null)
                 return;
-            if (TeamMatesDisplayDictionary.ContainsKey(robotId))
-            {
-                Location destRefLocal = Toolbox.OffsetLocation(destinationLocation, mapCenter);
-                TeamMatesDisplayDictionary[robotId].SetDestination(destRefLocal.X, destRefLocal.Y, destRefLocal.Theta);
-            }
+
+            Location destRefLocal = Toolbox.OffsetLocation(destinationLocation, mapCenter);
+            robot.SetDestination(destRefLocal.X, destRefLocal.Y, destRefLocal.Theta);
         }
 
         //public void UpdateOpponentsLocation(int robotId, Location location, Location mapCenter)
@@ -1083,7 +1079,7 @@ namespace WpfWorldMapDisplay
 
                         var xHeatMap = xmin + (xmax - xmin) * hitTestPoint.X / width;
                         var yHeatMap = -(ymin + (ymax - ymin) * hitTestPoint.Y / height);
-                        
+
                         Console.WriteLine("Click on : x=" + xHeatMap + " - y=" + yHeatMap);
                         OnCtrlClickOnHeatMap(xHeatMap, yHeatMap);
                     }
