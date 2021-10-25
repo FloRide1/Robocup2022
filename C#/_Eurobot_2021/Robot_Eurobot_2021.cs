@@ -86,7 +86,7 @@ namespace Robot
         static UDPMulticastReceiver robotUdpMulticastReceiver = null;
         static UDPMulticastInterpreter robotUdpMulticastInterpreter = null;
 
-        static GlobalWorldMapManager globalWorldMapManager;
+        //static GlobalWorldMapManager globalWorldMapManager;
                 
         static ImuProcessor.ImuProcessor imuProcessor;
         //static StrategyManagerNS.StrategyManager strategyManager;
@@ -146,7 +146,7 @@ namespace Robot
             trajectoryPlanner = new TrajectoryGeneratorHolonome(robotId, competition);
 
             localWorldMapManager = new LocalWorldMapManager(robotId, teamId, useMulticast:false);
-            globalWorldMapManager = new GlobalWorldMapManager(robotId, teamId);
+            //globalWorldMapManager = new GlobalWorldMapManager(robotId, teamId);
 
             switch (competition)
             {
@@ -303,12 +303,13 @@ namespace Robot
 
             /// Events de réception des localWorldMap
             /// Soit en direct si on se transmet à nous même, soit via le Multicast pour transmettre aux autres robots
-            localWorldMapManager.OnLocalWorldMapToGlobalWorldMapGeneratorEvent += globalWorldMapManager.OnLocalWorldMapReceived;
-            robotUdpMulticastInterpreter.OnLocalWorldMapEvent += globalWorldMapManager.OnLocalWorldMapReceived;
+            //localWorldMapManager.OnLocalWorldMapToGlobalWorldMapGeneratorEvent += globalWorldMapManager.OnLocalWorldMapReceived;
+            localWorldMapManager.OnLocalWorldMapTransferEvent += strategyManager.OnLocalWorldMapReceived;
+            //robotUdpMulticastInterpreter.OnLocalWorldMapEvent += globalWorldMapManager.OnLocalWorldMapReceived;
 
             /// Event généré lorsque la Global World Map a été calculée.
             /// Elle n'a pas vocation à être renvoyée à tous les robots puisqu'on la génère dans chaque robot en parallèle
-            globalWorldMapManager.OnGlobalWorldMapEvent += strategyManager.OnGlobalWorldMapReceived;
+            //globalWorldMapManager.OnGlobalWorldMapEvent += strategyManager.OnGlobalWorldMapReceived;
 
             /// Event de Réception de data Multicast sur le robot
             robotUdpMulticastReceiver.OnDataReceivedEvent += robotUdpMulticastInterpreter.OnMulticastDataReceived;

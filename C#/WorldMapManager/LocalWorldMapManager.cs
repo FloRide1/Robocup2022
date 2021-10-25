@@ -331,10 +331,10 @@ namespace WorldMapManager
             }
         }
 
-        public event EventHandler<LocalWorldMapArgs> OnLocalWorldMapToGlobalWorldMapGeneratorEvent;
+        public event EventHandler<LocalWorldMapArgs> OnLocalWorldMapTransferEvent;
         public virtual void OnLocalWorldMapToGlobalWorldMapGenerator(LocalWorldMap data)
         {
-            var handler = OnLocalWorldMapToGlobalWorldMapGeneratorEvent;
+            var handler = OnLocalWorldMapTransferEvent;
             if (handler != null)
             {
                 handler(this, new LocalWorldMapArgs { LocalWorldMap = data});

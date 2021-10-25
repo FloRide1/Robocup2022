@@ -193,7 +193,7 @@ namespace TeamSimulator
             //Event de Transmission des Local World Map du robot vers le multicast
             //localWorldMapManager.OnMulticastSendLocalWorldMapEvent += robotUdpMulticastSender.OnMulticastMessageToSendReceived;
             //localWorldMapManager.OnLocalWorldMapToGlobalWorldMapGeneratorEvent += globalWorldMapManager.OnLocalWorldMapReceived;
-            localWorldMapManager.OnLocalWorldMapToGlobalWorldMapGeneratorEvent += strategyManager.OnLocalWorldMapReceived;
+            localWorldMapManager.OnLocalWorldMapTransferEvent += strategyManager.OnLocalWorldMapReceived;
             robotUdpMulticastInterpreter.OnLocalWorldMapEvent += globalWorldMapManager.OnLocalWorldMapReceived;
 
             //Event d'interprétation d'une globalWorldMap à sa réception dans le robot

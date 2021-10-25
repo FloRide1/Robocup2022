@@ -310,6 +310,8 @@ namespace Robot
             strategyManager.OnDestinationEvent += localWorldMapManager.OnDestinationReceived;
             waypointGenerator.OnWaypointEvent += localWorldMapManager.OnWaypointReceived;
             strategyManager.OnHeatMapStrategyEvent += localWorldMapManager.OnHeatMapStrategyReceived;
+
+            localWorldMapManager.OnLocalWorldMapTransferEvent += strategyManager.OnLocalWorldMapReceived;
             
             //if (usingLidar)
             //{
