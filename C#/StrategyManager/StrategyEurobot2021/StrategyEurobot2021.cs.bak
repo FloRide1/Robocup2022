@@ -77,8 +77,8 @@ namespace StrategyManagerNS
 
         public StrategyEurobot2021(int robotId, int teamId, string teamIpAddress) : base(robotId, teamId, teamIpAddress)
         {
-            matchDescriptor = new Eurobot2021MatchDescriptor(this);
-            RayonRobot = 0.15;
+            matchDescriptor = new Eurobot2021MatchDescriptor();
+            RayonRobot = 0.16;
         }
 
         public List<TaskBase> listTasks { get; private set; }

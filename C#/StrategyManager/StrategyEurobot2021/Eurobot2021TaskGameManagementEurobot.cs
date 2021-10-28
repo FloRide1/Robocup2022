@@ -16,7 +16,7 @@ using static HerkulexManagerNS.HerkulexEventArgs;
 namespace StrategyManagerNS
 {
 
-    public class Eurobot2021TaskGameManagementEurobot : TaskBase
+    public class Eurobot2021TaskGameManagement : TaskBase
     {
         private enum TaskGameManagementEurobotState
         {
@@ -27,10 +27,10 @@ namespace StrategyManagerNS
             MatchEnded,
         }
 
-        public Eurobot2021TaskGameManagementEurobot() : base()
+        public Eurobot2021TaskGameManagement() : base()
         { }
 
-        public Eurobot2021TaskGameManagementEurobot(StrategyGenerique sg) : base(sg)
+        public Eurobot2021TaskGameManagement(StrategyGenerique sg) : base(sg)
         {
             parent = sg;
         }

@@ -519,7 +519,7 @@ namespace StrategyManagerNS
                 else if (dictionaryMancheAir.Count == 2)
                     score += 15;
                 /// Si le phare a été activé, on ajoute 3 points. S'il est actif à la fin du match, on ajoute 10 points
-                var dictionaryPhare = p.matchDescriptor.listElementsJeu.Where(x => x.Value.isAvailable == false && x.Value.elementDeJeu == Eurobot2021TypeELementDeJeu.Phare).ToDictionary(x => x.Key, y => y.Value);
+                var dictionaryPhare = p.matchDescriptor.listElementsJeu.Where(x => x.Value.isAvailable == false && x.Value.elementDeJeu == Eurobot2021TypeELementDeJeu.Eurobot2021Phare).ToDictionary(x => x.Key, y => y.Value);
                 if (dictionaryPhare.Count == 1)
                     score += 13;
                 /// Si le drapeau est levé, on ajoute 10 points
