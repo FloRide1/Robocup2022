@@ -97,9 +97,9 @@ namespace StrategyManagerNS
 
                             Console.WriteLine("GOTO gobelet : X=" + emplacementPrise.X.ToString("N3") + " - Y=" + emplacementPrise.Y.ToString("N3"));
                             Console.WriteLine("GOTO gobelet : Angle Prise = " + Toolbox.RadToDeg(AnglePrise).ToString("N3"));
-                            if (GobeletCourant.Type == TypeGobelet.Libre)
+                            if (GobeletCourant.Type == Eurobot2021TypeGobelet.Libre)
                                 ; /// On ne fait rien avant d'arriver sur zone en libre
-                            else if (GobeletCourant.Type == TypeGobelet.Distributeur)
+                            else if (GobeletCourant.Type == Eurobot2021TypeGobelet.Distributeur)
                                 parentStrategie.taskBras_dict[BrasUtilise].StartPreparePrehensionGobeletDistributeur();
                             timestamp = DateTime.Now;
                             sw.Restart();
@@ -156,17 +156,17 @@ namespace StrategyManagerNS
                             timestamp = DateTime.Now;
 
                             //Si on est sur un gobelet standard, la préhension est en cours
-                            if (GobeletCourant.Type == TypeGobelet.Libre)
+                            if (GobeletCourant.Type == Eurobot2021TypeGobelet.Libre)
                             {
                                 /// Si on est sur un gobelet standard, on démarre la préhension classique
                                 parentStrategie.taskBras_dict[BrasUtilise].StartPrehensionGobeletLibre();
                             }
-                            else if (GobeletCourant.Type == TypeGobelet.LibreCouche)
+                            else if (GobeletCourant.Type == Eurobot2021TypeGobelet.LibreCouche)
                             {
                                 /// Si on est sur un gobelet standard, on démarre la préhension classique
                                 parentStrategie.taskBras_dict[BrasUtilise].StartPrehensionGobeletCouche();
                             }
-                            else if (GobeletCourant.Type == TypeGobelet.Distributeur)
+                            else if (GobeletCourant.Type == Eurobot2021TypeGobelet.Distributeur)
                             {
                                 /// Si on est sur un gobelet distributeur
                                 /// On lance la préhnesion distributeur

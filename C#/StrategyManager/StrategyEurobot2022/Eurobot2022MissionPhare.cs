@@ -19,7 +19,7 @@ namespace StrategyManagerNS
         private Dictionary<ServoId, int> servoPositionsRequested;
         DateTime timestamp;
         Eurobot2022Phare PhareCourant;
-        double timoutIndicatif;
+        double indicativeTime;
         double angleBras = -3 * Math.PI / 4;
 
         StrategyEurobot2022 parentStrategie;
@@ -55,6 +55,7 @@ namespace StrategyManagerNS
             PrepareServo,
             PushPhare,
             Degagement,
+            Retrait,
         }
 
         public void Pause()
@@ -106,18 +107,18 @@ namespace StrategyManagerNS
                     {
                         case SubTaskState.Entry:
                             ///Deplacement de pôsitionnement sans sortir le bras
-                            if (parentStrategie.playingColor == Eurobot2022SideColor.Blue)
+                            if (parentStrategie.playingColor == StrategyEurobot2022.Eurobot2022SideColor.Blue)
                             {
-                                timoutIndicatif = parentStrategie.SetRobotDestination(new PointD(PhareCourant.Pos.X + 0.12, PhareCourant.Pos.Y - parent.RayonRobot - 0.15), Toolbox.DegToRad(90) - angleBras);
+                                indicativeTime = parentStrategie.SetRobotDestination(new PointD(PhareCourant.Pos.X + 0.06, PhareCourant.Pos.Y - parent.RayonRobot - 0.15), Toolbox.DegToRad(90) - angleBras);
                             }
-                            else if (parentStrategie.playingColor == Eurobot2022SideColor.Yellow)
+                            else if (parentStrategie.playingColor == StrategyEurobot2022.Eurobot2022SideColor.Yellow)
                             {
-                                timoutIndicatif = parentStrategie.SetRobotDestination(new PointD(PhareCourant.Pos.X - 0.12, PhareCourant.Pos.Y - parent.RayonRobot - 0.15), Toolbox.DegToRad(90) - angleBras);
+                                indicativeTime = parentStrategie.SetRobotDestination(new PointD(PhareCourant.Pos.X - 0.06, PhareCourant.Pos.Y - parent.RayonRobot - 0.15), Toolbox.DegToRad(90) - angleBras);
                             }
                             timestamp = DateTime.Now;
                             break;
                         case SubTaskState.EnCours:
-                            if (parentStrategie.isDeplacementFinished || DateTime.Now.Subtract(timestamp).TotalMilliseconds > timoutIndicatif)
+                            if (parentStrategie.isDeplacementFinished || DateTime.Now.Subtract(timestamp).TotalMilliseconds > indicativeTime)
                                 ExitState();                                /// A appeler quand on souhaite passer à Exit
                             break;
                         case SubTaskState.Exit:
@@ -131,20 +132,20 @@ namespace StrategyManagerNS
                     {
                         case SubTaskState.Entry:
                             ///Deplacement
-                            if (parentStrategie.playingColor == Eurobot2022SideColor.Blue)
+                            if (parentStrategie.playingColor == StrategyEurobot2022.Eurobot2022SideColor.Blue)
                             {
-                                timoutIndicatif = parentStrategie.SetRobotDestination(new PointD(PhareCourant.Pos.X + 0.12, PhareCourant.Pos.Y - parent.RayonRobot - 0.05), Toolbox.DegToRad(90) - angleBras);
+                                indicativeTime = parentStrategie.SetRobotDestination(new PointD(PhareCourant.Pos.X + 0.06, PhareCourant.Pos.Y - parent.RayonRobot - 0.05), Toolbox.DegToRad(90) - angleBras);
                             }
-                            else if (parentStrategie.playingColor == Eurobot2022SideColor.Yellow)
+                            else if (parentStrategie.playingColor == StrategyEurobot2022.Eurobot2022SideColor.Yellow)
                             {
-                                timoutIndicatif = parentStrategie.SetRobotDestination(new PointD(PhareCourant.Pos.X - 0.12, PhareCourant.Pos.Y - parent.RayonRobot - 0.05), Toolbox.DegToRad(90) - angleBras);
+                                indicativeTime = parentStrategie.SetRobotDestination(new PointD(PhareCourant.Pos.X - 0.06, PhareCourant.Pos.Y - parent.RayonRobot - 0.05), Toolbox.DegToRad(90) - angleBras);
                             }
                             /// Positionnnement du servo
                             parentStrategie.taskBrasDeclencheur.StartPositionnementPhare();
                             timestamp = DateTime.Now;
                             break;
                         case SubTaskState.EnCours:
-                            if (parentStrategie.isDeplacementFinished || DateTime.Now.Subtract(timestamp).TotalMilliseconds > timoutIndicatif)
+                            if (parentStrategie.isDeplacementFinished || DateTime.Now.Subtract(timestamp).TotalMilliseconds > indicativeTime)
                                 ExitState();                                /// A appeler quand on souhaite passer à Exit
                             break;
                         case SubTaskState.Exit:
@@ -158,41 +159,26 @@ namespace StrategyManagerNS
                     {
                         case SubTaskState.Entry:
                             timestamp = DateTime.Now;
-                            if (parentStrategie.playingColor == Eurobot2022SideColor.Blue)
+                            if (parentStrategie.playingColor == StrategyEurobot2022.Eurobot2022SideColor.Blue)
                             {
-                                timoutIndicatif = parentStrategie.SetRobotDestination(new PointD(PhareCourant.Pos.X - 0.12, PhareCourant.Pos.Y - parent.RayonRobot - 0.03), Toolbox.DegToRad(90) - angleBras);
+                                indicativeTime = parentStrategie.SetRobotDestination(new PointD(PhareCourant.Pos.X - 0.04, PhareCourant.Pos.Y - parent.RayonRobot - 0.05), Toolbox.DegToRad(90) - angleBras);
                             }
-                            else if (parentStrategie.playingColor == Eurobot2022SideColor.Yellow)
+                            else if (parentStrategie.playingColor == StrategyEurobot2022.Eurobot2022SideColor.Yellow)
                             {
-                                timoutIndicatif = parentStrategie.SetRobotDestination(new PointD(PhareCourant.Pos.X + 0.12, PhareCourant.Pos.Y - parent.RayonRobot - 0.03), Toolbox.DegToRad(90) - angleBras);
+                                indicativeTime = parentStrategie.SetRobotDestination(new PointD(PhareCourant.Pos.X + 0.04, PhareCourant.Pos.Y - parent.RayonRobot - 0.05), Toolbox.DegToRad(90) - angleBras);
                             }
-                            parentStrategie.taskParametersModifiers.StartAvoidanceReduction(radiusObstacleFixe: 0.05, radiusObstacleMobile: 0.20, 4000);
+                            //parentStrategie.taskAvoidanceParametersModifiers.StartAvoidanceReduction(radiusObstacleFixe: 0.2, radiusObstacleMobile: 0.20, 4000);
                             break;
                         case SubTaskState.EnCours:
-                            if (parentStrategie.isDeplacementFinished || DateTime.Now.Subtract(timestamp).TotalMilliseconds > timoutIndicatif)
+                            if (parentStrategie.isDeplacementFinished || DateTime.Now.Subtract(timestamp).TotalMilliseconds > indicativeTime)
                             {
                                 ExitState();
                             }
                             break;
                         case SubTaskState.Exit:                             /// L'état suivant ne doit être défini que dans le substate Exit
-                            if (DateTime.Now.Subtract(timestamp).TotalMilliseconds > timoutIndicatif)
-                            {
-                                /// Failed : on revient à Idle sans cocher la case
-                                /// On remet en jeu les windflags considérés avec un priorité de 1
-                                /// Ils seront gérés par l'algo ensuite
-                                Console.WriteLine("Déplacement vers Phare FAILED");
-                                if (parentStrategie.playingColor == Eurobot2022SideColor.Blue)
-                                    PhareCourant.PriorityBlue -= 10;
-                                if (parentStrategie.playingColor == Eurobot2022SideColor.Yellow)
-                                    PhareCourant.PriorityYellow -= 10;
-                                missionPhareState = MissionPhareStates.Idle;                     /// L'état suivant ne doit être défini que dans le substate Exit
-                            }
-                            else
-                            {
-                                Console.WriteLine("Phare : SUCCESS");
-                                missionPhareState = MissionPhareStates.Degagement;
-                                PhareCourant.isAvailable = false;
-                            }
+                            Console.WriteLine("Phare : pushed");
+                            missionPhareState = MissionPhareStates.Degagement;
+                            PhareCourant.isAvailable = false;
                             break;
                     }
                     break;
@@ -201,24 +187,50 @@ namespace StrategyManagerNS
                     {
                         case SubTaskState.Entry:
                             timestamp = DateTime.Now;
-                            if (parentStrategie.playingColor == Eurobot2022SideColor.Blue)
+                            if (parentStrategie.playingColor == StrategyEurobot2022.Eurobot2022SideColor.Blue)
                             {
-                                timoutIndicatif = parentStrategie.SetRobotDestination(new PointD(PhareCourant.Pos.X - 0.12, PhareCourant.Pos.Y - parent.RayonRobot - 0.03), Toolbox.DegToRad(65) - angleBras);
+                                indicativeTime = parentStrategie.SetRobotDestination(new PointD(PhareCourant.Pos.X - 0.08, PhareCourant.Pos.Y - parent.RayonRobot - 0.05), Toolbox.DegToRad(110) - angleBras);
                             }
-                            else if (parentStrategie.playingColor == Eurobot2022SideColor.Yellow)
+                            else if (parentStrategie.playingColor == StrategyEurobot2022.Eurobot2022SideColor.Yellow)
                             {
-                                timoutIndicatif = parentStrategie.SetRobotDestination(new PointD(PhareCourant.Pos.X + 0.12, PhareCourant.Pos.Y - parent.RayonRobot - 0.03), Toolbox.DegToRad(115) - angleBras);
+                                indicativeTime = parentStrategie.SetRobotDestination(new PointD(PhareCourant.Pos.X + 0.08, PhareCourant.Pos.Y - parent.RayonRobot - 0.05), Toolbox.DegToRad(70) - angleBras);
                             }
-                            parentStrategie.taskParametersModifiers.StartAvoidanceReduction(radiusObstacleFixe: 0.05, radiusObstacleMobile: 0.20, 4000);
+                            //parentStrategie.taskAvoidanceParametersModifiers.StartAvoidanceReduction(radiusObstacleFixe: 0.2, radiusObstacleMobile: 0.20, 1000);
                             break;
                         case SubTaskState.EnCours:
-                            if (parentStrategie.isDeplacementFinished || DateTime.Now.Subtract(timestamp).TotalMilliseconds > timoutIndicatif)
+                            if (parentStrategie.isDeplacementFinished || DateTime.Now.Subtract(timestamp).TotalMilliseconds > indicativeTime)
                             {
                                 ExitState();
                             }
                             break;
                         case SubTaskState.Exit:                             /// L'état suivant ne doit être défini que dans le substate Exit
-                            Console.WriteLine("Manche à air : pushed");
+                            Console.WriteLine("Phare : dégagement effectué");
+                            missionPhareState = MissionPhareStates.Retrait;
+                            break;
+                    }
+                    break;
+                case MissionPhareStates.Retrait:
+                    switch (subState)
+                    {
+                        case SubTaskState.Entry:
+                            timestamp = DateTime.Now;
+                            if (parentStrategie.playingColor == StrategyEurobot2022.Eurobot2022SideColor.Blue)
+                            {
+                                indicativeTime = parentStrategie.SetRobotDestination(new PointD(PhareCourant.Pos.X - 0.08, PhareCourant.Pos.Y - parent.RayonRobot - 0.05 - 0.10), Toolbox.DegToRad(110) - angleBras);
+                            }
+                            else if (parentStrategie.playingColor == StrategyEurobot2022.Eurobot2022SideColor.Yellow)
+                            {
+                                indicativeTime = parentStrategie.SetRobotDestination(new PointD(PhareCourant.Pos.X + 0.08, PhareCourant.Pos.Y - parent.RayonRobot - 0.05 - 0.10), Toolbox.DegToRad(70) - angleBras);
+                            }
+                            break;
+                        case SubTaskState.EnCours:
+                            if (parentStrategie.isDeplacementFinished || DateTime.Now.Subtract(timestamp).TotalMilliseconds > indicativeTime)
+                            {
+                                ExitState();
+                            }
+                            break;
+                        case SubTaskState.Exit:                             /// L'état suivant ne doit être défini que dans le substate Exit
+                            Console.WriteLine("Phare : retrait effectué");
                             parentStrategie.taskBrasDeclencheur.StartRemonteeBras();
                             missionPhareState = MissionPhareStates.Idle;
                             PhareCourant.isAvailable = false;

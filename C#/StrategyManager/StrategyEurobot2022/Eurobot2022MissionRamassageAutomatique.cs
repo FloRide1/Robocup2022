@@ -13,19 +13,19 @@ using static HerkulexManagerNS.HerkulexEventArgs;
 
 namespace StrategyManagerNS
 {
-    public class Eurobot2021MissionRamassageAutomatique : MissionBase
+    public class Eurobot2022MissionRamassageAutomatique : MissionBase
     {
         MissionRamassageAutomatiqueState missionRamassageAutomatiqueState = MissionRamassageAutomatiqueState.Idle;
         DateTime timestamp;
         double indicativeTime;
 
-        StrategyEurobot2021 parentStrategie;
-        public Eurobot2021MissionRamassageAutomatique() : base()
+        StrategyEurobot2022 parentStrategie;
+        public Eurobot2022MissionRamassageAutomatique() : base()
         { }
 
-        public Eurobot2021MissionRamassageAutomatique(StrategyGenerique sg) : base(sg)
+        public Eurobot2022MissionRamassageAutomatique(StrategyGenerique sg) : base(sg)
         {
-            parentStrategie = sg as StrategyEurobot2021;
+            parentStrategie = sg as StrategyEurobot2022;
         }
 
         public override void Init()
@@ -103,9 +103,9 @@ namespace StrategyManagerNS
                                 task.Init();
                             }
 
-                            if (parentStrategie.playingColor == StrategyEurobot2021.Eurobot2021SideColor.Blue)
+                            if (parentStrategie.playingColor == StrategyEurobot2022.Eurobot2022SideColor.Blue)
                             {
-                                if (parentStrategie.robotType == StrategyEurobot2021.Eurobot2021RobotType.RobotSud)
+                                if (parentStrategie.robotType == StrategyEurobot2022.Eurobot2022RobotType.RobotSud)
                                 {
                                     switch (switchPosObservation)
                                     {
@@ -125,9 +125,9 @@ namespace StrategyManagerNS
                                 //    indicativeTime = parentStrategie.SetRobotDestination(new PointD(-0.65, 0.8), 0);
                                 //}
                             }
-                            else if (parentStrategie.playingColor == StrategyEurobot2021.Eurobot2021SideColor.Yellow)
+                            else if (parentStrategie.playingColor == StrategyEurobot2022.Eurobot2022SideColor.Yellow)
                             {
-                                if (parentStrategie.robotType == StrategyEurobot2021.Eurobot2021RobotType.RobotSud)
+                                if (parentStrategie.robotType == StrategyEurobot2022.Eurobot2022RobotType.RobotSud)
                                 {
 
                                     switch (switchPosObservation)
@@ -185,7 +185,7 @@ namespace StrategyManagerNS
                                 ///On attaque le premier gobelet trouvé au lidar en vérifiant qu'il n'est ni à l'extérieur du terrain ni dans une zone interdite
                                 ///
                                 //ON commence par reconstruire la liste dans le référentiel du terrain
-                                var gobeletListeRefTerrain = new List<Eurobot2021GobeletPotentiel>();
+                                var gobeletListeRefTerrain = new List<Eurobot2022GobeletPotentiel>();
                                 if (parentStrategie.GobeletsPotentielsRefTerrain.Count > 0)
                                 {
                                     //Pour l'instant, on ne prend pas les gobelets couchés
@@ -194,16 +194,16 @@ namespace StrategyManagerNS
                                     {
                                         var chosenGobelet = gobeletOrderedList.ElementAt(i);
                                         /// On filtre les gobelets debout et les gobelets couchés
-                                        Eurobot2021TypeGobelet typeGobelet = Eurobot2021TypeGobelet.Libre;
+                                        Eurobot2022TypeGobelet typeGobelet = Eurobot2022TypeGobelet.Libre;
                                         if (chosenGobelet.Largeur > 0.09)
-                                            typeGobelet = Eurobot2021TypeGobelet.LibreCouche;
+                                            typeGobelet = Eurobot2022TypeGobelet.LibreCouche;
 
-                                        Eurobot2021Color colorGobelet = Eurobot2021Color.Rouge;
+                                        Eurobot2022Color colorGobelet = Eurobot2022Color.Rouge;
                                         if (chosenGobelet.RssiStdDev > 950)
-                                            colorGobelet = Eurobot2021Color.Vert;
+                                            colorGobelet = Eurobot2022Color.Vert;
 
                                         parentStrategie.matchDescriptor.listElementsJeu.Add(parentStrategie.matchDescriptor.listElementsJeu.Count + 1000,
-                                            new Eurobot2021Gobelet(chosenGobelet.Pos.X, chosenGobelet.Pos.Y, color: colorGobelet, typeGobelet, reserved: Eurobot2021TeamReservation.Shared, anglePrise: null,
+                                            new Eurobot2022Gobelet(chosenGobelet.Pos.X, chosenGobelet.Pos.Y, color: colorGobelet, typeGobelet, reserved: Eurobot2022TeamReservation.Shared, anglePrise: null,
                                             robotAttributionBlue: parentStrategie.robotType, robotAttributionYellow: parentStrategie.robotType));
                                         Console.WriteLine(String.Format("RSSI DEV : {0} / TYPE {1} / COLOR {2}", chosenGobelet.RssiStdDev, typeGobelet, colorGobelet));
                                     }

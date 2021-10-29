@@ -10,6 +10,7 @@ namespace StrategyManagerNS
     public class Eurobot2022MatchDescriptor
     {
         public Dictionary<int, Eurobot2022ElementDeJeu> listElementsJeu = new Dictionary<int, Eurobot2022ElementDeJeu>();
+        public Dictionary<int, Eurobot2022ElementDeJeu> listElementsJeuDynamiques = new Dictionary<int, Eurobot2022ElementDeJeu>();
         public Dictionary<int, Eurobot2022EmplacementDepose> DictionaryEmplacementDepose = new Dictionary<int, Eurobot2022EmplacementDepose>();
         public Dictionary<string, Eurobot2022StateBrasTurbineRobot> DictionaryBrasTurbine = new Dictionary<string, Eurobot2022StateBrasTurbineRobot>();
         int CompteurGobeletsSurBras = 0;
@@ -20,8 +21,11 @@ namespace StrategyManagerNS
         List<int> ListElementsJeuOrdonneeYellowRobotNord;
         List<int> ListElementsJeuOrdonneeYellowRobotSud;
 
-        public Eurobot2022MatchDescriptor()
+        StrategyEurobot2022 parentStrategie;
+
+        public Eurobot2022MatchDescriptor(StrategyGenerique sg)
         {
+            parentStrategie = sg as StrategyEurobot2022;
             Init();
         }
 
@@ -42,20 +46,36 @@ namespace StrategyManagerNS
         {
             ListElementsJeuOrdonneeBlueRobotNord = new List<int>()
             {
-                16, 14, 10, 11, 12, 105, 35, 36, 37,38,39, 102, 103, 40,41,42,43,44
-            };
-            ListElementsJeuOrdonneeBlueRobotSud = new List<int>()
-            {
-                15, 13, 9, 19, 18, 7, 6, 5, 30, 31, 32, 33, 34
+                16, 14, 13, 15, 12, 105, 11, 35, 36, 37, 39, 102, 103, 40, 41, 42, 43, 44
             };
             ListElementsJeuOrdonneeYellowRobotNord = new List<int>()
             {
-                2, 4, 7, 6, 5, 104, 34, 33, 32, 31, 30, 100, 101, 25, 26, 27, 28, 29
+                2, 4, 3, 1, 5, 104, 6, 34, 33, 32, 30, 100, 101, 25, 26, 27, 28, 29
             };
-            ListElementsJeuOrdonneeYellowRobotSud = new List<int>()
+
+
+            if (parentStrategie.strategyType == Eurobot2022StrategyType.LaConchaDeSuMadre)
             {
-                1, 3, 8, 22, 23, 10, 11, 12, 39, 38, 37, 36, 35
-            };
+                ListElementsJeuOrdonneeBlueRobotSud = new List<int>()
+                {
+                    1001, 34, 30, 18, 19
+                };
+                ListElementsJeuOrdonneeYellowRobotSud = new List<int>()
+                {
+                    1000, 35, 39, 23, 22
+                };
+            }
+            else
+            {
+                ListElementsJeuOrdonneeBlueRobotSud = new List<int>()
+                {
+                    6, 30, 34, 18, 19
+                };
+                ListElementsJeuOrdonneeYellowRobotSud = new List<int>()
+                {
+                    11, 39, 35, 23, 22
+                };
+            }
         }  
 
         void LoadStrategy()
@@ -99,15 +119,18 @@ namespace StrategyManagerNS
             lock (listElementsJeu)
             {
                 listElementsJeu = new Dictionary<int, Eurobot2022ElementDeJeu>();
+                listElementsJeu.Add(1000, new Eurobot2022PositionTerrain(-0.65, 0.70, null, Eurobot2022TeamReservation.ReservedYellow));
+                listElementsJeu.Add(1001, new Eurobot2022PositionTerrain(0.65, 0.70, null, Eurobot2022TeamReservation.ReservedBlue));
+
                 /// Manche à air
-                listElementsJeu.Add(100, new Eurobot2022MancheAir(Eurobot2022TypeELementDeJeu.MancheAir, 1.270, -1.00, Eurobot2022TeamReservation.ReservedYellow, null));
-                listElementsJeu.Add(101, new Eurobot2022MancheAir(Eurobot2022TypeELementDeJeu.MancheAir, 0.865, -1.00, Eurobot2022TeamReservation.ReservedYellow, null));
-                listElementsJeu.Add(102, new Eurobot2022MancheAir(Eurobot2022TypeELementDeJeu.MancheAir, -1.270, -1.00, Eurobot2022TeamReservation.ReservedBlue, null));
-                listElementsJeu.Add(103, new Eurobot2022MancheAir(Eurobot2022TypeELementDeJeu.MancheAir, -0.865, -1.00, Eurobot2022TeamReservation.ReservedBlue, null));
+                listElementsJeu.Add(100, new Eurobot2022MancheAir(Eurobot2022TypeElementDeJeu.MancheAir, 1.270, -1.00, Eurobot2022TeamReservation.ReservedYellow, null));
+                listElementsJeu.Add(101, new Eurobot2022MancheAir(Eurobot2022TypeElementDeJeu.MancheAir, 0.865, -1.00, Eurobot2022TeamReservation.ReservedYellow, null));
+                listElementsJeu.Add(102, new Eurobot2022MancheAir(Eurobot2022TypeElementDeJeu.MancheAir, -1.270, -1.00, Eurobot2022TeamReservation.ReservedBlue, null));
+                listElementsJeu.Add(103, new Eurobot2022MancheAir(Eurobot2022TypeElementDeJeu.MancheAir, -0.865, -1.00, Eurobot2022TeamReservation.ReservedBlue, null));
 
                 /// Phares
-                listElementsJeu.Add(104, new Eurobot2022Phare(Eurobot2022TypeELementDeJeu.Phare, 1.15, 1.00, Eurobot2022TeamReservation.ReservedYellow, null));
-                listElementsJeu.Add(105, new Eurobot2022Phare(Eurobot2022TypeELementDeJeu.Phare, -1.15, 1.00, Eurobot2022TeamReservation.ReservedBlue, null));
+                listElementsJeu.Add(104, new Eurobot2022Phare(Eurobot2022TypeElementDeJeu.Phare, 1.19, 1.00, Eurobot2022TeamReservation.ReservedYellow, null));
+                listElementsJeu.Add(105, new Eurobot2022Phare(Eurobot2022TypeElementDeJeu.Phare, -1.19, 1.00, Eurobot2022TeamReservation.ReservedBlue, null));
 
                 /// Gobelets de champ
                 listElementsJeu.Add(1, new Eurobot2022Gobelet(1.200, -0.200, Eurobot2022Color.Rouge, Eurobot2022TypeGobelet.Libre, Eurobot2022TeamReservation.ReservedYellow, null));
@@ -138,7 +161,7 @@ namespace StrategyManagerNS
                 listElementsJeu.Add(23, new Eurobot2022Gobelet(-0.435, -0.650, Eurobot2022Color.Vert, Eurobot2022TypeGobelet.Libre, Eurobot2022TeamReservation.ReservedYellow, -Math.PI / 2));
                 listElementsJeu.Add(24, new Eurobot2022Gobelet(-0.495, -0.955, Eurobot2022Color.Rouge, Eurobot2022TypeGobelet.Libre, Eurobot2022TeamReservation.ReservedYellow, -2 * Math.PI / 3));
 
-                /// Ecueil privé jaune
+                // Ecueil privé jaune
                 listElementsJeu.Add(25, new Eurobot2022Gobelet(1.567, -0.750, Eurobot2022Color.Vert, Eurobot2022TypeGobelet.Distributeur, Eurobot2022TeamReservation.ReservedYellow, 0));
                 listElementsJeu.Add(26, new Eurobot2022Gobelet(1.567, -0.675, Eurobot2022Color.Rouge, Eurobot2022TypeGobelet.Distributeur, Eurobot2022TeamReservation.ReservedYellow, 0));
                 listElementsJeu.Add(27, new Eurobot2022Gobelet(1.567, -0.6, Eurobot2022Color.Vert, Eurobot2022TypeGobelet.Distributeur, Eurobot2022TeamReservation.ReservedYellow, 0));
@@ -147,16 +170,16 @@ namespace StrategyManagerNS
 
                 /// Ecueil partagé coté jaune
                 listElementsJeu.Add(30, new Eurobot2022Gobelet(0.8, 1.067, Eurobot2022Color.Rouge, Eurobot2022TypeGobelet.Distributeur, Eurobot2022TeamReservation.Shared, Math.PI / 2));
-                listElementsJeu.Add(31, new Eurobot2022Gobelet(0.725, 1.067, Eurobot2022Color.Rouge, Eurobot2022TypeGobelet.Distributeur, Eurobot2022TeamReservation.Shared, Math.PI / 2));
-                listElementsJeu.Add(32, new Eurobot2022Gobelet(0.65, 1.067, Eurobot2022Color.Rouge, Eurobot2022TypeGobelet.Distributeur, Eurobot2022TeamReservation.Shared, Math.PI / 2));
-                listElementsJeu.Add(33, new Eurobot2022Gobelet(0.575, 1.067, Eurobot2022Color.Rouge, Eurobot2022TypeGobelet.Distributeur, Eurobot2022TeamReservation.Shared, Math.PI / 2));
+                listElementsJeu.Add(31, new Eurobot2022Gobelet(0.725, 1.067, Eurobot2022Color.Neutre, Eurobot2022TypeGobelet.Distributeur, Eurobot2022TeamReservation.Shared, Math.PI / 2));
+                listElementsJeu.Add(32, new Eurobot2022Gobelet(0.65, 1.067, Eurobot2022Color.Neutre, Eurobot2022TypeGobelet.Distributeur, Eurobot2022TeamReservation.Shared, Math.PI / 2));
+                listElementsJeu.Add(33, new Eurobot2022Gobelet(0.575, 1.067, Eurobot2022Color.Neutre, Eurobot2022TypeGobelet.Distributeur, Eurobot2022TeamReservation.Shared, Math.PI / 2));
                 listElementsJeu.Add(34, new Eurobot2022Gobelet(0.5, 1.067, Eurobot2022Color.Vert, Eurobot2022TypeGobelet.Distributeur, Eurobot2022TeamReservation.Shared, Math.PI / 2));
 
                 /// Ecueil partagé coté bleu
                 listElementsJeu.Add(35, new Eurobot2022Gobelet(-0.5, 1.067, Eurobot2022Color.Rouge, Eurobot2022TypeGobelet.Distributeur, Eurobot2022TeamReservation.Shared, Math.PI / 2));
-                listElementsJeu.Add(36, new Eurobot2022Gobelet(-0.575, 1.067, Eurobot2022Color.Vert, Eurobot2022TypeGobelet.Distributeur, Eurobot2022TeamReservation.Shared, Math.PI / 2));
-                listElementsJeu.Add(37, new Eurobot2022Gobelet(-0.65, 1.067, Eurobot2022Color.Vert, Eurobot2022TypeGobelet.Distributeur, Eurobot2022TeamReservation.Shared, Math.PI / 2));
-                listElementsJeu.Add(38, new Eurobot2022Gobelet(-0.725, 1.067, Eurobot2022Color.Vert, Eurobot2022TypeGobelet.Distributeur, Eurobot2022TeamReservation.Shared, Math.PI / 2));
+                listElementsJeu.Add(36, new Eurobot2022Gobelet(-0.575, 1.067, Eurobot2022Color.Neutre, Eurobot2022TypeGobelet.Distributeur, Eurobot2022TeamReservation.Shared, Math.PI / 2));
+                listElementsJeu.Add(37, new Eurobot2022Gobelet(-0.65, 1.067, Eurobot2022Color.Neutre, Eurobot2022TypeGobelet.Distributeur, Eurobot2022TeamReservation.Shared, Math.PI / 2));
+                listElementsJeu.Add(38, new Eurobot2022Gobelet(-0.725, 1.067, Eurobot2022Color.Neutre, Eurobot2022TypeGobelet.Distributeur, Eurobot2022TeamReservation.Shared, Math.PI / 2));
                 listElementsJeu.Add(39, new Eurobot2022Gobelet(-0.8, 1.067, Eurobot2022Color.Vert, Eurobot2022TypeGobelet.Distributeur, Eurobot2022TeamReservation.Shared, Math.PI / 2));
 
                 /// Ecueil privé bleu
@@ -391,26 +414,6 @@ namespace StrategyManagerNS
         }
     }
 
-
-    public enum Eurobot2022SideColor
-    {
-        Blue,
-        Yellow
-    };
-
-    public enum Eurobot2022RobotType
-    {
-        RobotSud,
-        RobotNord,
-        None
-    };
-
-    public enum Eurobot2022StrategyType
-    {
-        Soft,
-        LaConchaDeSuMadre
-    };
-
     public enum Eurobot2022Color
     {
         Vert,
@@ -421,6 +424,7 @@ namespace StrategyManagerNS
     public enum Eurobot2022TypeGobelet
     {
         Libre,
+        LibreCouche,
         Distributeur
     }
 
@@ -431,7 +435,7 @@ namespace StrategyManagerNS
         ReservedYellow,
     }
 
-    public enum Eurobot2022TypeELementDeJeu
+    public enum Eurobot2022TypeElementDeJeu
     {
         Gobelet,
         Phare,
@@ -448,7 +452,7 @@ namespace StrategyManagerNS
         public Eurobot2022RobotType RobotAttributionYellow;
         public Eurobot2022RobotType RobotAttributionBlue;
         public Eurobot2022TeamReservation ReservationToTeam = Eurobot2022TeamReservation.Shared;
-        public Eurobot2022TypeELementDeJeu elementDeJeu = Eurobot2022TypeELementDeJeu.Gobelet;
+        public Eurobot2022TypeElementDeJeu elementDeJeu = Eurobot2022TypeElementDeJeu.Gobelet;
         public bool isAvailable;
     }
 
@@ -477,9 +481,26 @@ namespace StrategyManagerNS
         }
     }
 
+    public class Eurobot2022PositionTerrain : Eurobot2022ElementDeJeu
+    {     
+        public Eurobot2022PositionTerrain(double x, double y, double? anglePrise, Eurobot2022TeamReservation reserved,
+            Eurobot2022RobotType robotAttributionBlue = Eurobot2022RobotType.None, Eurobot2022RobotType robotAttributionYellow = Eurobot2022RobotType.None,
+            double priorityBlue = 1.0, double priorityYellow = 1.0)
+        {
+            Pos = new PointD(x, y);
+            isAvailable = true;
+            ReservationToTeam = reserved;
+            AnglePrise = anglePrise;
+            RobotAttributionYellow = robotAttributionYellow;
+            RobotAttributionBlue = robotAttributionBlue;
+            PriorityBlue = priorityBlue;
+            PriorityYellow = priorityYellow;
+        }
+    }
+
     public class Eurobot2022MancheAir : Eurobot2022ElementDeJeu
     {
-        public Eurobot2022MancheAir(Eurobot2022TypeELementDeJeu mancheAir, double x, double y, Eurobot2022TeamReservation reserved, double? anglePrise,
+        public Eurobot2022MancheAir(Eurobot2022TypeElementDeJeu mancheAir, double x, double y, Eurobot2022TeamReservation reserved, double? anglePrise,
             Eurobot2022RobotType robotAttributionBlue = Eurobot2022RobotType.None, Eurobot2022RobotType robotAttributionYellow = Eurobot2022RobotType.None,
             double priorityBlue = 1.0, double priorityYellow = 1.0)
         {
@@ -497,7 +518,7 @@ namespace StrategyManagerNS
 
     public class Eurobot2022Phare : Eurobot2022ElementDeJeu
     {
-        public Eurobot2022Phare(Eurobot2022TypeELementDeJeu phare, double x, double y, Eurobot2022TeamReservation reserved, double? anglePrise,
+        public Eurobot2022Phare(Eurobot2022TypeElementDeJeu phare, double x, double y, Eurobot2022TeamReservation reserved, double? anglePrise,
             Eurobot2022RobotType robotAttributionBlue = Eurobot2022RobotType.None, Eurobot2022RobotType robotAttributionYellow = Eurobot2022RobotType.None,
             double priorityBlue = 1.0, double priorityYellow = 1.0)
         {
@@ -519,7 +540,7 @@ namespace StrategyManagerNS
         //public int Id;
         public PointD Pos;
         public double AngleDepose;
-        public Eurobot2022SideColor Eurobot2022SideColor;
+        public Eurobot2022SideColor SideColor;
         public Eurobot2022Color Color;
         public bool IsAvailable;
         public Eurobot2022RobotType RobotAttributionYellow;
@@ -531,7 +552,7 @@ namespace StrategyManagerNS
         {
             Pos = new PointD(x, y);
             Color = couleur;
-            Eurobot2022SideColor = team;
+            SideColor = team;
             AngleDepose = angleDepose;
             UnlockIdList = unlockList;
             RobotAttributionBlue = robotAttributionBlue;
@@ -552,15 +573,15 @@ namespace StrategyManagerNS
         }
     }
 
-    class Eurobot2022CaseDepose
-    {
-        public PointD Pos;
-        public bool isFull;
+    //class CaseDepose
+    //{
+    //    public PointD Pos;
+    //    public bool isFull;
 
-        public Eurobot2022CaseDepose(double x, double y)
-        {
-            Pos = new PointD(x, y);
-            isFull = false;
-        }
-    }
+    //    public CaseDepose(double x, double y)
+    //    {
+    //        Pos = new PointD(x, y);
+    //        isFull = false;
+    //    }
+    //}
 }
