@@ -194,7 +194,7 @@ namespace MessageGeneratorNS
             OnMessageToRobot((Int16)Commands.PC2R_SpeedConsigneMonitoringEnable, 1, payload);
         }
 
-        public void GenerateMessageEnablUartRawRxForward(object sender, BoolEventArgs e)
+        public void GenerateMessageEnablUARTRAWRxForward(object sender, BoolEventArgs e)
         {
             byte[] payload = new byte[1];
             payload[0] = Convert.ToByte(e.value);

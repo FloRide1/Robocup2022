@@ -1390,6 +1390,8 @@ namespace LidarProcessor
                         angleInitialObjet = objetsProchesPointsList[i].Angle;
                     }
                 }
+                currentObject.ExtractObjectAttributes();
+                ObjetsProchesList.Add(currentObject);
             }
 
             return GobeletsPotentiels;

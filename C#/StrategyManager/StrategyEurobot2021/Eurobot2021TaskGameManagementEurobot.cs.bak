@@ -43,7 +43,7 @@ namespace StrategyManagerNS
         TaskGameManagementState state = TaskGameManagementState.Init;
 
         Random random = new Random(654654684);
-        
+
 
 
         DateTime timestamp;
@@ -372,8 +372,8 @@ namespace StrategyManagerNS
                                                             /// On prend le bras vide le plus proche angulairement de 
                                                             var dictionaryBrasVidesByDistanceAngulaire = dictionarBrasVides.OrderBy(x =>
                                                             {
-                                                            ///On gère si l'angle de prise est défini ou pas
-                                                            double anglePrise;
+                                                                ///On gère si l'angle de prise est défini ou pas
+                                                                double anglePrise;
                                                                 if (gobeletChoisi.AnglePrise != null)
                                                                 {
                                                                     anglePrise = (double)gobeletChoisi.AnglePrise;
@@ -430,7 +430,7 @@ namespace StrategyManagerNS
                                                 {
                                                     /// Sinon on lance une tâche de scan de terrain et préhension automatique
                                                     /// On ne lance la tâche que si on est Sud
-                                                    if(p.robotType == StrategyEurobot2021.Eurobot2021RobotType.RobotSud)
+                                                    if (p.robotType == StrategyEurobot2021.Eurobot2021RobotType.RobotSud)
                                                         p.missionRamassageAutomatique.Start();
                                                 }
                                             }
@@ -462,7 +462,7 @@ namespace StrategyManagerNS
                                 p.missionZoneMouillage.Start();
                                 break;
                             case SubTaskState.EnCours:
-                                if(DateTime.Now.Subtract(timestamp).TotalMilliseconds > 98000)
+                                if (DateTime.Now.Subtract(timestamp).TotalMilliseconds > 98000)
                                 {
                                     ExitState();
                                 }
@@ -509,7 +509,7 @@ namespace StrategyManagerNS
             }
         }
 
-        void SelectBestStrategy(Dictionary<int, Eurobot2021Gobelet> dictGobeletsRestants, Dictionary<int, Eurobot2021EmplacementDepose> dictEmplacementsUtilisables, Dictionary<int , Eurobot2021StateBrasTurbineRobot> dictBrasVides, Dictionary<int, Eurobot2021StateBrasTurbineRobot> dictBrasAvecGobelets)
+        void SelectBestStrategy(Dictionary<int, Eurobot2021Gobelet> dictGobeletsRestants, Dictionary<int, Eurobot2021EmplacementDepose> dictEmplacementsUtilisables, Dictionary<int, Eurobot2021StateBrasTurbineRobot> dictBrasVides, Dictionary<int, Eurobot2021StateBrasTurbineRobot> dictBrasAvecGobelets)
         {
 
         }
