@@ -98,16 +98,16 @@ namespace StrategyManagerNS
                     {
                         case SubTaskState.Entry:
                             ///Deplacement de pôsitionnement sans sortir le bras
-                            foreach(var task in parentStrategie.listTasks)
+                            foreach (var task in parentStrategie.listTasks)
                             {
                                 task.Init();
                             }
 
-                            if (parentStrategie.playingColor == StrategyEurobot2021.SideColor.Blue)
-                            {                                
+                            if (parentStrategie.playingColor == StrategyEurobot2021.Eurobot2021SideColor.Blue)
+                            {
                                 if (parentStrategie.robotType == StrategyEurobot2021.Eurobot2021RobotType.RobotSud)
                                 {
-                                    switch(switchPosObservation)
+                                    switch (switchPosObservation)
                                     {
                                         case 0:
                                             indicativeTime = parentStrategie.SetRobotDestination(new PointD(0.6, 0.3), Math.PI - Math.PI / 4);
@@ -118,22 +118,22 @@ namespace StrategyManagerNS
                                         case 2:
                                             indicativeTime = parentStrategie.SetRobotDestination(new PointD(0, 0.3), Math.PI - Math.PI / 2);
                                             break;
-                                    }                                        
+                                    }
                                 }
                                 //else
                                 //{
                                 //    indicativeTime = parentStrategie.SetRobotDestination(new PointD(-0.65, 0.8), 0);
                                 //}
                             }
-                            else if (parentStrategie.playingColor == StrategyEurobot2021.SideColor.Yellow)
-                            {                                
+                            else if (parentStrategie.playingColor == StrategyEurobot2021.Eurobot2021SideColor.Yellow)
+                            {
                                 if (parentStrategie.robotType == StrategyEurobot2021.Eurobot2021RobotType.RobotSud)
                                 {
 
                                     switch (switchPosObservation)
                                     {
                                         case 0:
-                                            indicativeTime = parentStrategie.SetRobotDestination(new PointD(-0.6, 0.3),  Math.PI / 4);
+                                            indicativeTime = parentStrategie.SetRobotDestination(new PointD(-0.6, 0.3), Math.PI / 4);
                                             break;
                                         case 1:
                                             indicativeTime = parentStrategie.SetRobotDestination(new PointD(-0.3, 0.1), Math.PI / 3);
@@ -159,7 +159,7 @@ namespace StrategyManagerNS
                                 ExitState();                                /// A appeler quand on souhaite passer à Exit
                             break;
                         case SubTaskState.Exit:
-                            if(DateTime.Now.Subtract(timestamp).TotalMilliseconds > indicativeTime)
+                            if (DateTime.Now.Subtract(timestamp).TotalMilliseconds > indicativeTime)
                                 Console.WriteLine("Ramassage Automatique : déplacement aborted");
                             else
                                 Console.WriteLine("Ramassage Automatique : déplacement successful");
@@ -189,7 +189,7 @@ namespace StrategyManagerNS
                                 if (parentStrategie.GobeletsPotentielsRefTerrain.Count > 0)
                                 {
                                     //Pour l'instant, on ne prend pas les gobelets couchés
-                                    var gobeletOrderedList = parentStrategie.GobeletsPotentielsRefTerrain.Where(elt=>elt.Largeur<0.09).OrderBy(elt => Toolbox.Distance(elt.Pos, new PointD(parentStrategie.robotCurrentLocation.X, parentStrategie.robotCurrentLocation.Y)));
+                                    var gobeletOrderedList = parentStrategie.GobeletsPotentielsRefTerrain.Where(elt => elt.Largeur < 0.09).OrderBy(elt => Toolbox.Distance(elt.Pos, new PointD(parentStrategie.robotCurrentLocation.X, parentStrategie.robotCurrentLocation.Y)));
                                     for (int i = 0; i < Math.Min(3, gobeletOrderedList.Count()); i++)
                                     {
                                         var chosenGobelet = gobeletOrderedList.ElementAt(i);
@@ -198,12 +198,12 @@ namespace StrategyManagerNS
                                         if (chosenGobelet.Largeur > 0.09)
                                             typeGobelet = TypeGobelet.LibreCouche;
 
-                                        Color colorGobelet = Color.Rouge;
+                                        Eurobot2021Color colorGobelet = Eurobot2021Color.Rouge;
                                         if (chosenGobelet.RssiStdDev > 950)
-                                            colorGobelet = Color.Vert;
+                                            colorGobelet = Eurobot2021Color.Vert;
 
                                         parentStrategie.matchDescriptor.listElementsJeu.Add(parentStrategie.matchDescriptor.listElementsJeu.Count + 1000,
-                                            new Gobelet(chosenGobelet.Pos.X, chosenGobelet.Pos.Y, color: colorGobelet, typeGobelet, reserved: TeamReservation.Shared, anglePrise: null,
+                                            new Eurobot2021Gobelet(chosenGobelet.Pos.X, chosenGobelet.Pos.Y, color: colorGobelet, typeGobelet, reserved: Eurobot2021TeamReservation.Shared, anglePrise: null,
                                             robotAttributionBlue: parentStrategie.robotType, robotAttributionYellow: parentStrategie.robotType));
                                         Console.WriteLine(String.Format("RSSI DEV : {0} / TYPE {1} / COLOR {2}", chosenGobelet.RssiStdDev, typeGobelet, colorGobelet));
                                     }
@@ -214,7 +214,7 @@ namespace StrategyManagerNS
                                 missionRamassageAutomatiqueState = MissionRamassageAutomatiqueState.Idle;
                                 break;
                         }
-                        break;                        
+                        break;
                     }
                     break;
                 default:

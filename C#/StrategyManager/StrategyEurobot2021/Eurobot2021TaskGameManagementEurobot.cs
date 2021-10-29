@@ -18,7 +18,7 @@ namespace StrategyManagerNS
 
     public class Eurobot2021TaskGameManagement : TaskBase
     {
-        private enum TaskGameManagementEurobotState
+        private enum TaskGameManagementState
         {
             Init,
             JackPresent,
@@ -40,10 +40,10 @@ namespace StrategyManagerNS
             /// On ne fait rien, cette task ne doit pas être resettée
         }
 
-        TaskGameManagementEurobotState state = TaskGameManagementEurobotState.Init;
+        TaskGameManagementState state = TaskGameManagementState.Init;
 
         Random random = new Random(654654684);
-        
+
 
 
         DateTime timestamp;
@@ -54,15 +54,15 @@ namespace StrategyManagerNS
                 StrategyEurobot2021 p = parent as StrategyEurobot2021;
 
                 //Forçage d'état si besoin
-                if (p.jackIsPresent && state != TaskGameManagementEurobotState.JackPresent)
+                if (p.jackIsPresent && state != TaskGameManagementState.JackPresent)
                 {
-                    state = TaskGameManagementEurobotState.JackPresent;
+                    state = TaskGameManagementState.JackPresent;
                     ResetSubState(); //Imperatif dans les Forçages;
                 }
 
                 switch (state)
                 {
-                    case TaskGameManagementEurobotState.Init: //On fait une tempo de 2 secondes
+                    case TaskGameManagementState.Init: //On fait une tempo de 2 secondes
                         switch (subState)
                         {
                             case SubTaskState.Entry:
@@ -75,11 +75,11 @@ namespace StrategyManagerNS
                                 break;
                             case SubTaskState.Exit:                             /// L'état suivant ne doit être défini que dans le substate Exit
                                 Console.WriteLine("Passage en attente de retrait de jack");
-                                state = TaskGameManagementEurobotState.JackPresent;
+                                state = TaskGameManagementState.JackPresent;
                                 break;
                         }
                         break;
-                    case TaskGameManagementEurobotState.JackPresent:
+                    case TaskGameManagementState.JackPresent:
                         switch (subState)
                         {
                             case SubTaskState.Entry:
@@ -94,21 +94,23 @@ namespace StrategyManagerNS
                                 {
                                     string textToDisplayLine1 = "Attente Jack";
                                     string textToDisplayLine2 = "";
-                                    if (p.playingColor == Eurobot2021SideColor.Blue)
+                                    if (p.playingColor == StrategyEurobot2021.Eurobot2021SideColor.Blue)
                                     {
-                                        textToDisplayLine2 += "Bleu - ";
+                                        textToDisplayLine2 += "BLEU ";
                                     }
                                     else
                                     {
-                                        textToDisplayLine2 += "Jaune - ";
+                                        textToDisplayLine2 += "JAUNE ";
                                     }
-                                    if (p.robotType == Eurobot2021RobotType.RobotNord)
+                                    if (p.robotType == StrategyEurobot2021.Eurobot2021RobotType.RobotNord)
                                     {
-                                        textToDisplayLine2 += "Robot Nord";
+                                        textToDisplayLine2 += "NORD ";
+                                        textToDisplayLine2 += textToDisplayLine2;
                                     }
                                     else
                                     {
-                                        textToDisplayLine2 += "Robot Sud";
+                                        textToDisplayLine2 += "SUD ";
+                                        textToDisplayLine2 += textToDisplayLine2;
                                     }
                                     p.taskAffichageLidar.StartAffichagePermanentLigne1(textToDisplayLine1);
                                     p.taskAffichageLidar.StartAffichagePermanentLigne2(textToDisplayLine2);
@@ -124,29 +126,29 @@ namespace StrategyManagerNS
                                     /// 
                                     Location locationDepart = new Location(0, 0, 0, 0, 0, 0);
 
-                                    if (p.playingColor == Eurobot2021SideColor.Blue)
+                                    if (p.playingColor == StrategyEurobot2021.Eurobot2021SideColor.Blue)
                                     {
-                                        if (p.robotType == Eurobot2021RobotType.RobotNord)
+                                        if (p.robotType == StrategyEurobot2021.Eurobot2021RobotType.RobotNord)
                                         {
-                                            locationDepart = new Location(-1.355, 0.345, Toolbox.Modulo2PiAngleRad(Toolbox.DegToRad(180 - 0)), 0, 0, 0);
+                                            locationDepart = new Location(-1.35, 0.345, Toolbox.Modulo2PiAngleRad(Toolbox.DegToRad(180 - 0)), 0, 0, 0);
                                         }
 
-                                        if (p.robotType == Eurobot2021RobotType.RobotSud)
+                                        if (p.robotType == StrategyEurobot2021.Eurobot2021RobotType.RobotSud)
                                         {
-                                            locationDepart = new Location(-1.25, 0.06, Toolbox.Modulo2PiAngleRad(Toolbox.DegToRad(180 - (-112.5))), 0, 0, 0);
+                                            locationDepart = new Location(-1.25, 0.06, Toolbox.Modulo2PiAngleRad(Toolbox.DegToRad(180 - 0)), 0, 0, 0);
                                         }
                                     }
 
-                                    if (p.playingColor == Eurobot2021SideColor.Yellow)
+                                    if (p.playingColor == StrategyEurobot2021.Eurobot2021SideColor.Yellow)
                                     {
-                                        if (p.robotType == Eurobot2021RobotType.RobotNord)
+                                        if (p.robotType == StrategyEurobot2021.Eurobot2021RobotType.RobotNord)
                                         {
-                                            locationDepart = new Location(1.355, 0.345, Toolbox.Modulo2PiAngleRad(Toolbox.DegToRad(0)), 0, 0, 0);
+                                            locationDepart = new Location(1.35, 0.345, Toolbox.Modulo2PiAngleRad(Toolbox.DegToRad(0)), 0, 0, 0);
                                         }
 
-                                        if (p.robotType == Eurobot2021RobotType.RobotSud)
+                                        if (p.robotType == StrategyEurobot2021.Eurobot2021RobotType.RobotSud)
                                         {
-                                            locationDepart = new Location(1.25, 0.06, Toolbox.Modulo2PiAngleRad(Toolbox.DegToRad(-112.5)), 0, 0, 0);
+                                            locationDepart = new Location(1.25, 0.06, Toolbox.Modulo2PiAngleRad(Toolbox.DegToRad(0)), 0, 0, 0);
                                         }
                                     }
                                     p.OnForcedLocation(0, locationDepart);
@@ -155,11 +157,11 @@ namespace StrategyManagerNS
                                 break;
                             case SubTaskState.Exit:
                                 Console.WriteLine("Jack retiré, on passe en match");
-                                state = TaskGameManagementEurobotState.Match;                     /// L'état suivant ne doit être défini que dans le substate Exit
+                                state = TaskGameManagementState.Match;                     /// L'état suivant ne doit être défini que dans le substate Exit
                                 break;
                         }
                         break;
-                    case TaskGameManagementEurobotState.Match:
+                    case TaskGameManagementState.Match:
                         switch (subState)
                         {
                             case SubTaskState.Entry:
@@ -168,13 +170,14 @@ namespace StrategyManagerNS
 
                                 //On active les moteurs
                                 p.OnEnableDisableMotor(true);
+                                p.taskAvoidanceParametersModifiers.StartAvoidanceReduction(0.20, 0.3, 2000);
 
                                 //p.taskParametersModifiers.StartSpeedBoost(4.0, 4.0, 2000);
 
                                 break;
                             case SubTaskState.EnCours:
-                                if ((p.robotType == Eurobot2021RobotType.RobotNord && DateTime.Now.Subtract(timestamp).TotalMilliseconds > 91000) ||
-                                    (p.robotType == Eurobot2021RobotType.RobotSud && DateTime.Now.Subtract(timestamp).TotalMilliseconds > 94000))
+                                if ((p.robotType == StrategyEurobot2021.Eurobot2021RobotType.RobotSud && DateTime.Now.Subtract(timestamp).TotalMilliseconds > 90000) ||
+                                    (p.robotType == StrategyEurobot2021.Eurobot2021RobotType.RobotNord && DateTime.Now.Subtract(timestamp).TotalMilliseconds > 94000))
                                 {
                                     //On demarre la tache FinDeMatch
                                     //p.taskFinDeMatch.Start();
@@ -219,7 +222,7 @@ namespace StrategyManagerNS
                                         var dictionaryElementsRestants = new Dictionary<int, Eurobot2021ElementDeJeu>();
                                         lock (p.matchDescriptor.listElementsJeu)
                                         {
-                                            if (p.playingColor == Eurobot2021SideColor.Blue)
+                                            if (p.playingColor == StrategyEurobot2021.Eurobot2021SideColor.Blue)
                                             {
                                                 dictionaryElementsRestants = p.matchDescriptor.listElementsJeu.Where(x => x.Value.isAvailable == true &&
                                                 x.Value.ReservationToTeam != Eurobot2021TeamReservation.ReservedYellow && x.Value.RobotAttributionBlue == p.robotType)
@@ -251,7 +254,7 @@ namespace StrategyManagerNS
 
                                                 ///Donc on a sa couleur, donc on peut filtrer la liste des emplacements de dépose
                                                 var dictionaryEmplacementsRestants = new Dictionary<int, Eurobot2021EmplacementDepose>();
-                                                if (p.playingColor == Eurobot2021SideColor.Blue)
+                                                if (p.playingColor == StrategyEurobot2021.Eurobot2021SideColor.Blue)
                                                 {
                                                     /// On récupère la liste des emplacements : libres / de la couleur de l'équipe / 
                                                     /// correspondant au rôle du robot dans l'équipe, de la couleur du gobelet
@@ -273,6 +276,19 @@ namespace StrategyManagerNS
                                                         /// Ensuite, on extrait la sous-liste des emplacements dont les antécédents sont validés
                                                         dictionaryEmplacementsUtilisables = GetListEmplacementsAntecedentsValides(dictionaryEmplacementsRestants);
                                                         Console.WriteLine("Nombre d'emplacements utilisables neutres côté bleu : " + dictionaryEmplacementsUtilisables.Count);
+                                                    }
+
+                                                    /// Si on a des emplacements utilisables, c'est ok, sinon on cherche aussi dans tous les emplacements
+                                                    if (dictionaryEmplacementsUtilisables.Count == 0)
+                                                    {
+                                                        /// On récupère la liste des emplacements : libres / de la couleur de l'équipe / 
+                                                        /// correspondant au rôle du robot dans l'équipe, de n'importe quelle couleur
+                                                        dictionaryEmplacementsRestants = p.matchDescriptor.DictionaryEmplacementDepose.Where(x => x.Value.IsAvailable == true && x.Value.SideColor == p.playingColor
+                                                        && x.Value.RobotAttributionBlue == p.robotType).ToDictionary(x => x.Key, y => y.Value);
+
+                                                        /// Ensuite, on extrait la sous-liste des emplacements dont les antécédents sont validés
+                                                        dictionaryEmplacementsUtilisables = GetListEmplacementsAntecedentsValides(dictionaryEmplacementsRestants);
+                                                        Console.WriteLine("Nombre d'emplacements utilisables couleur quelconque côté bleu : " + dictionaryEmplacementsUtilisables.Count);
                                                     }
                                                 }
                                                 else
@@ -299,6 +315,19 @@ namespace StrategyManagerNS
                                                         dictionaryEmplacementsUtilisables = GetListEmplacementsAntecedentsValides(dictionaryEmplacementsRestants);
                                                         Console.WriteLine("Nombre d'emplacements utilisables neutres côté jaune : " + dictionaryEmplacementsUtilisables.Count);
                                                     }
+
+                                                    /// Si on a des emplacements utilisables, c'est ok, sinon on cherche dans tous les emplacements
+                                                    if (dictionaryEmplacementsUtilisables.Count == 0)
+                                                    {
+                                                        /// On récupère la liste des emplacements : libres / de la couleur de l'équipe / 
+                                                        /// correspondant au rôle du robot dans l'équipe, de n'importe quelle couleur
+                                                        dictionaryEmplacementsRestants = p.matchDescriptor.DictionaryEmplacementDepose.Where(x => x.Value.IsAvailable == true && x.Value.SideColor == p.playingColor
+                                                        && x.Value.RobotAttributionYellow == p.robotType).ToDictionary(x => x.Key, y => y.Value);
+
+                                                        /// Ensuite, on extrait la sous-liste des emplacements dont les antécédents sont validés
+                                                        dictionaryEmplacementsUtilisables = GetListEmplacementsAntecedentsValides(dictionaryEmplacementsRestants);
+                                                        Console.WriteLine("Nombre d'emplacements utilisables couleur quelconque côté jaune : " + dictionaryEmplacementsUtilisables.Count);
+                                                    }
                                                 }
                                                 /// Si on a un emplacement de dépose libre 
                                                 if (dictionaryEmplacementsUtilisables.Count > 0)
@@ -319,32 +348,18 @@ namespace StrategyManagerNS
                                             ///Si on n'est pas en dépose, on traite l'élément choisi
                                             if (dictionaryElementsRestants.Count > 0)
                                             {
-                                                ///On récupère la priorité de l'élément courant pour voir si il n'y en a pas d'autres
-                                                ///et pour les trier par distance au point courant
-                                                Eurobot2021ElementDeJeu ElementChoisi;
-                                                if (p.playingColor == Eurobot2021SideColor.Blue)
-                                                {
-                                                    double highestPriority = dictionaryElementsRestants.ElementAt(0).Value.PriorityBlue;
-                                                    var dicoOrdered = dictionaryElementsRestants.Where(elt => elt.Value.PriorityBlue == highestPriority)
-                                                        .OrderBy(elt => Toolbox.Distance(elt.Value.Pos, new PointD(p.robotCurrentLocation.X, p.robotCurrentLocation.Y)));
+                                                var ElementChoisi = dictionaryElementsRestants.ElementAt(0);
 
-                                                    ElementChoisi = dicoOrdered.ElementAt(0).Value;
-                                                }
-                                                else
+                                                switch (ElementChoisi.Value.GetType().Name.ToString())
                                                 {
-                                                    double highestPriority = dictionaryElementsRestants.ElementAt(0).Value.PriorityYellow;
-                                                    var dicoOrdered = dictionaryElementsRestants.Where(elt => elt.Value.PriorityYellow == highestPriority)
-                                                        .OrderBy(elt => Toolbox.Distance(elt.Value.Pos, new PointD(p.robotCurrentLocation.X, p.robotCurrentLocation.Y)));
-
-                                                    ElementChoisi = dicoOrdered.ElementAt(0).Value;
-                                                }
-
-                                                switch (ElementChoisi.GetType().Name.ToString())
-                                                {
+                                                    case "PositionTerrain":
+                                                        var positionChoisie = (PositionTerrain)ElementChoisi.Value;
+                                                        p.missionLCDSM.Start(positionChoisie);
+                                                        break;
                                                     case "Gobelet":
                                                         /// Il n'y a pas de dépose à effectuer
                                                         /// On récupère la liste des bras disponibles dans le robot
-                                                        var gobeletChoisi = (Eurobot2021Gobelet)ElementChoisi;
+                                                        var gobeletChoisi = (Eurobot2021Gobelet)ElementChoisi.Value;
                                                         var dictionarBrasVides = p.matchDescriptor.DictionaryBrasTurbine.Where(x => x.Value.HasGobelet == false).ToDictionary(x => x.Key, y => y.Value);
 
                                                         /// Si on a des bras dispo et des gobelets restant à prendre
@@ -357,8 +372,8 @@ namespace StrategyManagerNS
                                                             /// On prend le bras vide le plus proche angulairement de 
                                                             var dictionaryBrasVidesByDistanceAngulaire = dictionarBrasVides.OrderBy(x =>
                                                             {
-                                                            ///On gère si l'angle de prise est défini ou pas
-                                                            double anglePrise;
+                                                                ///On gère si l'angle de prise est défini ou pas
+                                                                double anglePrise;
                                                                 if (gobeletChoisi.AnglePrise != null)
                                                                 {
                                                                     anglePrise = (double)gobeletChoisi.AnglePrise;
@@ -390,11 +405,11 @@ namespace StrategyManagerNS
                                                         }
                                                         break;
                                                     case "MancheAir":
-                                                        var mancheAirChoisie = (Eurobot2021MancheAir)ElementChoisi;
+                                                        var mancheAirChoisie = (MancheAir)ElementChoisi.Value;
                                                         p.missionWindFlag.Start(mancheAirChoisie);
                                                         break;
                                                     case "Phare":
-                                                        var PhareChoisi = (Eurobot2021Phare)ElementChoisi;
+                                                        var PhareChoisi = (Phare)ElementChoisi.Value;
                                                         p.missionPhare.Start(PhareChoisi);
                                                         break;
                                                     default:
@@ -404,8 +419,20 @@ namespace StrategyManagerNS
                                             }
                                             else
                                             {
-                                                /// Il n'y a plus d'éléments à jouer
-                                                p.matchDescriptor.ForçageCompteurDeposeAEffectuer(5); //On force à vider tout
+                                                var dictionarBrasPleins = p.matchDescriptor.DictionaryBrasTurbine.Where(x => x.Value.HasGobelet == true).ToDictionary(x => x.Key, y => y.Value);
+
+                                                /// Si on a des gobelets dans les bras, on force à déposer
+                                                if (dictionarBrasPleins.Count > 0)
+                                                {
+                                                    p.matchDescriptor.ForçageCompteurDeposeAEffectuer(dictionarBrasPleins.Count); //On force à vider tout
+                                                }
+                                                else
+                                                {
+                                                    /// Sinon on lance une tâche de scan de terrain et préhension automatique
+                                                    /// On ne lance la tâche que si on est Sud
+                                                    if (p.robotType == StrategyEurobot2021.Eurobot2021RobotType.RobotSud)
+                                                        p.missionRamassageAutomatique.Start();
+                                                }
                                             }
                                         }
                                         CalculateScore();
@@ -413,29 +440,39 @@ namespace StrategyManagerNS
                                 }
                                 break;
                             case SubTaskState.Exit:
-                                state = TaskGameManagementEurobotState.DeplacementToZoneMouillage;                    /// L'état suivant ne doit être défini que dans le substate Exit
+                                state = TaskGameManagementState.DeplacementToZoneMouillage;                    /// L'état suivant ne doit être défini que dans le substate Exit
                                 Console.WriteLine("Match terminé");
                                 break;
                         }
                         break;
-                    case TaskGameManagementEurobotState.DeplacementToZoneMouillage:
+                    case TaskGameManagementState.DeplacementToZoneMouillage:
                         switch (subState)
                         {
                             case SubTaskState.Entry:
+                                foreach (var task in p.listTasks)
+                                {
+                                    task.Init();
+                                }
+                                foreach (var mission in p.listMissions)
+                                {
+                                    mission.Init();
+                                }
+
+                                p.taskAvoidanceParametersModifiers.StartAvoidanceReduction(0.20, 0.3, 10000);/// Jusqu'à la fin du match
                                 p.missionZoneMouillage.Start();
                                 break;
                             case SubTaskState.EnCours:
-                                if(DateTime.Now.Subtract(timestamp).TotalMilliseconds > 98000)
+                                if (DateTime.Now.Subtract(timestamp).TotalMilliseconds > 98000)
                                 {
                                     ExitState();
                                 }
                                 break;
                             case SubTaskState.Exit:
-                                state = TaskGameManagementEurobotState.MatchEnded;
+                                state = TaskGameManagementState.MatchEnded;
                                 break;
                         }
                         break;
-                    case TaskGameManagementEurobotState.MatchEnded:
+                    case TaskGameManagementState.MatchEnded:
                         switch (subState)
                         {
                             case SubTaskState.Entry:
@@ -461,7 +498,7 @@ namespace StrategyManagerNS
                                 //ExitState();                                /// A appeler quand on souhaite passer à Exit
                                 break;
                             case SubTaskState.Exit:
-                                state = TaskGameManagementEurobotState.Init;                       /// L'état suivant ne doit être défini que dans le substate Exit
+                                //state = TaskGameManagementState.Init;                       /// L'état suivant ne doit être défini que dans le substate Exit
                                 Console.WriteLine("Tempo TROIS terminée");
                                 break;
                         }
@@ -472,7 +509,7 @@ namespace StrategyManagerNS
             }
         }
 
-        void SelectBestStrategy(Dictionary<int, Eurobot2021Gobelet> dictGobeletsRestants, Dictionary<int, Eurobot2021EmplacementDepose> dictEmplacementsUtilisables, Dictionary<int , Eurobot2021StateBrasTurbineRobot> dictBrasVides, Dictionary<int, Eurobot2021StateBrasTurbineRobot> dictBrasAvecGobelets)
+        void SelectBestStrategy(Dictionary<int, Eurobot2021Gobelet> dictGobeletsRestants, Dictionary<int, Eurobot2021EmplacementDepose> dictEmplacementsUtilisables, Dictionary<int, Eurobot2021StateBrasTurbineRobot> dictBrasVides, Dictionary<int, Eurobot2021StateBrasTurbineRobot> dictBrasAvecGobelets)
         {
 
         }
@@ -508,7 +545,7 @@ namespace StrategyManagerNS
             StrategyEurobot2021 p = parent as StrategyEurobot2021;
             /// On calcule le score actuellement effectué par le robot
             /// On ajoute deux points si le phare est présent
-            double score = 2;
+            double score = 1;
             /// On récupère le nombre de gobelets vert déposés à un emplacement vert
             var dictionaryGobeletsVertDeposes = p.matchDescriptor.DictionaryEmplacementDepose.Where(x => x.Value.IsAvailable == false && x.Value.Color == Eurobot2021Color.Vert).ToDictionary(x => x.Key, y => y.Value);
             /// On récupère le nombre de gobelets rouge déposés à un emplacement rouge
@@ -528,7 +565,7 @@ namespace StrategyManagerNS
             lock (p.matchDescriptor.listElementsJeu)
             {
                 /// On recherche les manches à airs relevé
-                var dictionaryMancheAir = p.matchDescriptor.listElementsJeu.Where(x => x.Value.isAvailable == false && x.Value.elementDeJeu == Eurobot2021TypeELementDeJeu.MancheAir).ToDictionary(x => x.Key, y => y.Value);
+                var dictionaryMancheAir = p.matchDescriptor.listElementsJeu.Where(x => x.Value.isAvailable == false && x.Value is MancheAir).ToDictionary(x => x.Key, y => y.Value);
                 /// Si une manche à air relevée, on ajoute 5 points
                 if (dictionaryMancheAir.Count == 1)
                     score += 5;
@@ -536,12 +573,12 @@ namespace StrategyManagerNS
                 else if (dictionaryMancheAir.Count == 2)
                     score += 15;
                 /// Si le phare a été activé, on ajoute 3 points. S'il est actif à la fin du match, on ajoute 10 points
-                var dictionaryPhare = p.matchDescriptor.listElementsJeu.Where(x => x.Value.isAvailable == false && x.Value.elementDeJeu == Eurobot2021TypeELementDeJeu.Phare).ToDictionary(x => x.Key, y => y.Value);
+                var dictionaryPhare = p.matchDescriptor.listElementsJeu.Where(x => x.Value.isAvailable == false && x.Value is Phare).ToDictionary(x => x.Key, y => y.Value);
                 if (dictionaryPhare.Count == 1)
                     score += 13;
                 /// Si le drapeau est levé, on ajoute 10 points
-                if (state == TaskGameManagementEurobotState.MatchEnded)
-                    score += 10;
+                if (state == TaskGameManagementState.MatchEnded)
+                    score += 5;
             }
             /// Si le robot est dans le zone de mouillage indiqué par la girouette (10 points par robot)
             /// Sinon si valide dans l'autre zone de mouillage (3 points par robot)
@@ -550,14 +587,18 @@ namespace StrategyManagerNS
             // Si un robot est dans la bonne zone de mouillage ça fait 10 points,
             // S'il est dans la mauvaise 3 points
             // On fait exprès d'envoyer un robot dans chaque zone
-            // On ajoute que 10 ou 3 au score pour chaque robot, la somme faisant 13 points
-            if (state == TaskGameManagementEurobotState.MatchEnded && p.missionZoneMouillage.isFinished)
+            // On ajoute que 3 au score pour chaque robot, hypothèse basse
+            if (state == TaskGameManagementState.MatchEnded && p.missionZoneMouillage.isFinished)
             {
-                if (p.robotType == Eurobot2021RobotType.RobotNord)
-                    score += 10;
+                if (p.robotType == StrategyEurobot2021.Eurobot2021RobotType.RobotNord)
+                    score += 3;
                 else
                     score += 3;
             }
+
+            //Si on a un score décent, on pénalise de 5 pts par robots : fail statistique
+            if (score >= 20)
+                score -= 5;
 
             /// On affiche le score sur le lidar
             string textToDisplayLine1 = "Score : " + score + " points";

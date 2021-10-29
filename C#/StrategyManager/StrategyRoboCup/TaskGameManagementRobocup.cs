@@ -408,7 +408,7 @@ namespace StrategyManagerNS
                                         //        p.matchDescriptor.ForçageCompteurDeposeAEffectuer(5); //On force à vider tout
                                         //    }
                                         //}
-                                        CalculateScore();
+                                        //CalculateScore();
                                     }
                                 }
                                 break;
@@ -425,7 +425,7 @@ namespace StrategyManagerNS
                             case SubTaskState.Entry:
                                 Console.WriteLine("Fin de match");
                                 /// On calcule le score final avant de réinit les missions et tâches
-                                CalculateScore();
+                                //CalculateScore();
                                 /// Si pas de jack, on réinit les tasks, à voir plus tard TODO
                                 foreach (var task in p.listTasks)
                                 {
@@ -486,66 +486,66 @@ namespace StrategyManagerNS
             return dictionaryEmplacementUtilisables;
         }
 
-        void CalculateScore()
-        {
-            StrategyEurobot2021 p = parent as StrategyEurobot2021;
-            /// On calcule le score actuellement effectué par le robot
-            /// On ajoute deux points si le phare est présent
-            double score = 2;
-            /// On récupère le nombre de gobelets vert déposés à un emplacement vert
-            var dictionaryGobeletsVertDeposes = p.matchDescriptor.DictionaryEmplacementDepose.Where(x => x.Value.IsAvailable == false && x.Value.Color == Eurobot2021Color.Vert).ToDictionary(x => x.Key, y => y.Value);
-            /// On récupère le nombre de gobelets rouge déposés à un emplacement rouge
-            var dictionaryGobeletsRougeDeposes = p.matchDescriptor.DictionaryEmplacementDepose.Where(x => x.Value.IsAvailable == false && x.Value.Color == Eurobot2021Color.Rouge).ToDictionary(x => x.Key, y => y.Value);
-            /// On récupère le nombre de gobelets déposés dans un emplacement neutre
-            var dictionaryGobeletsNeutreDeposes = p.matchDescriptor.DictionaryEmplacementDepose.Where(x => x.Value.IsAvailable == false && x.Value.Color == Eurobot2021Color.Neutre).ToDictionary(x => x.Key, y => y.Value);
+        //void CalculateScore()
+        //{
+        //    StrategyEurobot2021 p = parent as StrategyEurobot2021;
+        //    /// On calcule le score actuellement effectué par le robot
+        //    /// On ajoute deux points si le phare est présent
+        //    double score = 2;
+        //    /// On récupère le nombre de gobelets vert déposés à un emplacement vert
+        //    var dictionaryGobeletsVertDeposes = p.matchDescriptor.DictionaryEmplacementDepose.Where(x => x.Value.IsAvailable == false && x.Value.Color == Eurobot2021Color.Vert).ToDictionary(x => x.Key, y => y.Value);
+        //    /// On récupère le nombre de gobelets rouge déposés à un emplacement rouge
+        //    var dictionaryGobeletsRougeDeposes = p.matchDescriptor.DictionaryEmplacementDepose.Where(x => x.Value.IsAvailable == false && x.Value.Color == Eurobot2021Color.Rouge).ToDictionary(x => x.Key, y => y.Value);
+        //    /// On récupère le nombre de gobelets déposés dans un emplacement neutre
+        //    var dictionaryGobeletsNeutreDeposes = p.matchDescriptor.DictionaryEmplacementDepose.Where(x => x.Value.IsAvailable == false && x.Value.Color == Eurobot2021Color.Neutre).ToDictionary(x => x.Key, y => y.Value);
 
-            /// Pour un gobelet neutre on ajoute un point
-            score += dictionaryGobeletsNeutreDeposes.Count;
-            /// Pour un gobelet correctement positionné sur un chenal de la même couleur, on ajoute un point suplémentaire
-            score += 2 * (dictionaryGobeletsRougeDeposes.Count + dictionaryGobeletsVertDeposes.Count);
-            /// Pour chaque paire de gobelets, on ajoute 2 points
-            if (dictionaryGobeletsRougeDeposes.Count >= dictionaryGobeletsVertDeposes.Count)
-                score += 2 * dictionaryGobeletsVertDeposes.Count;
-            else
-                score += 2 * dictionaryGobeletsRougeDeposes.Count;
-            lock (p.matchDescriptor.listElementsJeu)
-            {
-                /// On recherche les manches à airs relevé
-                var dictionaryMancheAir = p.matchDescriptor.listElementsJeu.Where(x => x.Value.isAvailable == false && x.Value.elementDeJeu == Eurobot2021TypeELementDeJeu.MancheAir).ToDictionary(x => x.Key, y => y.Value);
-                /// Si une manche à air relevée, on ajoute 5 points
-                if (dictionaryMancheAir.Count == 1)
-                    score += 5;
-                /// Si deux manches à air relevées, on ajoute 15 points
-                else if (dictionaryMancheAir.Count == 2)
-                    score += 15;
-                /// Si le phare a été activé, on ajoute 3 points. S'il est actif à la fin du match, on ajoute 10 points
-                var dictionaryPhare = p.matchDescriptor.listElementsJeu.Where(x => x.Value.isAvailable == false && x.Value.elementDeJeu == Eurobot2021TypeELementDeJeu.Eurobot2021Phare).ToDictionary(x => x.Key, y => y.Value);
-                if (dictionaryPhare.Count == 1)
-                    score += 13;
-                /// Si le drapeau est levé, on ajoute 10 points
-                if (state == TaskGameManagementRobocupState.MatchEnded)
-                    score += 10;
-            }
-            /// Si le robot est dans le zone de mouillage indiqué par la girouette (10 points par robot)
-            /// Sinon si valide dans l'autre zone de mouillage (3 points par robot)
-            // Mission non implémentée
-            // /!\ Solution temporaire /!\
-            // Si un robot est dans la bonne zone de mouillage ça fait 10 points,
-            // S'il est dans la mauvaise 3 points
-            // On fait exprès d'envoyer un robot dans chaque zone
-            // On ajoute que 10 ou 3 au score pour chaque robot, la somme faisant 13 points
-            if (state == TaskGameManagementRobocupState.MatchEnded && p.missionZoneMouillage.isFinished)
-            {
-                if (p.robotType == Eurobot2021RobotType.RobotNord)
-                    score += 10;
-                else
-                    score += 3;
-            }
+        //    /// Pour un gobelet neutre on ajoute un point
+        //    score += dictionaryGobeletsNeutreDeposes.Count;
+        //    /// Pour un gobelet correctement positionné sur un chenal de la même couleur, on ajoute un point suplémentaire
+        //    score += 2 * (dictionaryGobeletsRougeDeposes.Count + dictionaryGobeletsVertDeposes.Count);
+        //    /// Pour chaque paire de gobelets, on ajoute 2 points
+        //    if (dictionaryGobeletsRougeDeposes.Count >= dictionaryGobeletsVertDeposes.Count)
+        //        score += 2 * dictionaryGobeletsVertDeposes.Count;
+        //    else
+        //        score += 2 * dictionaryGobeletsRougeDeposes.Count;
+        //    lock (p.matchDescriptor.listElementsJeu)
+        //    {
+        //        /// On recherche les manches à airs relevé
+        //        var dictionaryMancheAir = p.matchDescriptor.listElementsJeu.Where(x => x.Value.isAvailable == false && x.Value.elementDeJeu == Eurobot2021TypeELementDeJeu.MancheAir).ToDictionary(x => x.Key, y => y.Value);
+        //        /// Si une manche à air relevée, on ajoute 5 points
+        //        if (dictionaryMancheAir.Count == 1)
+        //            score += 5;
+        //        /// Si deux manches à air relevées, on ajoute 15 points
+        //        else if (dictionaryMancheAir.Count == 2)
+        //            score += 15;
+        //        /// Si le phare a été activé, on ajoute 3 points. S'il est actif à la fin du match, on ajoute 10 points
+        //        var dictionaryPhare = p.matchDescriptor.listElementsJeu.Where(x => x.Value.isAvailable == false && x.Value.elementDeJeu == Eurobot2021TypeELementDeJeu.Eurobot2021Phare).ToDictionary(x => x.Key, y => y.Value);
+        //        if (dictionaryPhare.Count == 1)
+        //            score += 13;
+        //        /// Si le drapeau est levé, on ajoute 10 points
+        //        if (state == TaskGameManagementRobocupState.MatchEnded)
+        //            score += 10;
+        //    }
+        //    /// Si le robot est dans le zone de mouillage indiqué par la girouette (10 points par robot)
+        //    /// Sinon si valide dans l'autre zone de mouillage (3 points par robot)
+        //    // Mission non implémentée
+        //    // /!\ Solution temporaire /!\
+        //    // Si un robot est dans la bonne zone de mouillage ça fait 10 points,
+        //    // S'il est dans la mauvaise 3 points
+        //    // On fait exprès d'envoyer un robot dans chaque zone
+        //    // On ajoute que 10 ou 3 au score pour chaque robot, la somme faisant 13 points
+        //    if (state == TaskGameManagementRobocupState.MatchEnded && p.missionZoneMouillage.isFinished)
+        //    {
+        //        if (p.robotType == Eurobot2021RobotType.RobotNord)
+        //            score += 10;
+        //        else
+        //            score += 3;
+        //    }
 
-            /// On affiche le score sur le lidar
-            string textToDisplayLine1 = "Score : " + score + " points";
-            if (p.taskAffichageLidar != null)
-                p.taskAffichageLidar.StartAffichagePermanentLigne1(textToDisplayLine1);
-        }
+        //    /// On affiche le score sur le lidar
+        //    string textToDisplayLine1 = "Score : " + score + " points";
+        //    if (p.taskAffichageLidar != null)
+        //        p.taskAffichageLidar.StartAffichagePermanentLigne1(textToDisplayLine1);
+        //}
     }
 }

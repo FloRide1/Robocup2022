@@ -1,22 +1,24 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using Utilities;
-using static StrategyManagerNS.StrategyEurobot2021;
 
 namespace StrategyManagerNS
 {
     public class Eurobot2021MissionPriseGobelet : MissionBase
     {
-        double rayonRobot= 0.15;
+        double rayonRobot = 0.15;
         double longueurBrasRobot = 0.07;
         Eurobot2021Gobelet GobeletCourant;
         //PointD GobeletPosition = new PointD(0, 0);
         string BrasUtilise = "";
         double AnglePrise;
         double AngleRobot;
+
+        Stopwatch sw = new Stopwatch();
 
         private enum MissionPriseGobeletState
         {
@@ -57,6 +59,7 @@ namespace StrategyManagerNS
 
         MissionPriseGobeletState state = MissionPriseGobeletState.Idle;
 
+
         DateTime timestamp;
         double timeoutindicatif;
         public override void MissionStateMachine()
@@ -86,29 +89,30 @@ namespace StrategyManagerNS
                 case MissionPriseGobeletState.GOTO_gobelet:
                     switch (subState)
                     {
-                        case SubTaskState.Entry:                            
+                        case SubTaskState.Entry:
                             //On décale le point robot de la longueur du bras orienté selon l'angle
-                            PointD emplacementPrise = new PointD(GobeletCourant.Pos.X- (rayonRobot + longueurBrasRobot)*Math.Cos(AnglePrise),
+                            PointD emplacementPrise = new PointD(GobeletCourant.Pos.X - (rayonRobot + longueurBrasRobot) * Math.Cos(AnglePrise),
                                 GobeletCourant.Pos.Y - (rayonRobot + longueurBrasRobot) * Math.Sin(AnglePrise));
-                                timeoutindicatif = parentStrategie.SetRobotDestination(emplacementPrise, AngleRobot);
+                            timeoutindicatif = parentStrategie.SetRobotDestination(emplacementPrise, AngleRobot);
 
                             Console.WriteLine("GOTO gobelet : X=" + emplacementPrise.X.ToString("N3") + " - Y=" + emplacementPrise.Y.ToString("N3"));
                             Console.WriteLine("GOTO gobelet : Angle Prise = " + Toolbox.RadToDeg(AnglePrise).ToString("N3"));
-                            if (GobeletCourant.Type == Eurobot2021TypeGobelet.Libre)
+                            if (GobeletCourant.Type == TypeGobelet.Libre)
                                 ; /// On ne fait rien avant d'arriver sur zone en libre
-                            else if (GobeletCourant.Type == Eurobot2021TypeGobelet.Distributeur)
+                            else if (GobeletCourant.Type == TypeGobelet.Distributeur)
                                 parentStrategie.taskBras_dict[BrasUtilise].StartPreparePrehensionGobeletDistributeur();
                             timestamp = DateTime.Now;
+                            sw.Restart();
                             break;
                         case SubTaskState.EnCours:
-                            if ((parentStrategie.isDeplacementFinished && parentStrategie.taskBras_dict[BrasUtilise].isFinished) 
+                            if ((parentStrategie.isDeplacementFinished && parentStrategie.taskBras_dict[BrasUtilise].isFinished)
                                 || DateTime.Now.Subtract(timestamp).TotalMilliseconds > timeoutindicatif)
                             {
                                 ExitState();                                /// A appeler quand on souhaite passer à Exit
                             }
                             break;
                         case SubTaskState.Exit:
-
+                            Console.WriteLine("Prise Gobelet Goto Gobelet : " + sw.Elapsed.TotalMilliseconds.ToString("N0") + " timeout indicatif : " + timeoutindicatif);
                             if (DateTime.Now.Subtract(timestamp).TotalMilliseconds > timeoutindicatif)
                             {
                                 /// On a timouté                             
@@ -127,9 +131,9 @@ namespace StrategyManagerNS
                                     /// On remet en jeu les gobelets considérés avec un priorité de 1
                                     /// Ils seront gérés par l'algo ensuite
                                     Console.WriteLine("Déplacement vers gobelet FAILED");
-                                    if (parentStrategie.playingColor == Eurobot2021SideColor.Blue)
+                                    if (parentStrategie.playingColor == StrategyEurobot2021.Eurobot2021SideColor.Blue)
                                         GobeletCourant.PriorityBlue = 1;
-                                    if (parentStrategie.playingColor == Eurobot2021SideColor.Yellow)
+                                    if (parentStrategie.playingColor == StrategyEurobot2021.Eurobot2021SideColor.Yellow)
                                         GobeletCourant.PriorityYellow = 1;
                                     state = MissionPriseGobeletState.Idle;                     /// L'état suivant ne doit être défini que dans le substate Exit
                                 }
@@ -145,18 +149,25 @@ namespace StrategyManagerNS
                     break;
 
                 case MissionPriseGobeletState.PRISE_Gobelet:
+
                     switch (subState)
                     {
-                        case SubTaskState.Entry:                            
+                        case SubTaskState.Entry:
+                            sw.Restart();
                             timestamp = DateTime.Now;
 
                             //Si on est sur un gobelet standard, la préhension est en cours
-                            if (GobeletCourant.Type == Eurobot2021TypeGobelet.Libre)
+                            if (GobeletCourant.Type == TypeGobelet.Libre)
                             {
                                 /// Si on est sur un gobelet standard, on démarre la préhension classique
                                 parentStrategie.taskBras_dict[BrasUtilise].StartPrehensionGobeletLibre();
                             }
-                            else if (GobeletCourant.Type == Eurobot2021TypeGobelet.Distributeur)
+                            else if (GobeletCourant.Type == TypeGobelet.LibreCouche)
+                            {
+                                /// Si on est sur un gobelet standard, on démarre la préhension classique
+                                parentStrategie.taskBras_dict[BrasUtilise].StartPrehensionGobeletCouche();
+                            }
+                            else if (GobeletCourant.Type == TypeGobelet.Distributeur)
                             {
                                 /// Si on est sur un gobelet distributeur
                                 /// On lance la préhnesion distributeur
@@ -171,6 +182,7 @@ namespace StrategyManagerNS
                             }
                             break;
                         case SubTaskState.Exit:
+                            Console.WriteLine("Prise Gobelet Prise : " + sw.Elapsed.TotalMilliseconds.ToString("N0"));
                             Console.WriteLine("Prise terminée");
                             parentStrategie.taskBras_dict[BrasUtilise].StartRemonteeBras();
                             isFinished = true;
@@ -196,39 +208,6 @@ namespace StrategyManagerNS
                             break;
                     }
                     break;
-                
-                //case MissionTestRamassageState.GOTO_Depose:
-                //    switch (subState)
-                //    {
-                //        case SubTaskState.Entry:
-                //            if (parentStrategie.playingColor == Eurobot2021SideColor.Blue)
-                //            {
-                //                parentStrategie.SetRobotDestination(new PointD(-1.25, 0.35), Math.PI / 4);
-                //            }
-                //            else if (parentStrategie.playingColor == Eurobot2021SideColor.Yellow)
-                //            {
-                //                parentStrategie.SetRobotDestination(new PointD(1.25, 0.35), Math.PI / 4);
-                //            }
-                //            isFinished = false;
-                //            break;
-                //        case SubTaskState.EnCours:
-                //            if (Toolbox.Distance(new PointD(parent.robotCurrentLocation.X, parent.robotCurrentLocation.Y), parent.robotDestination) < 0.05)
-                //            {
-
-                //                    parentStrategie.taskBras_dict["Bras_225"].StartDepose();
-                //                    parentStrategie.taskBras_dict["Bras_180"].StartDepose();
-                //                    parentStrategie.taskBras_dict["Bras_45"].StartDepose();
-
-                //                ExitState();                                /// A appeler quand on souhaite passer à Exit
-                //            }
-                //            break;
-                //        case SubTaskState.Exit:
-                //            Console.WriteLine("Déplacement MissionTest1 terminé");
-                //            isFinished = true;
-                //            state = MissionTestRamassageState.Idle;                     /// L'état suivant ne doit être défini que dans le substate Exit
-                //            break;
-                //    }
-                //    break;
 
                 default:
                     break;

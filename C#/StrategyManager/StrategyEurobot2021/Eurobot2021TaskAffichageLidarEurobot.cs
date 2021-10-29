@@ -90,7 +90,7 @@ namespace StrategyManagerNS
                     switch (subState)
                     {
                         case SubTaskState.Entry:
-                            Console.WriteLine("Init Task Affichage Lidar");
+                            //Console.WriteLine("Init Task Affichage Lidar");
                             timestamp = DateTime.Now;
                             break;
                         case SubTaskState.EnCours:

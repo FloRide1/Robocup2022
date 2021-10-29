@@ -1451,7 +1451,7 @@ namespace LidarProcessor
 
     public class LidarDetectedObject
     {
-        
+
         public List<PolarPointRssi> PtList;
         public List<double> XList;
         public List<double> YList;
@@ -1460,7 +1460,9 @@ namespace LidarProcessor
         public double AngleMoyen;
         public double XMoyen;
         public double YMoyen;
-        public double ResiduLineModel;
+        public double RssiMoyen;
+        public double RssiCentral;
+        public double RssiStdDev;
 
         public bool IsEdgeObject = false; //Pour les objets coupés en deux par le tableau d'angle
 
@@ -1479,6 +1481,10 @@ namespace LidarProcessor
                 YMoyen = DistanceMoyenne * Math.Sin(AngleMoyen);
                 XList = PtList.Select(r => r.Distance * Math.Cos(r.Angle)).ToList();
                 YList = PtList.Select(r => r.Distance * Math.Sin(r.Angle)).ToList();
+
+                RssiMoyen = PtList.Average(r => r.Rssi);
+                RssiCentral = PtList[PtList.Count / 2].Rssi;
+                RssiStdDev = PtList.StdDev(r => r.Rssi);
             }
         }
         public void ExtractBaliseAttributes()
@@ -1486,7 +1492,7 @@ namespace LidarProcessor
             double rayonBalise = 0.04;
             if (PtList.Count > 1)
             {
-                DistanceMoyenne = PtList.Min(r=>r.Distance) + rayonBalise; //Il est mieux de récupérer la distance en front de balise et de l'utiliser
+                DistanceMoyenne = PtList.Min(r => r.Distance) + rayonBalise; //Il est mieux de récupérer la distance en front de balise et de l'utiliser
                 AngleMoyen = PtList.Average(r => r.Angle);
                 Largeur = (PtList.Max(r => r.Angle) - PtList.Min(r => r.Angle)) * DistanceMoyenne;
                 XMoyen = DistanceMoyenne * Math.Cos(AngleMoyen);

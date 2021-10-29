@@ -30,7 +30,7 @@ namespace StrategyManagerNS
         public override void Init()
         {
             state = MissionLCDSMState.Idle;
-            parent.OnPilotageTurbine((byte)PilotageTurbineID.Turbine_soufflage, 1000);
+            parent.OnPilotageTurbine((byte)Eurobot2021PilotageTurbineID.Turbine_soufflage, 1000);
             ResetSubState();
             isFinished = false;
         }
@@ -87,29 +87,29 @@ namespace StrategyManagerNS
                             timestamp = DateTime.Now;
                             break;
                         case SubTaskState.EnCours:
-                            if(Math.Abs(parentStrategie.robotCurrentLocation.X)<0.4)
+                            if (Math.Abs(parentStrategie.robotCurrentLocation.X) < 0.4)
                             {
                                 ///On fait le grand méchant loup :
-                                parent.OnPilotageTurbine((byte)PilotageTurbineID.Turbine_soufflage, 1300);
+                                parent.OnPilotageTurbine((byte)Eurobot2021PilotageTurbineID.Turbine_soufflage, 1300);
                             }
                             else
                             {
-                                parent.OnPilotageTurbine((byte)PilotageTurbineID.Turbine_soufflage, 1000);
+                                parent.OnPilotageTurbine((byte)Eurobot2021PilotageTurbineID.Turbine_soufflage, 1000);
                             }
                             if (parentStrategie.isDeplacementFinished || DateTime.Now.Subtract(timestamp).TotalMilliseconds > timoutDeplacement)
                             {
                                 ExitState();                                /// A appeler quand on souhaite passer à Exit
                             }
                             break;
-                        case SubTaskState.Exit: 
+                        case SubTaskState.Exit:
                             Console.WriteLine("Déplacement vers la LCDSM terminé");
-                            parent.OnPilotageTurbine((byte)PilotageTurbineID.Turbine_soufflage, 1000);
+                            parent.OnPilotageTurbine((byte)Eurobot2021PilotageTurbineID.Turbine_soufflage, 1000);
                             Cible.isAvailable = false;
                             state = MissionLCDSMState.Idle;                     /// L'état suivant ne doit être défini que dans le substate Exit
                             break;
                     }
                     break;
-                
+
                 //case MissionTestRamassageState.GOTO_Depose:
                 //    switch (subState)
                 //    {

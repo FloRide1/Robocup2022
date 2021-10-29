@@ -64,8 +64,10 @@
   <ItemGroup>
     <Compile Include="MissionBase.cs" />
     <Compile Include="StrategyEurobot2021\Eurobot2021MissionDeposeGobelet.cs" />
+    <Compile Include="StrategyEurobot2021\Eurobot2021MissionLCDSM.cs" />
     <Compile Include="StrategyEurobot2021\Eurobot2021MissionPriseGobelet.cs" />
     <Compile Include="StrategyEurobot2021\Eurobot2021MissionPhare.cs" />
+    <Compile Include="StrategyEurobot2021\Eurobot2021MissionRamassageAutomatique.cs" />
     <Compile Include="StrategyEurobot2021\Eurobot2021MissionZoneMouillage.cs" />
     <Compile Include="StrategyEurobot2021\StrategyEurobot2021.cs" />
     <Compile Include="StrategyEurobot2021\Eurobot2021MatchDescriptor.cs" />

@@ -107,13 +107,13 @@ namespace StrategyManagerNS
             robotDestination = destination;
             robotOrientation = orientation;
 
-            double vitesseLineaireIndicative = 0.4; ///bof bof mais il faudrait la remplacer par la vitesse lineaire avec un coeff de sécurité
-            double vitesseAngulaireIndicative = 0.4; ///bof bof mais il faudrait la remplacer par la vitesse Angulaire avec un coeff de sécurité
+            double vitesseLineaireIndicative = 0.5; ///bof bof mais il faudrait la remplacer par la vitesse lineaire avec un coeff de sécurité
+            double vitesseAngulaireIndicative = 0.5; ///bof bof mais il faudrait la remplacer par la vitesse Angulaire avec un coeff de sécurité
 
             double estimationTimeoutDistance = Toolbox.Distance(destination, new PointD(robotCurrentLocation.X, robotCurrentLocation.Y))/vitesseLineaireIndicative;
             double estimationTimeoutAngle = Math.Abs(Toolbox.Modulo2PiAngleRad(orientation - robotCurrentLocation.Theta))/vitesseAngulaireIndicative;
             
-            return Math.Max(1000, 1000*Math.Max(estimationTimeoutDistance, estimationTimeoutAngle));
+            return Math.Max(1500, 1000*Math.Max(estimationTimeoutDistance, estimationTimeoutAngle));
         }
 
         //************************ Events reçus ************************************************/
@@ -672,12 +672,6 @@ namespace StrategyManagerNS
             OnEnableDisableMotorCurrentDataEvent?.Invoke(this, new BoolEventArgs { value = val });
         }
 
-        public event EventHandler<BoolEventArgs> OnEnableDisableRxForwardFromHerkulexEvent;
-        public virtual void OnEnableDisableRxForwardFromHerkulex(bool val)
-        {
-            OnEnableDisableRxForwardFromHerkulexEvent?.Invoke(this, new BoolEventArgs { value = val });
-        }
-
         public event EventHandler<CollisionEventArgs> OnCollisionEvent;
         public virtual void OnCollision(int id, Location robotLocation)
         {
@@ -762,13 +756,6 @@ namespace StrategyManagerNS
         public void OnHerkulexPositionRequestForwardEvent(object sender, HerkulexPositionsArgs e)
         {
             OnHerkulexPositionRequestEvent?.Invoke(sender, e);
-        }
-
-        public event EventHandler<HerkulexRamReadArgs> OnHerkulexRamReadRequestEvent;
-        public void OnHerkulexRamReadRequest(int servoId, HerkulexDescription.RAM_ADDR RamRegister, int length)
-        {
-            HerkulexRamReadArgs args = new HerkulexRamReadArgs(servoId, RamRegister, length);
-            OnHerkulexRamReadRequestEvent?.Invoke(this, args);
         }
 
         public event EventHandler<BoolEventArgs> OnHerkulexEnableDisableTorqueEvent;

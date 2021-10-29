@@ -10,16 +10,17 @@ using System.Threading;
 using System.Threading.Tasks;
 using Utilities;
 using static HerkulexManagerNS.HerkulexEventArgs;
+using static StrategyManagerNS.StrategyEurobot2021;
 
 namespace StrategyManagerNS
 {
-    public class Eurobot2021MissionWindFlag : MissionBase
+    public class Eurobot2021MissionWindFlag: MissionBase
     {
         MissionWindFlagStates missionWindFlagState = MissionWindFlagStates.Idle;
         DateTime timestamp;
-        MancheAir MancheAirCourante;
+        Eurobot2021MancheAir MancheAirCourante;
 
-        double indicativeTime;
+        double timoutIndicatif;
 
         double angleBras = -3 * Math.PI / 4;
 
@@ -40,7 +41,7 @@ namespace StrategyManagerNS
             isFinished = false;
         }
 
-        public void Start(MancheAir mancheAir)
+        public void Start(Eurobot2021MancheAir mancheAir)
         {
             MancheAirCourante = mancheAir;
             missionWindFlagState = MissionWindFlagStates.PreDeplacementToFlag;
@@ -88,18 +89,18 @@ namespace StrategyManagerNS
                     {
                         case SubTaskState.Entry:
                             ///Deplacement de pôsitionnement sans sortir le bras
-                            if (parentStrategie.playingColor == StrategyEurobot2021.Eurobot2021SideColor.Blue)
+                            if (parentStrategie.playingColor == Eurobot2021SideColor.Blue)
                             {
-                                indicativeTime = parentStrategie.SetRobotDestination(new PointD(MancheAirCourante.Pos.X - 0.08, MancheAirCourante.Pos.Y + parent.RayonRobot + 0.15), Toolbox.DegToRad(-90) - angleBras);
+                                timoutIndicatif = parentStrategie.SetRobotDestination(new PointD(MancheAirCourante.Pos.X - 0.08, MancheAirCourante.Pos.Y + parent.RayonRobot + 0.15), Toolbox.DegToRad(-90) - angleBras);
                             }
-                            else if (parentStrategie.playingColor == StrategyEurobot2021.Eurobot2021SideColor.Yellow)
+                            else if (parentStrategie.playingColor == Eurobot2021SideColor.Yellow)
                             {
-                                indicativeTime = parentStrategie.SetRobotDestination(new PointD(MancheAirCourante.Pos.X + 0.08, MancheAirCourante.Pos.Y + parent.RayonRobot + 0.15), Toolbox.DegToRad(-90) - angleBras);
+                                timoutIndicatif = parentStrategie.SetRobotDestination(new PointD(MancheAirCourante.Pos.X + 0.08, MancheAirCourante.Pos.Y + parent.RayonRobot + 0.15), Toolbox.DegToRad(-90) - angleBras);
                             }
                             timestamp = DateTime.Now;
                             break;
                         case SubTaskState.EnCours:
-                            if (parentStrategie.isDeplacementFinished || DateTime.Now.Subtract(timestamp).TotalMilliseconds > indicativeTime)
+                            if (parentStrategie.isDeplacementFinished || DateTime.Now.Subtract(timestamp).TotalMilliseconds > timoutIndicatif)
                                 ExitState();                                /// A appeler quand on souhaite passer à Exit
                             break;
                         case SubTaskState.Exit:
@@ -113,20 +114,20 @@ namespace StrategyManagerNS
                     {
                         case SubTaskState.Entry:
                             ///Deplacement
-                            if (parentStrategie.playingColor == StrategyEurobot2021.Eurobot2021SideColor.Blue)
+                            if (parentStrategie.playingColor == Eurobot2021SideColor.Blue)
                             {
-                                indicativeTime = parentStrategie.SetRobotDestination(new PointD(MancheAirCourante.Pos.X - 0.08, MancheAirCourante.Pos.Y + parent.RayonRobot + 0.03), Toolbox.DegToRad(-110) - angleBras);
+                                timoutIndicatif = parentStrategie.SetRobotDestination(new PointD(MancheAirCourante.Pos.X - 0.08, MancheAirCourante.Pos.Y + parent.RayonRobot + 0.03), Toolbox.DegToRad(-90) - angleBras);
                             }
-                            else if (parentStrategie.playingColor == StrategyEurobot2021.Eurobot2021SideColor.Yellow)
+                            else if (parentStrategie.playingColor == Eurobot2021SideColor.Yellow)
                             {
-                                indicativeTime = parentStrategie.SetRobotDestination(new PointD(MancheAirCourante.Pos.X + 0.08, MancheAirCourante.Pos.Y + parent.RayonRobot + 0.03), Toolbox.DegToRad(-70) - angleBras);
+                                timoutIndicatif = parentStrategie.SetRobotDestination(new PointD(MancheAirCourante.Pos.X + 0.08, MancheAirCourante.Pos.Y + parent.RayonRobot + 0.03), Toolbox.DegToRad(-90) - angleBras);
                             }
                             /// Positionnnement du servo
                             parentStrategie.taskBrasDeclencheur.StartPositionnementMancheAir();
                             timestamp = DateTime.Now;
                             break;
                         case SubTaskState.EnCours:
-                            if (parentStrategie.isDeplacementFinished || DateTime.Now.Subtract(timestamp).TotalMilliseconds > indicativeTime)
+                            if (parentStrategie.isDeplacementFinished || DateTime.Now.Subtract(timestamp).TotalMilliseconds > timoutIndicatif)
                                 ExitState();                                /// A appeler quand on souhaite passer à Exit
                             break;
                         case SubTaskState.Exit:
@@ -159,26 +160,41 @@ namespace StrategyManagerNS
                     {
                         case SubTaskState.Entry:
                             timestamp = DateTime.Now;
-                            if (parentStrategie.playingColor == StrategyEurobot2021.Eurobot2021SideColor.Blue)
+                            if (parentStrategie.playingColor == Eurobot2021SideColor.Blue)
                             {
-                                indicativeTime = parentStrategie.SetRobotDestination(new PointD(MancheAirCourante.Pos.X + 0.12, MancheAirCourante.Pos.Y + parent.RayonRobot + 0.03), Toolbox.DegToRad(-90) - angleBras);
+                                timoutIndicatif = parentStrategie.SetRobotDestination(new PointD(MancheAirCourante.Pos.X + 0.12, MancheAirCourante.Pos.Y + parent.RayonRobot + 0.03), Toolbox.DegToRad(-90) - angleBras);
                             }
-                            else if (parentStrategie.playingColor == StrategyEurobot2021.Eurobot2021SideColor.Yellow)
+                            else if (parentStrategie.playingColor == Eurobot2021SideColor.Yellow)
                             {
-                                indicativeTime = parentStrategie.SetRobotDestination(new PointD(MancheAirCourante.Pos.X - 0.12, MancheAirCourante.Pos.Y + parent.RayonRobot + 0.03), Toolbox.DegToRad(-90) - angleBras);
+                                timoutIndicatif = parentStrategie.SetRobotDestination(new PointD(MancheAirCourante.Pos.X - 0.12, MancheAirCourante.Pos.Y + parent.RayonRobot + 0.03), Toolbox.DegToRad(-90) - angleBras);
                             }
-                            //parentStrategie.taskAvoidanceParametersModifiers.StartAvoidanceReduction(radiusObstacleFixe: 0.05, radiusObstacleMobile: 0.20, 4000);
+                            parentStrategie.taskParametersModifiers.StartAvoidanceReduction(radiusObstacleFixe: 0.05, radiusObstacleMobile: 0.20, 4000);
                             break;
                         case SubTaskState.EnCours:
-                            if (parentStrategie.isDeplacementFinished || DateTime.Now.Subtract(timestamp).TotalMilliseconds > indicativeTime)
+                            if (parentStrategie.isDeplacementFinished || DateTime.Now.Subtract(timestamp).TotalMilliseconds > timoutIndicatif)
                             {
                                 ExitState();
                             }
                             break;
                         case SubTaskState.Exit:                             /// L'état suivant ne doit être défini que dans le substate Exit
-                            Console.WriteLine("Manche à air : pushed");
-                            missionWindFlagState = MissionWindFlagStates.Degagement;
-                            MancheAirCourante.isAvailable = false;
+                            if (DateTime.Now.Subtract(timestamp).TotalMilliseconds > timoutIndicatif)
+                            {
+                                /// Failed : on revient à Idle sans cocher la case
+                                /// On remet en jeu les windflags considérés avec un priorité de 1
+                                /// Ils seront gérés par l'algo ensuite
+                                Console.WriteLine("Déplacement vers manche à air : FAILED");
+                                if (parentStrategie.playingColor == Eurobot2021SideColor.Blue)
+                                    MancheAirCourante.PriorityBlue -= 10;
+                                if (parentStrategie.playingColor == Eurobot2021SideColor.Yellow)
+                                    MancheAirCourante.PriorityYellow -= 10;
+                                missionWindFlagState = MissionWindFlagStates.Idle;                     /// L'état suivant ne doit être défini que dans le substate Exit
+                            }
+                            else
+                            {
+                                Console.WriteLine("Manche à air : SUCCESS");
+                                missionWindFlagState = MissionWindFlagStates.Degagement;
+                                MancheAirCourante.isAvailable = false;
+                            }
                             break;
                     }
                     break;
@@ -187,18 +203,18 @@ namespace StrategyManagerNS
                     {
                         case SubTaskState.Entry:
                             timestamp = DateTime.Now;
-                            if (parentStrategie.playingColor == StrategyEurobot2021.Eurobot2021SideColor.Blue)
+                            if (parentStrategie.playingColor == Eurobot2021SideColor.Blue)
                             {
-                                indicativeTime = parentStrategie.SetRobotDestination(new PointD(MancheAirCourante.Pos.X + 0.12, MancheAirCourante.Pos.Y + parent.RayonRobot + 0.03), Toolbox.DegToRad(-65) - angleBras);
+                                timoutIndicatif = parentStrategie.SetRobotDestination(new PointD(MancheAirCourante.Pos.X + 0.12, MancheAirCourante.Pos.Y + parent.RayonRobot + 0.03), Toolbox.DegToRad(-65) - angleBras);
                             }
-                            else if (parentStrategie.playingColor == StrategyEurobot2021.Eurobot2021SideColor.Yellow)
+                            else if (parentStrategie.playingColor == Eurobot2021SideColor.Yellow)
                             {
-                                indicativeTime = parentStrategie.SetRobotDestination(new PointD(MancheAirCourante.Pos.X - 0.12, MancheAirCourante.Pos.Y + parent.RayonRobot + 0.03), Toolbox.DegToRad(-115) - angleBras);
+                                timoutIndicatif = parentStrategie.SetRobotDestination(new PointD(MancheAirCourante.Pos.X - 0.12, MancheAirCourante.Pos.Y + parent.RayonRobot + 0.03), Toolbox.DegToRad(-115) - angleBras);
                             }
-                            //parentStrategie.taskAvoidanceParametersModifiers.StartAvoidanceReduction(radiusObstacleFixe: 0.05, radiusObstacleMobile: 0.20, 4000);
+                            parentStrategie.taskParametersModifiers.StartAvoidanceReduction(radiusObstacleFixe: 0.05, radiusObstacleMobile: 0.20, 4000);
                             break;
                         case SubTaskState.EnCours:
-                            if (parentStrategie.isDeplacementFinished || DateTime.Now.Subtract(timestamp).TotalMilliseconds > indicativeTime)
+                            if (parentStrategie.isDeplacementFinished || DateTime.Now.Subtract(timestamp).TotalMilliseconds > timoutIndicatif)
                             {
                                 ExitState();
                             }

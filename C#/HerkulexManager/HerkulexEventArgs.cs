@@ -145,11 +145,24 @@ namespace HerkulexManagerNS
         {
             public Servo Servo;
         }
-        
+
         public class HerkulexPositionsArgs : EventArgs
         {
             public Dictionary<ServoId, int> servoPositions;
 
+        }
+        public class HerkulexRamReadArgs : EventArgs
+        {
+            public int ServoId;
+            public HerkulexDescription.RAM_ADDR RamRegister;
+            public int Length;
+
+            public HerkulexRamReadArgs(int servoId, HerkulexDescription.RAM_ADDR ramRegister, int length)
+            {
+                ServoId = servoId;
+                RamRegister = ramRegister;
+                Length = length;
+            }
         }
 
         public class HerkulexErrorArgs : EventArgs
