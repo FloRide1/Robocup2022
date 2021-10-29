@@ -10,7 +10,7 @@ namespace StrategyManagerNS
 {
     public class Eurobot2021MissionLCDSM : MissionBase
     {
-        PositionTerrain Cible;
+        Eurobot2021PositionTerrain Cible;
 
         private enum MissionLCDSMState
         {
@@ -35,7 +35,7 @@ namespace StrategyManagerNS
             isFinished = false;
         }
 
-        public void Start(PositionTerrain cible)
+        public void Start(Eurobot2021PositionTerrain cible)
         {
             Cible = cible;
             isFinished = false;

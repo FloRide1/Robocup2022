@@ -18,7 +18,7 @@ namespace StrategyManagerNS
         MissionPhareStates missionPhareState = MissionPhareStates.Idle;
         private Dictionary<ServoId, int> servoPositionsRequested;
         DateTime timestamp;
-        Phare PhareCourant;
+        Eurobot2021Phare PhareCourant;
         double indicativeTime;
         double angleBras = -3 * Math.PI / 4;
 
@@ -38,7 +38,7 @@ namespace StrategyManagerNS
             isFinished = false;
         }
 
-        public void Start(Phare phare)
+        public void Start(Eurobot2021Phare phare)
         {
             PhareCourant = phare;
             missionPhareState = MissionPhareStates.PreDeplacementToPhare;

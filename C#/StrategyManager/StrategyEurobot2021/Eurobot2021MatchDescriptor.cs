@@ -119,18 +119,18 @@ namespace StrategyManagerNS
             lock (listElementsJeu)
             {
                 listElementsJeu = new Dictionary<int, Eurobot2021ElementDeJeu>();
-                listElementsJeu.Add(1000, new PositionTerrain(-0.65, 0.70, null, Eurobot2021TeamReservation.ReservedYellow));
-                listElementsJeu.Add(1001, new PositionTerrain(0.65, 0.70, null, Eurobot2021TeamReservation.ReservedBlue));
+                listElementsJeu.Add(1000, new Eurobot2021PositionTerrain(-0.65, 0.70, null, Eurobot2021TeamReservation.ReservedYellow));
+                listElementsJeu.Add(1001, new Eurobot2021PositionTerrain(0.65, 0.70, null, Eurobot2021TeamReservation.ReservedBlue));
 
                 /// Manche à air
-                listElementsJeu.Add(100, new MancheAir(TypeELementDeJeu.MancheAir, 1.270, -1.00, Eurobot2021TeamReservation.ReservedYellow, null));
-                listElementsJeu.Add(101, new MancheAir(TypeELementDeJeu.MancheAir, 0.865, -1.00, Eurobot2021TeamReservation.ReservedYellow, null));
-                listElementsJeu.Add(102, new MancheAir(TypeELementDeJeu.MancheAir, -1.270, -1.00, Eurobot2021TeamReservation.ReservedBlue, null));
-                listElementsJeu.Add(103, new MancheAir(TypeELementDeJeu.MancheAir, -0.865, -1.00, Eurobot2021TeamReservation.ReservedBlue, null));
+                listElementsJeu.Add(100, new Eurobot2021MancheAir(TypeELementDeJeu.MancheAir, 1.270, -1.00, Eurobot2021TeamReservation.ReservedYellow, null));
+                listElementsJeu.Add(101, new Eurobot2021MancheAir(TypeELementDeJeu.MancheAir, 0.865, -1.00, Eurobot2021TeamReservation.ReservedYellow, null));
+                listElementsJeu.Add(102, new Eurobot2021MancheAir(TypeELementDeJeu.MancheAir, -1.270, -1.00, Eurobot2021TeamReservation.ReservedBlue, null));
+                listElementsJeu.Add(103, new Eurobot2021MancheAir(TypeELementDeJeu.MancheAir, -0.865, -1.00, Eurobot2021TeamReservation.ReservedBlue, null));
 
                 /// Phares
-                listElementsJeu.Add(104, new Phare(TypeELementDeJeu.Phare, 1.19, 1.00, Eurobot2021TeamReservation.ReservedYellow, null));
-                listElementsJeu.Add(105, new Phare(TypeELementDeJeu.Phare, -1.19, 1.00, Eurobot2021TeamReservation.ReservedBlue, null));
+                listElementsJeu.Add(104, new Eurobot2021Phare(TypeELementDeJeu.Phare, 1.19, 1.00, Eurobot2021TeamReservation.ReservedYellow, null));
+                listElementsJeu.Add(105, new Eurobot2021Phare(TypeELementDeJeu.Phare, -1.19, 1.00, Eurobot2021TeamReservation.ReservedBlue, null));
 
                 /// Gobelets de champ
                 listElementsJeu.Add(1, new Eurobot2021Gobelet(1.200, -0.200, Eurobot2021Color.Rouge, TypeGobelet.Libre, Eurobot2021TeamReservation.ReservedYellow, null));
@@ -481,9 +481,9 @@ namespace StrategyManagerNS
         }
     }
 
-    public class PositionTerrain : Eurobot2021ElementDeJeu
+    public class Eurobot2021PositionTerrain : Eurobot2021ElementDeJeu
     {     
-        public PositionTerrain(double x, double y, double? anglePrise, Eurobot2021TeamReservation reserved,
+        public Eurobot2021PositionTerrain(double x, double y, double? anglePrise, Eurobot2021TeamReservation reserved,
             Eurobot2021RobotType robotAttributionBlue = Eurobot2021RobotType.None, Eurobot2021RobotType robotAttributionYellow = Eurobot2021RobotType.None,
             double priorityBlue = 1.0, double priorityYellow = 1.0)
         {
@@ -498,9 +498,9 @@ namespace StrategyManagerNS
         }
     }
 
-    public class MancheAir : Eurobot2021ElementDeJeu
+    public class Eurobot2021MancheAir : Eurobot2021ElementDeJeu
     {
-        public MancheAir(TypeELementDeJeu mancheAir, double x, double y, Eurobot2021TeamReservation reserved, double? anglePrise,
+        public Eurobot2021MancheAir(TypeELementDeJeu mancheAir, double x, double y, Eurobot2021TeamReservation reserved, double? anglePrise,
             Eurobot2021RobotType robotAttributionBlue = Eurobot2021RobotType.None, Eurobot2021RobotType robotAttributionYellow = Eurobot2021RobotType.None,
             double priorityBlue = 1.0, double priorityYellow = 1.0)
         {
@@ -516,9 +516,9 @@ namespace StrategyManagerNS
         }
     }
 
-    public class Phare : Eurobot2021ElementDeJeu
+    public class Eurobot2021Phare : Eurobot2021ElementDeJeu
     {
-        public Phare(TypeELementDeJeu phare, double x, double y, Eurobot2021TeamReservation reserved, double? anglePrise,
+        public Eurobot2021Phare(TypeELementDeJeu phare, double x, double y, Eurobot2021TeamReservation reserved, double? anglePrise,
             Eurobot2021RobotType robotAttributionBlue = Eurobot2021RobotType.None, Eurobot2021RobotType robotAttributionYellow = Eurobot2021RobotType.None,
             double priorityBlue = 1.0, double priorityYellow = 1.0)
         {

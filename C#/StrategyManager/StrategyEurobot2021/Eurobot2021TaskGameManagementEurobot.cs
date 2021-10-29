@@ -352,11 +352,11 @@ namespace StrategyManagerNS
 
                                                 switch (ElementChoisi.Value.GetType().Name.ToString())
                                                 {
-                                                    case "PositionTerrain":
-                                                        var positionChoisie = (PositionTerrain)ElementChoisi.Value;
+                                                    case "Eurobot2021PositionTerrain":
+                                                        var positionChoisie = (Eurobot2021PositionTerrain)ElementChoisi.Value;
                                                         p.missionLCDSM.Start(positionChoisie);
                                                         break;
-                                                    case "Gobelet":
+                                                    case "Eurobot2021Gobelet":
                                                         /// Il n'y a pas de dépose à effectuer
                                                         /// On récupère la liste des bras disponibles dans le robot
                                                         var gobeletChoisi = (Eurobot2021Gobelet)ElementChoisi.Value;
@@ -404,12 +404,12 @@ namespace StrategyManagerNS
                                                             p.matchDescriptor.ForçageCompteurDeposeAEffectuer(5 - dictionarBrasVides.Count);
                                                         }
                                                         break;
-                                                    case "MancheAir":
-                                                        var mancheAirChoisie = (MancheAir)ElementChoisi.Value;
+                                                    case "Eurobot2021MancheAir":
+                                                        var mancheAirChoisie = (Eurobot2021MancheAir)ElementChoisi.Value;
                                                         p.missionWindFlag.Start(mancheAirChoisie);
                                                         break;
-                                                    case "Phare":
-                                                        var PhareChoisi = (Phare)ElementChoisi.Value;
+                                                    case "Eurobot2021Phare":
+                                                        var PhareChoisi = (Eurobot2021Phare)ElementChoisi.Value;
                                                         p.missionPhare.Start(PhareChoisi);
                                                         break;
                                                     default:
@@ -565,7 +565,7 @@ namespace StrategyManagerNS
             lock (p.matchDescriptor.listElementsJeu)
             {
                 /// On recherche les manches à airs relevé
-                var dictionaryMancheAir = p.matchDescriptor.listElementsJeu.Where(x => x.Value.isAvailable == false && x.Value is MancheAir).ToDictionary(x => x.Key, y => y.Value);
+                var dictionaryMancheAir = p.matchDescriptor.listElementsJeu.Where(x => x.Value.isAvailable == false && x.Value is Eurobot2021MancheAir).ToDictionary(x => x.Key, y => y.Value);
                 /// Si une manche à air relevée, on ajoute 5 points
                 if (dictionaryMancheAir.Count == 1)
                     score += 5;
@@ -573,7 +573,7 @@ namespace StrategyManagerNS
                 else if (dictionaryMancheAir.Count == 2)
                     score += 15;
                 /// Si le phare a été activé, on ajoute 3 points. S'il est actif à la fin du match, on ajoute 10 points
-                var dictionaryPhare = p.matchDescriptor.listElementsJeu.Where(x => x.Value.isAvailable == false && x.Value is Phare).ToDictionary(x => x.Key, y => y.Value);
+                var dictionaryPhare = p.matchDescriptor.listElementsJeu.Where(x => x.Value.isAvailable == false && x.Value is Eurobot2021Phare).ToDictionary(x => x.Key, y => y.Value);
                 if (dictionaryPhare.Count == 1)
                     score += 13;
                 /// Si le drapeau est levé, on ajoute 10 points

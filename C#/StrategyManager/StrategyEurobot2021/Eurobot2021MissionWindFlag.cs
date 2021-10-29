@@ -17,7 +17,7 @@ namespace StrategyManagerNS
     {
         MissionWindFlagStates missionWindFlagState = MissionWindFlagStates.Idle;
         DateTime timestamp;
-        MancheAir MancheAirCourante;
+        Eurobot2021MancheAir MancheAirCourante;
 
         double indicativeTime;
 
@@ -40,7 +40,7 @@ namespace StrategyManagerNS
             isFinished = false;
         }
 
-        public void Start(MancheAir mancheAir)
+        public void Start(Eurobot2021MancheAir mancheAir)
         {
             MancheAirCourante = mancheAir;
             missionWindFlagState = MissionWindFlagStates.PreDeplacementToFlag;
