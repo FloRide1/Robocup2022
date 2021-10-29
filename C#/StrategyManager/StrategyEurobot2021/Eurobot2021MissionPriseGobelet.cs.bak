@@ -149,10 +149,11 @@ namespace StrategyManagerNS
                     break;
 
                 case MissionPriseGobeletState.PRISE_Gobelet:
+
                     switch (subState)
                     {
                         case SubTaskState.Entry:
-                            sw.Restart();                        
+                            sw.Restart();
                             timestamp = DateTime.Now;
 
                             //Si on est sur un gobelet standard, la préhension est en cours

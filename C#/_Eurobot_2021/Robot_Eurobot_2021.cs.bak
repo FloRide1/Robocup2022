@@ -233,9 +233,9 @@ namespace Robot
 
             if (competition == GameMode.Eurobot)
             {
-                ((StrategyEurobot2021)strategyManager).OnHerkulexPositionRequestEvent += herkulexManager.OnHerkulexPositionRequest;
-                //((StrategyEurobot2021)strategyManager).OnHerkulexEnableDisableTorqueEvent += herkulexManager.OnEnableDisableServosRequest;
-                //((StrategyEurobot2021)strategyManager).OnHerkulexRamReadRequestEvent += herkulexManager.OnHerkulexRamRead;
+                ((StrategyEurobot2021)strategyManager).OnHerkulexPositionRequestEvent += herkulexManager.OnHerkulexPositionRequestEvent;
+                ((StrategyEurobot2021)strategyManager).OnHerkulexEnableDisableTorqueEvent += herkulexManager.OnEnableDisableServosRequestEvent;
+
                 //Pilotage de la carte pololu
                 ((StrategyEurobot2021)strategyManager).OnSetPololuTargetUsEvent += robotMsgGenerator.GenerateMessagePololuSetServoUs;
             }
@@ -251,14 +251,11 @@ namespace Robot
             strategyManager.On4WheelsToPolarSetEvent += robotMsgGenerator.GenerateMessage4WheelsToPolarMatrixSet;
             strategyManager.On2WheelsAngleSetEvent += robotMsgGenerator.GenerateMessage2WheelsAngleSet;
             strategyManager.On2WheelsToPolarSetEvent += robotMsgGenerator.GenerateMessage2WheelsToPolarMatrixSet;
-            //strategyManager.OnEnableDisableRxForwardFromHerkulexEvent += robotMsgGenerator.GenerateMessageEnablUartRawRxForward;
-
             //Pilotage des servomoteurs Herkulex
             herkulexManager.OnHerkulexSendToSerialEvent += robotMsgGenerator.GenerateMessageForwardHerkulex;
             robotMsgProcessor.OnRAWUART2MessageDecodedEvent += herkulexManager.OnHerkulexDecodeInputData;
+            //herkulexManager.OnTorqueFromHerkulexGeneratedEvent+=
 
-            if(competition == GameMode.Eurobot)
-                herkulexManager.OnTorqueFromHerkulexGeneratedEvent += ((StrategyEurobot2021)strategyManager).OnTorqueInfo;
 
             if(competition == GameMode.Eurobot)            
                 lidar_TIM561.OnLidarDecodedFrameEvent += ((StrategyEurobot2021)strategyManager).Lidar_TIM561_PointsAvailable;         
@@ -379,7 +376,7 @@ namespace Robot
                 xBoxManette.OnTirEvent += robotMsgGenerator.GenerateMessageTir;
                 xBoxManette.OnStopEvent += robotMsgGenerator.GenerateMessageSTOP;
                 xBoxManette.OnPololuFromManetteEvent += robotMsgGenerator.GenerateMessagePololuSetServoUs;
-                xBoxManette.OnHerkulexFromManetteEvent += herkulexManager.OnHerkulexPositionRequest;
+                xBoxManette.OnHerkulexFromManetteEvent += herkulexManager.OnHerkulexPositionRequestEvent;
 
                 //Gestion des events liés à une détection de collision soft
                 //trajectoryPlanner.OnCollisionEvent -= kalmanPositioning.OnCollisionReceived;
@@ -407,7 +404,11 @@ namespace Robot
                 strategyManager.OnCollisionEvent += slamPositioning.OnCollisionReceived;
             }
         }
-                
+
+        private static void OnTorqueInfo(object sender, TorqueEventArgs e)
+        {
+            Console.WriteLine("Torque ID " + e.servoID + "=" + e.Value.ToString("X2"));
+        }
 
         /******************************************* Trap app termination ***************************************/
         static bool exitSystem = false;
@@ -510,7 +511,7 @@ namespace Robot
 
             robotMsgGenerator.OnSetSpeedConsigneToRobotReceivedEvent += interfaceRobot.UpdatePolarSpeedConsigneOnGraph; //Valable quelque soit la source des consignes vitesse
             interfaceRobot.OnEnableDisableMotorsFromInterfaceGeneratedEvent += robotMsgGenerator.GenerateMessageEnableDisableMotors;
-            interfaceRobot.OnEnableDisableServosFromInterfaceGeneratedEvent += herkulexManager.OnEnableDisableServosRequest;
+            interfaceRobot.OnEnableDisableServosFromInterfaceGeneratedEvent += herkulexManager.OnEnableDisableServosRequestEvent;
             interfaceRobot.OnEnableDisableTirFromInterfaceGeneratedEvent += robotMsgGenerator.GenerateMessageEnableDisableTir;
             interfaceRobot.OnEnableDisableControlManetteFromInterfaceGeneratedEvent += ChangeUseOfXBoxController;
             interfaceRobot.OnEnableDisableControlManetteFromInterfaceGeneratedEvent += trajectoryPlanner.ChangeUseOfXBoxController;

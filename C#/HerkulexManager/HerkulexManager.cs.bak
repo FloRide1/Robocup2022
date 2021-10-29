@@ -34,11 +34,10 @@ namespace HerkulexManagerNS
 
         public HerkulexManager()
         {
-            decoder = new HerkulexDecoder();
-            msgProcessor = new HerkulexMsgProcessor();
-            decoder.OnRamReadAckEvent += msgProcessor.ProcessHerkulexDecodedMessage;
-            msgProcessor.OnTorqueFromHerkulexGeneratedEvent += OnTorqueInfoFromHerkulex;
-
+            //decoder = new HerkulexDecoder();
+            //msgProcessor = new HerkulexMsgProcessor();
+            //decoder.OnRamReadAckEvent += msgProcessor.ProcessHerkulexDecodedMessage;
+            //msgProcessor.OnTorqueFromHerkulexGeneratedEvent += OnTorqueInfoFromHerkulex;
             SendingThread = new Thread(SendingThreadProcessing);
             SendingThread.IsBackground = true;
             SendingThread.Start();
@@ -110,7 +109,7 @@ namespace HerkulexManagerNS
         #region outputEvents
 
 
-        public void OnHerkulexPositionRequest(object sender, HerkulexEventArgs.HerkulexPositionsArgs e)
+        public void OnHerkulexPositionRequestEvent(object sender, HerkulexEventArgs.HerkulexPositionsArgs e)
         {
             foreach (var positionCommand in e.servoPositions)
             {
@@ -118,12 +117,7 @@ namespace HerkulexManagerNS
             }
         }
 
-        public void OnHerkulexRamRead(object sender, HerkulexEventArgs.HerkulexRamReadArgs e)
-        {
-            RAM_READ((ServoId)e.ServoId, (byte)e.RamRegister, (byte)e.Length);
-        }
-
-        public void OnEnableDisableServosRequest(object sender, BoolEventArgs e)
+        public void OnEnableDisableServosRequestEvent(object sender, BoolEventArgs e)
         {
             foreach (var servo in Servos)
             {
