@@ -379,10 +379,13 @@ namespace WpfWorldMapDisplay
                                pt.Color, pt.Width)).ToList();
                 UpdateStrategyObjects(strategyPtsListRefMapCenter);
 
-                var lidarSegmentListRefMapCenter = localWorldMap.lidarSegmentList.Select(
-                           segment => new SegmentExtended(Toolbox.OffsetLocation(segment.Segment.PtDebut, mapCenter),
-                           Toolbox.OffsetLocation(segment.Segment.PtFin, mapCenter), segment.Color, segment.Width)).ToList();
-                UpdateLidarSegments(lidarSegmentListRefMapCenter);
+                if (localWorldMap.lidarSegmentList != null)
+                {
+                    var lidarSegmentListRefMapCenter = localWorldMap.lidarSegmentList.Select(
+                               segment => new SegmentExtended(Toolbox.OffsetLocation(segment.Segment.PtDebut, mapCenter),
+                               Toolbox.OffsetLocation(segment.Segment.PtFin, mapCenter), segment.Color, segment.Width)).ToList();
+                    UpdateLidarSegments(lidarSegmentListRefMapCenter);
+                }
             }
 
             UpdateTeammateList(localWorldMap.teammateLocationList, mapCenter);
