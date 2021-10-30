@@ -1,25 +1,11 @@
 ﻿using Constants;
 using EventArgsLibrary;
-using RefereeBoxAdapter;
+using MessagesNS;
 using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Controls;
-using System.Windows.Data;
-using System.Windows.Documents;
-using System.Windows.Input;
-using System.Windows.Media;
-using System.Windows.Media.Imaging;
-using System.Windows.Navigation;
-using System.Windows.Shapes;
-using System.Windows.Threading;
-using WorldMap;
 using WpfWorldMapDisplay;
 using ZeroFormatter;
-using System.IO;
 
 namespace WpfTeamInterfaceNS
 {
@@ -28,8 +14,8 @@ namespace WpfTeamInterfaceNS
     /// </summary>
     public partial class WpfTeamInterface : Window
     {
-        string TeamIpAddress = "224.16.32.79";
-        string OpponentTeamIpAddress = "224.16.32.63";
+        string TeamIpAddress = TeamIP.Team1IP;
+        string OpponentTeamIpAddress = TeamIP.Team2IP;
         GameMode competition;
 
         //DispatcherTimer timerAffichage;
@@ -301,22 +287,32 @@ namespace WpfTeamInterfaceNS
             }
         }
 
-        private void OnRefereeBoxReceivedCommand(RefBoxMessage rbMsg)
+        public void OnRefereeBoxReceivedCommand(RefBoxMessage rbMsg)
         {
             var msg = ZeroFormatterSerializer.Serialize<ZeroFormatterMsg>(rbMsg);
             OnMulticastSendRefBoxCommand(msg);
+            string command = rbMsg.command + " : Team ";
+            if (rbMsg.targetTeam == TeamIP.Team1IP)
+                command += "Team1";
+            else if (rbMsg.targetTeam == TeamIP.Team2IP)
+                command += "Team2";
+            else
+                command += "Both Teams";
+            this.Dispatcher.BeginInvoke(new Action(delegate ()
+            {
+                TextBox_RefBoxCommands.Text = command + "\n" + TextBox_RefBoxCommands.Text;
+                TextBox_RefBoxCommands.Text = TextBox_RefBoxCommands.Text.Substring(0, Math.Min(TextBox_RefBoxCommands.Text.Length, 1000));
+            }));
         }
 
-        //Output events
-        //public event EventHandler<RefBoxMessageArgs> OnRefereeBoxCommandEvent;
-        //public virtual void OnRefereeBoxReceivedCommand(RefBoxMessage msg)
-        //{
-        //    var handler = OnRefereeBoxCommandEvent;
-        //    if (handler != null)
-        //    {
-        //        handler(this, new RefBoxMessageArgs { refBoxMsg = msg });
-        //    }
-        //}
+                
+        public void OnExternalRefereeBoxCommandReceived(object sender, RefBoxMessageArgs e)
+        {            
+            OnRefereeBoxReceivedCommand(e.refBoxMsg);
+            //OnExternalRefereeBoxCommandEvent?.Invoke(this, new RefBoxMessageArgs { refBoxMsg = e.refBoxMsg });
+        }
+
+        //Output events        
 
         public event EventHandler<DataReceivedArgs> OnMulticastSendRefBoxCommandEvent;
         public virtual void OnMulticastSendRefBoxCommand(byte[] data)
@@ -331,8 +327,6 @@ namespace WpfTeamInterfaceNS
         {
             RefBoxMessage msg = new RefBoxMessage();
             msg.command = RefBoxCommand.START;
-            msg.targetTeam = TeamIpAddress;
-            msg.robotID = 0;
             OnRefereeBoxReceivedCommand(msg);
         }
 
@@ -340,8 +334,6 @@ namespace WpfTeamInterfaceNS
         {
             RefBoxMessage msg = new RefBoxMessage();
             msg.command = RefBoxCommand.STOP;
-            msg.targetTeam = TeamIpAddress;
-            msg.robotID = 0;
             OnRefereeBoxReceivedCommand(msg);
         }
 

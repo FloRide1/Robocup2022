@@ -1,20 +1,28 @@
 ﻿using AdvancedTimers;
 using Constants;
 using EventArgsLibrary;
+using MessagesNS;
 using PerceptionManagement;
 using PerformanceMonitorTools;
 using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
 using Utilities;
-using WorldMap;
+using ZeroFormatter;
 
-namespace PhysicalSimulator
+namespace PhysicalSimulatorNS
 {
     public class PhysicalSimulator
     {
+
+        string TeamIpAddress = TeamIP.Team1IP;
+        string OpponentTeamIpAddress = TeamIP.Team2IP;
+
         double LengthAireDeJeu = 0;
+        double LengthTerrain = 0;
         double WidthAireDeJeu = 0;
+        double WidthTerrain = 0;
+        double WidthGoal = 0;
 
         ConcurrentDictionary<int, PhysicalRobotSimulator> robotList = new ConcurrentDictionary<int, PhysicalRobotSimulator>();
         object lockRobotList = new object();
@@ -38,7 +46,10 @@ namespace PhysicalSimulator
                     break;
                 case "RoboCup":
                     LengthAireDeJeu = 24;
+                    LengthTerrain = 22;
                     WidthAireDeJeu = 16;
+                    WidthTerrain = 14;
+                    WidthGoal = 2.4;
                     break;
                 default:
                     break;
@@ -52,7 +63,6 @@ namespace PhysicalSimulator
             highFrequencyTimer = new HighFreqTimerV2(fSampling, "PhysicalSimulator");
             highFrequencyTimer.Tick += HighFrequencyTimer_Tick;
             highFrequencyTimer.Start();
-
         }
 
         public void RegisterRobot(int id, double xpos, double yPos)
@@ -168,7 +178,6 @@ namespace PhysicalSimulator
                                 ballSimu.Value.VyRefTerrain = robot.Value.VxRefRobot * Math.Sin(robot.Value.Theta) + robot.Value.VyRefRobot * Math.Cos(robot.Value.Theta)
                                     + robot.Value.ShootingSpeed * Math.Sin(robot.Value.Theta);
                                 ballSimu.Value.isHandledByRobot = false;
-                                ballSimu.Value.handlingRobot = -1;
                                 robot.Value.IsHandlingBall = false;
                             }
                         }
@@ -176,7 +185,6 @@ namespace PhysicalSimulator
                         //Sinon, si la balle n'est pas en possession d'un robot
                         else if (!ballSimu.Value.isHandledByRobot)
                         {
-
                             //SI la balle est en contact avec un robot
                             if (Toolbox.Distance(robot.Value.newXWithoutCollision, robot.Value.newYWithoutCollision, ballSimu.Value.newX, ballSimu.Value.newY) < 1 * (robot.Value.radius + ballSimu.Value.radius))
                             {
@@ -189,7 +197,7 @@ namespace PhysicalSimulator
                                     //ballSimu.Value.Vx = robot.Value.VxRefRobot;
                                     //ballSimu.Value.Vy = robot.Value.VyRefRobot;
                                     ballSimu.Value.isHandledByRobot = true;
-                                    ballSimu.Value.handlingRobot = robot.Key;
+                                    ballSimu.Value.lastRobotIdHavingBall = robot.Key;
                                     robot.Value.IsHandlingBall = true;
                                 }
                                 else
@@ -198,6 +206,8 @@ namespace PhysicalSimulator
                                     ballSimu.Value.Collision = true;
                                     ballSimu.Value.VxRefTerrain = +robot.Value.VxRefRobot * Math.Cos(robot.Value.Theta) - robot.Value.VyRefRobot * Math.Sin(robot.Value.Theta) - 0.8 * ballSimu.Value.VxRefTerrain;
                                     ballSimu.Value.VyRefTerrain = +robot.Value.VxRefRobot * Math.Sin(robot.Value.Theta) + robot.Value.VyRefRobot * Math.Cos(robot.Value.Theta) - 0.8 * ballSimu.Value.VyRefTerrain;
+                                    ballSimu.Value.lastRobotIdHavingBall = robot.Key;
+                                    ballSimu.Value.isHandledByRobot = false;
                                 }
                             }
                             else
@@ -209,18 +219,120 @@ namespace PhysicalSimulator
                 }
             }
 
+            //On check les sorties de balle en touche
+            foreach (var ballSimu in ballSimulatedList)
+            {
+                ///On regarde si la balle sort en touche
+                if ((ballSimu.Value.newY - ballSimu.Value.radius > WidthTerrain / 2) || (ballSimu.Value.newY + ballSimu.Value.radius < -WidthTerrain / 2))
+                {
+                    if (ballSimu.Value.isInField)
+                    {
+                        /// Si on est en jeu, on arrêt la balle et on lance un event d'arrêt, puis un event de Throw-in
+                        ballSimu.Value.VxRefTerrain = 0; //On simule un arrêt de la balle
+                        ballSimu.Value.VyRefTerrain = 0; //On simule un arrêt de la balle
+                        
+                        /// On fabrique un message RefBox de type ThrowIn
+                        RefBoxMessage rbMsg = new RefBoxMessage();
+                        rbMsg.command = RefBoxCommand.THROWIN;
+
+                        if (ballSimu.Value.lastRobotIdHavingBall / 10 *10 == (int)TeamId.Team1)
+                            rbMsg.targetTeam = TeamIP.Team2IP;
+                        else
+                            rbMsg.targetTeam = TeamIP.Team1IP;
+
+                        OnRefBoxCommand(rbMsg);
+                        ballSimu.Value.isInField = false;
+                    }
+                }
+                ///On regarde si la balle sort en corner, en sortie de but ou bien il y a but
+                if ((ballSimu.Value.newX - ballSimu.Value.radius > LengthTerrain / 2) || (ballSimu.Value.newX + ballSimu.Value.radius < -LengthTerrain / 2))
+                {
+                    if (ballSimu.Value.isInField)
+                    {
+                        /// Si on est en jeu, on arrêt la balle et on lance un event d'arrêt, puis un event de type dépendant de la situation                        
+                        ballSimu.Value.VxRefTerrain = 0; 
+                        ballSimu.Value.VyRefTerrain = 0; 
+                        ballSimu.Value.isInField = false;
+                        
+                        ///Si la balle est dans le but
+                        if((ballSimu.Value.newY + ballSimu.Value.radius < WidthGoal/2) && (ballSimu.Value.newY - ballSimu.Value.radius > WidthGoal / 2))
+                        {
+                            RefBoxMessage rbMsg = new RefBoxMessage();
+                            rbMsg.command = RefBoxCommand.GOAL;
+                            if (ballSimu.Value.newX > 0)
+                                rbMsg.targetTeam = TeamIP.Team1IP;
+                            else
+                                rbMsg.targetTeam = TeamIP.Team2IP;
+
+                            OnRefBoxCommand(rbMsg);
+                            ///On ramène la balle au centre du terrain
+                            ballSimu.Value.SetBallPosition(0, 0);
+                        }
+                        else ///La balle est en corner ou en sortie de but
+                        {
+                            RefBoxMessage rbMsg = new RefBoxMessage();
+                            if (ballSimu.Value.newX > 0 && ballSimu.Value.lastRobotIdHavingBall / 10 * 10 == (int)TeamId.Team1)
+                            {
+                                rbMsg.command = RefBoxCommand.GOALKICK;
+                                rbMsg.targetTeam = TeamIP.Team2IP;
+
+                                if (ballSimu.Value.Y >= 0)
+                                    ballSimu.Value.SetBallPosition(LengthTerrain/2 - 0.75, 3.9 / 2);
+                                else
+                                    ballSimu.Value.SetBallPosition(LengthTerrain/2 - 0.75, -3.9 / 2);
+                            }
+                            else if (ballSimu.Value.newX > 0 && ballSimu.Value.lastRobotIdHavingBall / 10 * 10 == (int)TeamId.Team2)
+                            {
+                                rbMsg.command = RefBoxCommand.CORNER;
+                                rbMsg.targetTeam = TeamIP.Team1IP;
+                                if (ballSimu.Value.Y >= 0)
+                                    ballSimu.Value.SetBallPosition(LengthTerrain / 2, WidthTerrain / 2);
+                                else
+                                    ballSimu.Value.SetBallPosition(LengthTerrain / 2, -WidthTerrain / 2);
+                            }
+                            if (ballSimu.Value.newX < 0 && ballSimu.Value.lastRobotIdHavingBall / 10 * 10 == (int)TeamId.Team1)
+                            {
+                                rbMsg.command = RefBoxCommand.CORNER;
+                                rbMsg.targetTeam = TeamIP.Team2IP;
+                                if (ballSimu.Value.Y >= 0)
+                                    ballSimu.Value.SetBallPosition(-LengthTerrain / 2, WidthTerrain / 2);
+                                else
+                                    ballSimu.Value.SetBallPosition(-LengthTerrain / 2, -WidthTerrain / 2);
+                            }
+                            if (ballSimu.Value.newX < 0 && ballSimu.Value.lastRobotIdHavingBall / 10 * 10 == (int)TeamId.Team2)
+                            {
+                                rbMsg.command = RefBoxCommand.GOALKICK;
+                                rbMsg.targetTeam = TeamIP.Team1IP;
+
+                                if (ballSimu.Value.Y >= 0)
+                                    ballSimu.Value.SetBallPosition(-LengthTerrain / 2 + 0.75, 3.9 / 2);
+                                else
+                                    ballSimu.Value.SetBallPosition(-LengthTerrain / 2 + 0.75, -3.9 / 2);
+                            }
+                            OnRefBoxCommand(rbMsg);
+                        }
+                    }
+                }
+
+                /// On regarde si la balle est en jeu
+                if ((ballSimu.Value.newX - ballSimu.Value.radius >= -LengthTerrain / 2) && (ballSimu.Value.newX + ballSimu.Value.radius <= LengthTerrain / 2) && (ballSimu.Value.newY - ballSimu.Value.radius <= WidthTerrain / 2) && (ballSimu.Value.newY + ballSimu.Value.radius >= -WidthTerrain / 2))
+                {
+                    ballSimu.Value.isInField = true;
+                }
+            }
+
             //On check les collisions balle-murs
             foreach (var ballSimu in ballSimulatedList)
             {
                 //Gestion des collisions balle-murs
                 //On check les murs virtuels
                 //Mur haut ou bas
-                if ((ballSimu.Value.newY + ballSimu.Value.radius > WidthAireDeJeu / 2) || (ballSimu.Value.newY + ballSimu.Value.radius < -WidthAireDeJeu / 2))
+                if ((ballSimu.Value.newY + ballSimu.Value.radius > WidthAireDeJeu / 2) || (ballSimu.Value.newY - ballSimu.Value.radius < -WidthAireDeJeu / 2))
                 {
                     ballSimu.Value.VyRefTerrain = -ballSimu.Value.VyRefTerrain; //On simule un rebond
                 }
                 //Mur gauche ou droit
-                if ((ballSimu.Value.newX + ballSimu.Value.radius < -LengthAireDeJeu / 2) || (ballSimu.Value.newX + ballSimu.Value.radius > LengthAireDeJeu / 2))
+                if ((ballSimu.Value.newX - ballSimu.Value.radius < -LengthAireDeJeu / 2) || (ballSimu.Value.newX + ballSimu.Value.radius > LengthAireDeJeu / 2))
                 {
                     ballSimu.Value.VxRefTerrain = -ballSimu.Value.VxRefTerrain; //On simule un rebond
                 }
@@ -292,7 +404,7 @@ namespace PhysicalSimulator
                     {
                         /// La balle est controlée par le robot
                         /// Sa position est celle du robot décalée
-                        var robotControlling = robotList[ballSimu.Value.handlingRobot];
+                        var robotControlling = robotList[ballSimu.Value.lastRobotIdHavingBall];
                         ballSimu.Value.X = robotControlling.X + (robotControlling.radius + ballSimu.Value.radius) * Math.Cos(robotControlling.Theta);
                         ballSimu.Value.Y = robotControlling.Y + (robotControlling.radius + ballSimu.Value.radius) * Math.Sin(robotControlling.Theta);
                         ballSimu.Value.VxRefTerrain = robotControlling.VxRefRobot * Math.Cos(robotControlling.Theta) - robotControlling.VyRefRobot * Math.Sin(robotControlling.Theta);
@@ -365,6 +477,25 @@ namespace PhysicalSimulator
         }
 
         //Output events
+        public event EventHandler<RefBoxMessageArgs> OnSimulatorRefboxCommandEvent;
+        public virtual void OnRefBoxCommand(RefBoxMessage msg)
+        {
+            var handler = OnSimulatorRefboxCommandEvent;
+            if (handler != null)
+            {
+                handler(this, new RefBoxMessageArgs{refBoxMsg= msg});
+            }
+        }
+        //public event EventHandler<DataReceivedArgs> OnMulticastSendRefBoxCommandEvent;
+        //public virtual void OnMulticastSendRefBoxCommand(byte[] data)
+        //{
+        //    var handler = OnMulticastSendRefBoxCommandEvent;
+        //    if (handler != null)
+        //    {
+        //        handler(this, new DataReceivedArgs { Data = data });
+        //    }
+        //}
+
         public event EventHandler<LocationArgs> OnPhysicalRobotLocationEvent;
         public virtual void OnPhysicalRobotLocation(int id, Location location)
         {
@@ -455,7 +586,8 @@ namespace PhysicalSimulator
 
         public bool Collision;
         public bool isHandledByRobot = false;
-        public int handlingRobot;
+        public int lastRobotIdHavingBall;
+        public bool isInField = true;
 
 
         public PhysicalBallSimulator(double xPos, double yPos)
@@ -463,5 +595,14 @@ namespace PhysicalSimulator
             X = xPos;
             Y = yPos;
         }
+
+        public void SetBallPosition(double xPos, double yPos)
+        {
+            X = xPos;
+            Y = yPos;
+            newX = xPos;
+            newY = yPos;
+        }
+
     }
 }

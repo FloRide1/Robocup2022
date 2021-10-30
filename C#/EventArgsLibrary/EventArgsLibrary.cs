@@ -1,6 +1,7 @@
 ﻿using Constants;
 using Emgu.CV;
 using HeatMap;
+using MessagesNS;
 using PerceptionManagement;
 using System;
 using System.Collections.Generic;
@@ -9,7 +10,6 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using Utilities;
-using WorldMap;
 
 namespace EventArgsLibrary
 {
@@ -73,6 +73,11 @@ namespace EventArgsLibrary
             Mat.Dispose();
         }
     }
+
+    //public class RefBoxMessageArgs : EventArgs
+    //{
+    //    public RefBoxMessage msg { get; set; }
+    //}
 
     public class MessageDecodedArgs : EventArgs
     {

@@ -213,7 +213,7 @@ namespace Robot
             robotMsgProcessor = new MsgProcessor(robotId, GameMode.RoboCup);
 
             robotPilot = new RobotPilot.RobotPilot(robotId);
-            strategyManager = new StrategyRoboCup(robotId, teamId, "224.16.32.79");
+            strategyManager = new StrategyRoboCup(robotId, teamId, TeamIP.Team1IP);
             waypointGenerator = new WaypointGenerator(robotId, GameMode.RoboCup);
             trajectoryPlanner = new TrajectoryGeneratorHolonome(robotId, GameMode.RoboCup);
             kalmanPositioning = new KalmanPositioning.KalmanPositioning(robotId, 50, 0.2, 0.2, 0.2, 0.1, 0.1, 0.1, 0.02);

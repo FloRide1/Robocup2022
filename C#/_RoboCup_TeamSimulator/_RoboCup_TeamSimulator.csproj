@@ -122,6 +122,10 @@
       <Project>{45A044B5-1D4F-4B6E-964B-3B2FA5E39AB2}</Project>
       <Name>LidarSimulator</Name>
     </ProjectReference>
+    <ProjectReference Include="..\Messages\Messages.csproj">
+      <Project>{ED63BCC4-1A79-4B53-AFAE-827226C35AF7}</Project>
+      <Name>Messages</Name>
+    </ProjectReference>
     <ProjectReference Include="..\PerceptionManagement\PerceptionManagement.csproj">
       <Project>{CA5585EB-5C96-4DF3-823C-878C0AD7D739}</Project>
       <Name>PerceptionManagement</Name>
@@ -133,6 +137,10 @@
     <ProjectReference Include="..\PhysicalSimulator\PhysicalSimulator.csproj">
       <Project>{4CF48B4E-AB93-479E-B79C-F9101F24B7BA}</Project>
       <Name>PhysicalSimulator</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\RefereeAutomatic\RefereeAutomatic.csproj">
+      <Project>{b2cdcc54-a025-41cd-8a49-2b303ee2458a}</Project>
+      <Name>RefereeAutomatic</Name>
     </ProjectReference>
     <ProjectReference Include="..\RefereeBoxAdapter\RefereeBoxAdapter.csproj">
       <Project>{a8c04138-90dc-42f9-ab39-e71125b805b9}</Project>
@@ -177,10 +185,6 @@
     <ProjectReference Include="..\WorldMapManager\WorldMapManager.csproj">
       <Project>{01e89552-13a5-4a24-80b2-9246700f72fd}</Project>
       <Name>WorldMapManager</Name>
-    </ProjectReference>
-    <ProjectReference Include="..\WorldMap\WorldMap.csproj">
-      <Project>{B2D0126F-8C82-4EAA-87E5-67415F589098}</Project>
-      <Name>WorldMap</Name>
     </ProjectReference>
     <ProjectReference Include="..\WpfTeamInterface\WpfTeamInterface.csproj">
       <Project>{6BB34EA2-B1A7-4B68-A467-DEE096BB1A1C}</Project>

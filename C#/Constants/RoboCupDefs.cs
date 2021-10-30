@@ -70,4 +70,32 @@ namespace Constants
         public static double Length = 22;
         public static double Width = 14;
     }
+
+    public enum GameState
+    {
+        STOPPED,
+        STOPPED_GAME_POSITIONING,
+        PLAYING,
+    }
+
+    public enum StoppedGameAction
+    {
+        NONE,
+        KICKOFF,
+        KICKOFF_OPPONENT,
+        FREEKICK,
+        FREEKICK_OPPONENT,
+        GOALKICK,
+        GOALKICK_OPPONENT,
+        THROWIN,
+        THROWIN_OPPONENT,
+        CORNER,
+        CORNER_OPPONENT,
+        PENALTY,
+        PENALTY_OPPONENT,
+        PARK,
+        DROPBALL,
+        GOTO,
+        GOTO_OPPONENT,
+    }
 }

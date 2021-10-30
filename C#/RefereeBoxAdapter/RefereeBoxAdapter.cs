@@ -14,9 +14,9 @@ using Newtonsoft.Json.Converters;
 using System.Globalization;
 using Utilities;
 using ZeroFormatter;
-using WorldMap;
+using MessagesNS;
 
-namespace RefereeBoxAdapter
+namespace RefereeBoxAdapterNS
 {
     public class RefereeBoxAdapter
     {

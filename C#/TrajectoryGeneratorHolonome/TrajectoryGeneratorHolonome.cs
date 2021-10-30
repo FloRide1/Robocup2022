@@ -6,7 +6,6 @@ using PerformanceMonitorTools;
 using System;
 using System.Diagnostics;
 using Utilities;
-using WorldMap;
 
 namespace TrajectoryGeneratorHolonomeNS
 {

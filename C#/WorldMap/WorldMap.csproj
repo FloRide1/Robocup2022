@@ -60,12 +60,7 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="GlobalWorldMap.cs" />
-    <Compile Include="LocalWorldMap.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
-    <Compile Include="RefBoxMessage.cs" />
-    <Compile Include="ZeroFormatterMsg.cs" />
-    <Compile Include="WorldStateMessage.cs" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\Constants\Constants.csproj">

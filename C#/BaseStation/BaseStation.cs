@@ -40,8 +40,8 @@ namespace BaseStation
             globalWorldMapManagerTeam1 = new GlobalWorldMapManager(0, (int)TeamId.Team1);
 
             //BaseStation RCT
-            BaseStationUdpMulticastSenderTeam1 = new UDPMulticastSender(0, "224.16.32.79");
-            BaseStationUdpMulticastReceiverTeam1 = new UDPMulticastReceiver(0, "224.16.32.79");
+            BaseStationUdpMulticastSenderTeam1 = new UDPMulticastSender(0, TeamIP.Team1IP);
+            BaseStationUdpMulticastReceiverTeam1 = new UDPMulticastReceiver(0, TeamIP.Team1IP);
             BaseStationUdpMulticastInterpreterTeam1 = new UDPMulticastInterpreter(0);
             
             StartInterfaces();

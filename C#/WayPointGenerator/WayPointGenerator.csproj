@@ -85,6 +85,10 @@
       <Project>{ECC907ED-F9B2-457F-901E-720987934E47}</Project>
       <Name>AdvancedTimers</Name>
     </ProjectReference>
+    <ProjectReference Include="..\Messages\Messages.csproj">
+      <Project>{ed63bcc4-1a79-4b53-afae-827226c35af7}</Project>
+      <Name>Messages</Name>
+    </ProjectReference>
     <ProjectReference Include="..\Perception\Perception.csproj">
       <Project>{DD8FD061-D3B2-43AE-B74D-03D94A2876A3}</Project>
       <Name>Perception</Name>
@@ -92,10 +96,6 @@
     <ProjectReference Include="..\Utilities\Utilities.csproj">
       <Project>{8E7D0DA4-9A13-4B18-A90E-0243BBCCE40A}</Project>
       <Name>Utilities</Name>
-    </ProjectReference>
-    <ProjectReference Include="..\WorldMap\WorldMap.csproj">
-      <Project>{B2D0126F-8C82-4EAA-87E5-67415F589098}</Project>
-      <Name>WorldMap</Name>
     </ProjectReference>
   </ItemGroup>
   <ItemGroup>

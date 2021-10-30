@@ -13,6 +13,12 @@ namespace Constants
         Opponents = 100,
     }
 
+    public static class TeamIP
+    {
+        public static string Team1IP = "224.16.32.79";
+        public static string Team2IP = "224.16.32.63";
+    }
+
     public enum BallId
     {
         Ball = 1000,

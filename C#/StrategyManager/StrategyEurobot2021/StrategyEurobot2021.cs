@@ -4,13 +4,13 @@ using HeatMap;
 using HerkulexManagerNS;
 using LidarProcessor;
 using LidarSickNS;
+using MessagesNS;
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
 using System.Timers;
 using Utilities;
-using WorldMap;
 using static HerkulexManagerNS.HerkulexEventArgs;
 
 namespace StrategyManagerNS
@@ -196,7 +196,7 @@ namespace StrategyManagerNS
 
         //************************ Events reçus ************************************************/
 
-        public override void OnRefBoxMsgReceived(object sender, WorldMap.RefBoxMessageArgs e)
+        public override void OnRefBoxMsgReceived(object sender, RefBoxMessageArgs e)
         {
             var command = e.refBoxMsg.command;
             var targetTeam = e.refBoxMsg.targetTeam;

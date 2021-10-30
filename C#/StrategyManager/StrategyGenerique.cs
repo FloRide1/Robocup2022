@@ -2,6 +2,7 @@
 using EventArgsLibrary;
 using HeatMap;
 using HerkulexManagerNS;
+using MessagesNS;
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
@@ -12,7 +13,6 @@ using System.Threading;
 using System.Threading.Tasks;
 using System.Timers;
 using Utilities;
-using WorldMap;
 using static HerkulexManagerNS.HerkulexEventArgs;
 
 namespace StrategyManagerNS
@@ -117,7 +117,7 @@ namespace StrategyManagerNS
         }
 
         //************************ Events reçus ************************************************/
-        public abstract void OnRefBoxMsgReceived(object sender, WorldMap.RefBoxMessageArgs e);
+        public abstract void OnRefBoxMsgReceived(object sender, RefBoxMessageArgs e);
 
         /////Event de récupération d'une GlobalWorldMap mise à jour
         //public void OnGlobalWorldMapReceived(object sender, GlobalWorldMapArgs e)

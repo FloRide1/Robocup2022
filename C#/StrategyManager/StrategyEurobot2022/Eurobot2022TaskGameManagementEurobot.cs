@@ -1,17 +1,7 @@
-﻿using Constants;
-using EventArgsLibrary;
-using HerkulexManagerNS;
-using RefereeBoxAdapter;
-using System;
+﻿using System;
 using System.Collections.Generic;
-using System.Diagnostics;
 using System.Linq;
-using System.Text;
-using System.Threading;
-using System.Threading.Tasks;
 using Utilities;
-using WorldMap;
-using static HerkulexManagerNS.HerkulexEventArgs;
 
 namespace StrategyManagerNS
 {

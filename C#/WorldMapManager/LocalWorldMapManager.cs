@@ -1,12 +1,12 @@
 ﻿using Constants;
 using EventArgsLibrary;
+using MessagesNS;
 using Newtonsoft.Json;
 using PerformanceMonitorTools;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using Utilities;
-using WorldMap;
 using ZeroFormatter;
 
 namespace WorldMapManager
@@ -86,7 +86,7 @@ namespace WorldMapManager
 
                 if (transferLocalWorldMap.robotLocation != null)
                 {
-                    var s = ZeroFormatterSerializer.Serialize<WorldMap.ZeroFormatterMsg>(transferLocalWorldMap);
+                    var s = ZeroFormatterSerializer.Serialize<ZeroFormatterMsg>(transferLocalWorldMap);
 
                     if (useMulticastUdp)
                         OnMulticastSendLocalWorldMapCommand(s); //Envoi à destination des autres robots en multicast

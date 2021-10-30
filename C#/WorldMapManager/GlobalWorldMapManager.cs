@@ -1,16 +1,15 @@
 ﻿using AdvancedTimers;
 using Constants;
 using EventArgsLibrary;
+using MessagesNS;
 using Newtonsoft.Json;
 using PerformanceMonitorTools;
-using RefereeBoxAdapter;
 using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Linq;
 using System.Timers;
 using Utilities;
-using WorldMap;
 using ZeroFormatter;
 
 namespace WorldMapManager
@@ -99,7 +98,7 @@ namespace WorldMapManager
             //La fusion porte avant tout sur la balle et sur les adversaires.
 
             //TODO : faire un algo de fusion robuste pour la balle
-            globalWorldMap = new WorldMap.GlobalWorldMap(TeamId);
+            globalWorldMap = new GlobalWorldMap(TeamId);
 
             //Pour l'instant on prend la position de balle vue par le robot 1 comme vérité, mais c'est à améliorer !
             if (localWorldMapDictionary.Count > 0)
@@ -221,7 +220,7 @@ namespace WorldMapManager
             /// Transfert de la globalworldmap localement
             try
             {
-                var s = ZeroFormatterSerializer.Serialize<WorldMap.ZeroFormatterMsg>(globalWorldMap);
+                var s = ZeroFormatterSerializer.Serialize<ZeroFormatterMsg>(globalWorldMap);
                 OnGlobalWorldMap(globalWorldMap);
             }
             catch { }

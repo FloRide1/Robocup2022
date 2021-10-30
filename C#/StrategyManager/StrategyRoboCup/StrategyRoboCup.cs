@@ -1,6 +1,7 @@
 ﻿using Constants;
 using EventArgsLibrary;
 using HeatMap;
+using MessagesNS;
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
@@ -9,7 +10,6 @@ using System.Text;
 using System.Threading.Tasks;
 using System.Timers;
 using Utilities;
-using WorldMap;
 
 namespace StrategyManagerNS
 {
@@ -32,7 +32,7 @@ namespace StrategyManagerNS
         public List<RoboCupPoste> strategyComposition = new List<RoboCupPoste> { RoboCupPoste.GoalKeeper, RoboCupPoste.DefenderLeft, RoboCupPoste.DefenderRight, RoboCupPoste.MidfielderCenter, RoboCupPoste.ForwardCenter };
 
         public string MessageDisplay = "Debug";
-                
+
         TaskBallHandlingManagement taskBallHandlingManagement;
 
         Timer configTimer;
@@ -43,7 +43,7 @@ namespace StrategyManagerNS
         {
             taskBallHandlingManagement = new TaskBallHandlingManagement(this);
             InitHeatMap();
-            RayonRobot = 0.25*Math.Sqrt(2);
+            RayonRobot = 0.25 * Math.Sqrt(2);
         }
 
 
@@ -88,7 +88,7 @@ namespace StrategyManagerNS
             //OnSetRobotSpeedIndependantPID(pM1: 4.0, iM1: 300, 0.0, pM2: 4.0, iM2: 300, 0, pM3: 4.0, iM3: 300, 0, pM4: 4.0, iM4: 300, 0.0,
             //    pM1Limit: 4.0, iM1Limit: 4.0, 0, pM2Limit: 4.0, iM2Limit: 4.0, 0, pM3Limit: 4.0, iM3Limit: 4.0, 0, pM4Limit: 4.0, iM4Limit: 4.0, 0);
             //On4WheelsPolarSpeedPIDSetup(px: 4.0, ix: 300, 0.0, py: 4.0, iy: 300, 0, ptheta: 4.0, itheta: 300, 0,
-                //pxLimit: 4.0, ixLimit: 4.0, 0, pyLimit: 4.0, iyLimit: 4.0, 0, pthetaLimit: 4.0, ithetaLimit: 4.0, 0);
+            //pxLimit: 4.0, ixLimit: 4.0, 0, pyLimit: 4.0, iyLimit: 4.0, 0, pthetaLimit: 4.0, ithetaLimit: 4.0, 0);
 
             OnSetAsservissementMode((byte)AsservissementMode.Independant4Wheels);
         }
@@ -126,8 +126,7 @@ namespace StrategyManagerNS
 
 
             ///Création du dictionnaire de classifieur de rôle qui sert à extraire
-            ///les caractéristiques permettant de faire les choix stratégiques.
-            
+            ///les caractéristiques permettant de faire les choix stratégiques.            
             Dictionary<int, TeamMateRoleClassifier> teamRoleClassifier = new Dictionary<int, TeamMateRoleClassifier>();
 
             if (localWorldMap.robotLocation != null)
@@ -151,7 +150,9 @@ namespace StrategyManagerNS
 
             switch (gameState)
             {
-                case GameState.STOPPED:
+                case GameState.STOPPED:                    
+                    break;
+                case GameState.STOPPED_GAME_POSITIONING:                    
                     break;
                 case GameState.PLAYING:
                     {
@@ -306,8 +307,6 @@ namespace StrategyManagerNS
                         //role = teamRoleClassifier[robotId].Role;
                     }
                     break;
-                case GameState.STOPPED_GAME_POSITIONING:                    
-                    break;
             }
 
             OnRole(robotId, consideredRobotRole);
@@ -317,353 +316,514 @@ namespace StrategyManagerNS
 
         public override void DetermineRobotZones()
         {
-            double radiusZonePoste = 22;
-            /// Bords du terrain
-            //AddStrictlyAllowedRectangle(new RectangleD(-11 + RayonRobot, 11 - RayonRobot, -7 + RayonRobot, 7 - RayonRobot));
-            //AddStrictlyAllowedConvexPolygon(new ConvexPolygonD(new List<PointD> { new PointD(-11, -7), new PointD(11, -7),
-            //    new PointD(11, 7), new PointD(-11, 7) }));
+            double signX = 1;
+            double signY = -1;
 
-            ///On exclut d'emblée les surface de réparation pour tous les joueurs
-            if (consideredRobotRole != RoboCupPoste.GoalKeeper)
-            {
-                AddForbiddenRectangle(new RectangleD(-11, -11 + 0.75 + 0.2, -3.9 / 2 - 0.2, 3.9 / 2 + 0.2));
-                AddForbiddenRectangle(new RectangleD(-11, -11 + 0.75 + 0.2, -3.9 / 2 - 0.2, 3.9 / 2 + 0.2));
-                AddForbiddenRectangle(new RectangleD(+11 - 0.75 + 0.2, +11, -3.9 / 2 - 0.2, 3.9 / 2 + 0.2));
-            }
-
-            /// On a besoin du rang des adversaires en fonction de leur distance au but 
-            /// Pour cela il faut d'abord définir la position du but.
-            PointD offensiveGoalPosition;
-            PointD defensiveGoalPosition;
             if (playingSide == PlayingSide.Right)
             {
-                offensiveGoalPosition = new PointD(-11, 0);
-                defensiveGoalPosition = new PointD(11, 0);
+                signX = 1;
+                signY = 1;
             }
             else
             {
-                defensiveGoalPosition = new PointD(-11, 0);
-                offensiveGoalPosition = new PointD(11, 0);
+                signX = -1;
+                signY = -1;
             }
 
-            switch (consideredRobotRole)
-            {
-                case RoboCupPoste.GoalKeeper:
-                    /// Gestion du cas du gardien
-                    /// Exclusion de tout le terrain sauf la surface de réparation
-                    /// Ajout d'une zone préférentielle centrée sur le but
-                    /// Réglage du cap pour faire toujours face à la balle
-                    if (playingSide == PlayingSide.Right)
+
+            switch (gameState)
+            { 
+                case GameState.STOPPED:
                     {
-                        AddPreferredRectangle(new RectangleD(11 - 0.75, 11, -3.9 / 2, 3.9 / 2), 0.2);
-                        AddPreferedZone(new PointD(10.6, 0), radiusZonePoste, 0.5);
+                        ///On force le robot à s'arrêter
+                        AddPreferedZone(robotCurrentLocation.ToPointD(), 1, 1);
+                        break;
                     }
-                    else
+                case GameState.STOPPED_GAME_POSITIONING:
                     {
-                        AddPreferredRectangle(new RectangleD(-11, -11 + 0.75, -3.9 / 2, 3.9 / 2), 0.2);
-                        AddPreferedZone(new PointD(-10.6, 0), radiusZonePoste, 0.5);
+                        switch (stoppedGameAction)
+                        {
+                            case StoppedGameAction.CORNER:
+                                if (localWorldMap.ballLocationList[0].Y >= 0) ///Corner dans le coin en haut à gauche
+                                    switch (consideredRobotRole)
+                                    {
+                                        case RoboCupPoste.DefenderCenter:
+                                            AddPreferedZone(new PointD(signX * -1, signY * 0), 6, 0.5);
+                                            break;
+                                        case RoboCupPoste.DefenderRight:
+                                            AddPreferedZone(new PointD(signX * -1, signY * -3), 6, 0.5);
+                                            break;
+                                        case RoboCupPoste.DefenderLeft:
+                                            AddPreferedZone(new PointD(signX * -1, signY * 4), 6, 0.5);
+                                            break;
+                                        case RoboCupPoste.MidfielderCenter:
+                                            AddPreferedZone(new PointD(signX * 3, signY * 3), 6, 0.5);
+                                            break;
+                                        case RoboCupPoste.MidfielderRight:
+                                            AddPreferedZone(new PointD(signX * 3, signY * -1), 6, 0.5);
+                                            break;
+                                        case RoboCupPoste.MidfielderLeft:
+                                            AddPreferedZone(new PointD(signX * 3, signY * 5), 6, 0.5);
+                                            break;
+                                        case RoboCupPoste.ForwardCenter:
+                                            AddPreferedZone(new PointD(signX * 8, signY * 3), 6, 0.5);
+                                            break;
+                                        case RoboCupPoste.ForwardRight:
+                                            AddPreferedZone(new PointD(signX * 8, signY * -1), 6, 0.5);
+                                            break;
+                                        case RoboCupPoste.ForwardLeft:
+                                            AddPreferedZone(new PointD(signX * 11.5, signY * 7.5), 6, 0.5);
+                                            break;
+                                    }
+                                else
+                                    switch (consideredRobotRole)
+                                    {
+                                        case RoboCupPoste.DefenderCenter:
+                                            AddPreferedZone(new PointD(signX * -1, signY * 0), 6, 0.5);
+                                            break;
+                                        case RoboCupPoste.DefenderRight:
+                                            AddPreferedZone(new PointD(signX * -1, signY * -4), 6, 0.5);
+                                            break;
+                                        case RoboCupPoste.DefenderLeft:
+                                            AddPreferedZone(new PointD(signX * -1, signY * 3), 6, 0.5);
+                                            break;
+                                        case RoboCupPoste.MidfielderCenter:
+                                            AddPreferedZone(new PointD(signX * 3, signY * -3), 6, 0.5);
+                                            break;
+                                        case RoboCupPoste.MidfielderRight:
+                                            AddPreferedZone(new PointD(signX * 3, signY * -5), 6, 0.5);
+                                            break;
+                                        case RoboCupPoste.MidfielderLeft:
+                                            AddPreferedZone(new PointD(signX * 3, signY * 1), 6, 0.5);
+                                            break;
+                                        case RoboCupPoste.ForwardCenter:
+                                            AddPreferedZone(new PointD(signX * 8, signY * -3), 6, 0.5);
+                                            break;
+                                        case RoboCupPoste.ForwardRight:
+                                            AddPreferedZone(new PointD(signX * 8, signY * 7.5), 6, 0.5);
+                                            break;
+                                        case RoboCupPoste.ForwardLeft:
+                                            AddPreferedZone(new PointD(signX * 11.5, signY * -1), 6, 0.5);
+                                            break;
+                                    }
+                                break;
+                            case StoppedGameAction.CORNER_OPPONENT:
+                                if (localWorldMap.ballLocationList[0].Y >= 0) ///Corner dans le coin en haut à gauche
+                                    switch (consideredRobotRole)
+                                    {
+                                        case RoboCupPoste.DefenderCenter:
+                                            AddPreferedZone(new PointD(signX * -9, signY * 0), 6, 0.5);
+                                            break;
+                                        case RoboCupPoste.DefenderRight:
+                                            AddPreferedZone(new PointD(signX * -10, signY * 4), 6, 0.5);
+                                            break;
+                                        case RoboCupPoste.DefenderLeft:
+                                            AddPreferedZone(new PointD(signX * -9, signY * 0), 6, 0.5);
+                                            break;
+                                        case RoboCupPoste.MidfielderCenter:
+                                            AddPreferedZone(new PointD(signX * -8, signY * 0), 6, 0.5);
+                                            break;
+                                        case RoboCupPoste.MidfielderRight:
+                                            AddPreferedZone(new PointD(signX * -8.5, signY * 4), 6, 0.5);
+                                            break;
+                                        case RoboCupPoste.MidfielderLeft:
+                                            AddPreferedZone(new PointD(signX * -8, signY * -2), 6, 0.5);
+                                            break;
+                                        case RoboCupPoste.ForwardCenter:
+                                            AddPreferedZone(new PointD(signX * -5, signY * 0), 6, 0.5);
+                                            break;
+                                        case RoboCupPoste.ForwardRight:
+                                            AddPreferedZone(new PointD(signX * -5, signY * 4), 6, 0.5);
+                                            break;
+                                        case RoboCupPoste.ForwardLeft:
+                                            AddPreferedZone(new PointD(signX * -5, signY * -2), 6, 0.5);
+                                            break;
+                                    }
+                                else if (localWorldMap.ballLocationList[0].Y < 0) ///Corner dans le coin en haut à gauche
+                                    switch (consideredRobotRole)
+                                    {
+                                        case RoboCupPoste.DefenderCenter:
+                                            AddPreferedZone(new PointD(signX * -9, signY * 0), 6, 0.5);
+                                            break;
+                                        case RoboCupPoste.DefenderRight:
+                                            AddPreferedZone(new PointD(signX * -10, -signY * 0), 6, 0.5);
+                                            break;
+                                        case RoboCupPoste.DefenderLeft:
+                                            AddPreferedZone(new PointD(signX * -9, signY * -4), 6, 0.5);
+                                            break;
+                                        case RoboCupPoste.MidfielderCenter:
+                                            AddPreferedZone(new PointD(signX * -8, signY * 0), 6, 0.5);
+                                            break;
+                                        case RoboCupPoste.MidfielderRight:
+                                            AddPreferedZone(new PointD(signX * -8.5, signY * 2), 6, 0.5);
+                                            break;
+                                        case RoboCupPoste.MidfielderLeft:
+                                            AddPreferedZone(new PointD(signX * -8, signY * -4), 6, 0.5);
+                                            break;
+                                        case RoboCupPoste.ForwardCenter:
+                                            AddPreferedZone(new PointD(signX * -5, signY * 0), 6, 0.5);
+                                            break;
+                                        case RoboCupPoste.ForwardRight:
+                                            AddPreferedZone(new PointD(signX * -5, signY * 2), 6, 0.5);
+                                            break;
+                                        case RoboCupPoste.ForwardLeft:
+                                            AddPreferedZone(new PointD(signX * -5, signY * -4), 6, 0.5);
+                                            break;
+                                    }
+                                break;
+                        }
+                        break;
                     }
-
-                    if (localWorldMap.ballLocationList.Count > 0)
-                        robotOrientation = Math.Atan2(localWorldMap.ballLocationList[0].Y - robotCurrentLocation.Y, localWorldMap.ballLocationList[0].X - robotCurrentLocation.X);
-                    break;
-
-                case RoboCupPoste.DefenderCenter:
-                    if (playingSide == PlayingSide.Right)
+                case GameState.PLAYING:
                     {
-                        AddPreferredRectangle(new RectangleD(0, RoboCupField.Length / 2, -RoboCupField.Width / 2, RoboCupField.Width / 2), 0.2);
-                        AddPreferedZone(new PointD(RoboCupField.Length / 4, 0), radiusZonePoste, 0.5);
+                        double radiusZonePoste = 22;
+                        /// Bords du terrain
+                        //AddStrictlyAllowedRectangle(new RectangleD(-11 + RayonRobot, 11 - RayonRobot, -7 + RayonRobot, 7 - RayonRobot));
+                        //AddStrictlyAllowedConvexPolygon(new ConvexPolygonD(new List<PointD> { new PointD(-11, -7), new PointD(11, -7),
+                        //    new PointD(11, 7), new PointD(-11, 7) }));
+
+                        ///On exclut d'emblée les surface de réparation pour tous les joueurs
+                        if (consideredRobotRole != RoboCupPoste.GoalKeeper)
+                        {
+                            AddForbiddenRectangle(new RectangleD(-11, -11 + 0.75 + 0.2, -3.9 / 2 - 0.2, 3.9 / 2 + 0.2));
+                            AddForbiddenRectangle(new RectangleD(-11, -11 + 0.75 + 0.2, -3.9 / 2 - 0.2, 3.9 / 2 + 0.2));
+                            AddForbiddenRectangle(new RectangleD(+11 - 0.75 + 0.2, +11, -3.9 / 2 - 0.2, 3.9 / 2 + 0.2));
+                        }
+
+                        /// On a besoin du rang des adversaires en fonction de leur distance au but 
+                        /// Pour cela il faut d'abord définir la position du but.
+                        PointD offensiveGoalPosition;
+                        PointD defensiveGoalPosition;
+                        if (playingSide == PlayingSide.Right)
+                        {
+                            offensiveGoalPosition = new PointD(-11, 0);
+                            defensiveGoalPosition = new PointD(11, 0);
+                        }
+                        else
+                        {
+                            defensiveGoalPosition = new PointD(-11, 0);
+                            offensiveGoalPosition = new PointD(11, 0);
+                        }
+
+                        switch (consideredRobotRole)
+                        {
+                            case RoboCupPoste.GoalKeeper:
+                                /// Gestion du cas du gardien
+                                /// Exclusion de tout le terrain sauf la surface de réparation
+                                /// Ajout d'une zone préférentielle centrée sur le but
+                                /// Réglage du cap pour faire toujours face à la balle
+                                if (playingSide == PlayingSide.Right)
+                                {
+                                    AddPreferredRectangle(new RectangleD(11 - 0.75, 11, -3.9 / 2, 3.9 / 2), 0.2);
+                                    AddPreferedZone(new PointD(10.6, 0), radiusZonePoste, 0.5);
+                                }
+                                else
+                                {
+                                    AddPreferredRectangle(new RectangleD(-11, -11 + 0.75, -3.9 / 2, 3.9 / 2), 0.2);
+                                    AddPreferedZone(new PointD(-10.6, 0), radiusZonePoste, 0.5);
+                                }
+
+                                if (localWorldMap.ballLocationList.Count > 0)
+                                    robotOrientation = Math.Atan2(localWorldMap.ballLocationList[0].Y - robotCurrentLocation.Y, localWorldMap.ballLocationList[0].X - robotCurrentLocation.X);
+                                break;
+
+                            case RoboCupPoste.DefenderCenter:
+                                if (playingSide == PlayingSide.Right)
+                                {
+                                    AddPreferredRectangle(new RectangleD(0, RoboCupField.Length / 2, -RoboCupField.Width / 2, RoboCupField.Width / 2), 0.2);
+                                    AddPreferedZone(new PointD(RoboCupField.Length / 4, 0), radiusZonePoste, 0.5);
+                                }
+                                else
+                                {
+                                    AddPreferredRectangle(new RectangleD(-RoboCupField.Length / 2, 0, -RoboCupField.Width / 2, RoboCupField.Width / 2), 0.2);
+                                    AddPreferedZone(new PointD(-RoboCupField.Length / 4, 0), radiusZonePoste, 0.5);
+                                }
+                                break;
+
+                            case RoboCupPoste.DefenderRight:
+                                if (playingSide == PlayingSide.Right)
+                                {
+                                    AddPreferredRectangle(new RectangleD(0, RoboCupField.Length / 2, -RoboCupField.Width / 2, RoboCupField.Width / 2), 0.2);
+                                    AddPreferedZone(new PointD(RoboCupField.Length / 4, RoboCupField.Width / 4), radiusZonePoste, 0.5);
+                                }
+                                else
+                                {
+                                    AddPreferredRectangle(new RectangleD(-RoboCupField.Length / 2, 0, -RoboCupField.Width / 2, RoboCupField.Width / 2), 0.2);
+                                    AddPreferedZone(new PointD(-RoboCupField.Length / 4, -RoboCupField.Width / 4), radiusZonePoste, 0.5);
+                                }
+                                break;
+
+                            case RoboCupPoste.DefenderLeft:
+                                if (playingSide == PlayingSide.Right)
+                                {
+                                    AddPreferredRectangle(new RectangleD(0, RoboCupField.Length / 2, -RoboCupField.Width / 2, RoboCupField.Width / 2), 0.2);
+                                    AddPreferedZone(new PointD(RoboCupField.Length / 4, -RoboCupField.Width / 4), radiusZonePoste, 0.5);
+                                }
+                                else
+                                {
+                                    AddPreferredRectangle(new RectangleD(-RoboCupField.Length / 2, 0, -RoboCupField.Width / 2, RoboCupField.Width / 2), 0.2);
+                                    AddPreferedZone(new PointD(-RoboCupField.Length / 4, RoboCupField.Width / 4), radiusZonePoste, 0.5);
+                                }
+                                break;
+
+                            case RoboCupPoste.MidfielderCenter:
+                                if (playingSide == PlayingSide.Right)
+                                {
+                                    AddPreferredRectangle(new RectangleD(-RoboCupField.Length / 4, RoboCupField.Length / 4, -RoboCupField.Width / 2, RoboCupField.Width / 2), 0.2);
+                                    AddPreferedZone(new PointD(0, 0), radiusZonePoste, 0.5);
+                                }
+                                else
+                                {
+                                    AddPreferredRectangle(new RectangleD(-RoboCupField.Length / 4, RoboCupField.Length / 4, -RoboCupField.Width / 2, RoboCupField.Width / 2), 0.2);
+                                    AddPreferedZone(new PointD(0, 0), radiusZonePoste, 0.5);
+                                }
+                                break;
+
+                            case RoboCupPoste.MidfielderRight:
+                                if (playingSide == PlayingSide.Right)
+                                {
+                                    AddPreferredRectangle(new RectangleD(-RoboCupField.Length / 4, RoboCupField.Length / 4, -RoboCupField.Width / 2, RoboCupField.Width / 2), 0.2);
+                                    AddPreferedZone(new PointD(0, RoboCupField.Width / 4), radiusZonePoste, 0.5);
+                                }
+                                else
+                                {
+                                    AddPreferredRectangle(new RectangleD(-RoboCupField.Length / 4, RoboCupField.Length / 4, -RoboCupField.Width / 2, RoboCupField.Width / 2), 0.2);
+                                    AddPreferedZone(new PointD(0, -RoboCupField.Width / 4), radiusZonePoste, 0.5);
+                                }
+                                break;
+
+                            case RoboCupPoste.MidfielderLeft:
+                                if (playingSide == PlayingSide.Right)
+                                {
+                                    AddPreferredRectangle(new RectangleD(-RoboCupField.Length / 4, RoboCupField.Length / 4, -RoboCupField.Width / 2, RoboCupField.Width / 2), 0.2);
+                                    AddPreferedZone(new PointD(0, -RoboCupField.Width / 4), radiusZonePoste, 0.5);
+                                }
+                                else
+                                {
+                                    AddPreferredRectangle(new RectangleD(-RoboCupField.Length / 4, RoboCupField.Length / 4, -RoboCupField.Width / 2, RoboCupField.Width / 2), 0.2);
+                                    AddPreferedZone(new PointD(0, RoboCupField.Width / 4), radiusZonePoste, 0.5);
+                                }
+                                break;
+
+                            case RoboCupPoste.ForwardCenter:
+                                if (playingSide == PlayingSide.Right)
+                                {
+                                    AddPreferredRectangle(new RectangleD(-RoboCupField.Length / 2, 0, -RoboCupField.Width / 2, RoboCupField.Width / 2), 0.2);
+                                    AddPreferedZone(new PointD(-RoboCupField.Length / 4, 0), radiusZonePoste, 0.2);
+                                }
+                                else
+                                {
+                                    AddPreferredRectangle(new RectangleD(0, RoboCupField.Length / 2, -RoboCupField.Width / 2, RoboCupField.Width / 2), 0.2);
+                                    AddPreferedZone(new PointD(RoboCupField.Length / 4, 0), radiusZonePoste, 0.2);
+                                }
+                                break;
+
+                            case RoboCupPoste.ForwardRight:
+                                if (playingSide == PlayingSide.Right)
+                                {
+                                    AddPreferredRectangle(new RectangleD(-RoboCupField.Length / 2, 0, -RoboCupField.Width / 2, RoboCupField.Width / 2), 0.2);
+                                    AddPreferedZone(new PointD(-RoboCupField.Length / 4, RoboCupField.Width / 4), radiusZonePoste, 0.2);
+                                }
+                                else
+                                {
+                                    AddPreferredRectangle(new RectangleD(0, RoboCupField.Length / 2, -RoboCupField.Width / 2, RoboCupField.Width / 2), 0.2);
+                                    AddPreferedZone(new PointD(RoboCupField.Length / 4, -RoboCupField.Width / 4), radiusZonePoste, 0.2);
+                                }
+                                break;
+
+                            case RoboCupPoste.ForwardLeft:
+                                if (playingSide == PlayingSide.Right)
+                                {
+                                    AddPreferredRectangle(new RectangleD(-RoboCupField.Length / 2, 0, -RoboCupField.Width / 2, RoboCupField.Width / 2), 0.2);
+                                    AddPreferedZone(new PointD(-RoboCupField.Length / 4, -RoboCupField.Width / 4), radiusZonePoste, 0.2);
+                                }
+                                else
+                                {
+                                    AddPreferredRectangle(new RectangleD(0, RoboCupField.Length / 2, -RoboCupField.Width / 2, RoboCupField.Width / 2), 0.2);
+                                    AddPreferedZone(new PointD(RoboCupField.Length * 3 / 4, RoboCupField.Width / 4), radiusZonePoste, 0.2);
+                                }
+                                break;
+                        }
+
+                        //case RoboCupPoste.DefenderCenter:
+                        //if (localWorldMap.ballLocationList.Count > 0)
+                        //    AddPreferedZone(new PointD(localWorldMap.ballLocationList[0].X, localWorldMap.ballLocationList[0].Y), 3, 0.5);
+                        //if (localWorldMap.ballLocationList.Count > 0)
+                        //    robotOrientation = Math.Atan2(localWorldMap.ballLocationList[0].Y - robotCurrentLocation.Y, localWorldMap.ballLocationList[0].X - robotCurrentLocation.X);
+                        //break;
+
+                        //case RoboCupPoste.DefenseurMarquage:
+                        //    {
+                        //        /// On va placer un défenseur à une distance définie de l'attaquant, sur la ligne attaquant but
+                        //        /// Les zones d'intérêt sont devant les deux attaquants les plus en pointe
+                        //        /// Il faut donc commencer par les trouver
+                        //        Dictionary<int, TeamMateRoleClassifier> adversaireClassifier = new Dictionary<int, TeamMateRoleClassifier>();
+                        //        int i = 0;
+                        //        lock (localWorldMap)
+                        //        {
+                        //            foreach (var adversaire in localWorldMap.obstacleLocationList)
+                        //            {
+                        //                var adv = new TeamMateRoleClassifier(new PointD(adversaire.X, adversaire.Y), RoboCupPoste.Adversaire);
+                        //                adv.DistanceButDefensif = Toolbox.Distance(new PointD(adversaire.X, adversaire.Y), defensiveGoalPosition);
+                        //                adversaireClassifier.Add(i++, adv);
+                        //            }
+                        //        }
+
+                        //        /// A présent, on filtre la liste des adversaires de manière à trouver les joueurs les plus proches du but en défense
+                        //        /// 
+                        //        var teamFiltered1 = adversaireClassifier.OrderBy(elt => elt.Value.DistanceButDefensif).ToList();
+
+                        //        if (teamFiltered1.Count > 1)
+                        //        {
+                        //            if (playingSide == PlayingSide.Right)
+                        //            {
+                        //                AddPreferedZone(new PointD(teamFiltered1[0].Value.Position.X + 2, teamFiltered1[0].Value.Position.Y), 1.5);
+                        //                AddPreferedZone(new PointD(teamFiltered1[1].Value.Position.X + 2, teamFiltered1[1].Value.Position.Y), 1.5);
+                        //            }
+                        //            else
+                        //            {
+                        //                AddPreferedZone(new PointD(teamFiltered1[0].Value.Position.X - 2, teamFiltered1[0].Value.Position.Y), 1.5);
+                        //                AddPreferedZone(new PointD(teamFiltered1[1].Value.Position.X - 2, teamFiltered1[1].Value.Position.Y), 1.5);
+                        //            }
+                        //        }
+
+                        //        if (localWorldMap.ballLocationList.Count > 0)
+                        //        {
+                        //            if (localWorldMap.ballLocationList[0] != null)
+                        //                robotOrientation = Math.Atan2(localWorldMap.ballLocationList[0].Y - robotCurrentLocation.Y, localWorldMap.ballLocationList[0].X - robotCurrentLocation.X);
+                        //        }
+
+                        //    }
+                        //    break;
+
+                        //case RoboCupPoste.DefenseurIntercepteur:
+                        //    {
+                        //        /// On va placer un défenseur à une distance définie de l'attaquant, sur la ligne attaquant but
+                        //        /// Les zones d'intérêt sont devant les deux attaquants les plus en pointe
+                        //        /// Il faut donc commencer par les trouver
+                        //        Dictionary<int, TeamMateRoleClassifier> adversaireClassifier = new Dictionary<int, TeamMateRoleClassifier>();
+                        //        int i = 0;
+                        //        foreach (var adversaire in localWorldMap.obstacleLocationList)
+                        //        {
+                        //            var adv = new TeamMateRoleClassifier(new PointD(adversaire.X, adversaire.Y), RoboCupPoste.Adversaire);
+                        //            adv.DistanceButDefensif = Toolbox.Distance(new PointD(adversaire.X, adversaire.Y), defensiveGoalPosition);
+                        //            adversaireClassifier.Add(i++, adv);
+                        //        }
+
+                        //        /// A présent, on filtre la liste des adversaires de manière à trouver les joueurs les plus proches du but en défense
+                        //        /// 
+                        //        var teamFiltered1 = adversaireClassifier.OrderBy(elt => elt.Value.DistanceButDefensif).ToList();
+
+                        //        if (teamFiltered1.Count > 1)
+                        //        {
+                        //            var adversaire1 = teamFiltered1[0].Value.Position;
+                        //            var adversaire2 = teamFiltered1[1].Value.Position;
+                        //            AddPreferredSegmentZoneList(new PointD(adversaire1.X, adversaire1.Y), new PointD(adversaire2.X, adversaire2.Y), 0.4, 0.1);
+                        //            AddPreferedZone(new PointD((adversaire1.X + adversaire2.X) / 2, (adversaire1.Y + adversaire2.Y) / 2), 0.4, 0.3);
+                        //            AddAvoidanceZone(new PointD(adversaire1.X, adversaire1.Y), 2, 0.5);
+
+                        //            //AddPreferedZone(new PointD((teamFiltered1[0].Value.Position.X + teamFiltered1[1].Value.Position.X) / 2, (teamFiltered1[0].Value.Position.Y + teamFiltered1[0].Value.Position.Y) / 2), 2.5);
+                        //        }
+
+                        //        if (localWorldMap.ballLocationList.Count > 0)
+                        //            robotOrientation = Math.Atan2(localWorldMap.ballLocationList[0].Y - robotCurrentLocation.Y, localWorldMap.ballLocationList[0].X - robotCurrentLocation.X);
+
+                        //    }
+                        //    break;
+                        //case RoboCupPoste.AttaquantDemarque:
+                        //    /// Gestion du cas de l'attaquant démarqué
+                        //    /// Il doit faire en sorte que la ligne de passe entre lui et le porteur du ballon soit libre
+                        //    ///     Pour cela il faudrait idéalement placer une zone de pénalisation conique de centre le joueur dans l'axe de chaque adversaire
+                        //    /// Il doit également se placer dans un position de tir possible 
+                        //    ///     Pour cela il faudrait idéalement placer une zone de pénalisation conique de centre le but dans l'axe de chaque adversaire
+
+                        //    if (playingSide == PlayingSide.Left)
+                        //    {
+                        //        AddPreferredSegmentZoneList(new PointD(7, -3), new PointD(7, 3), 3, 1);
+                        //        //AddPreferedZone(new PointD(8, 3), 3, 0.1);
+                        //        //AddPreferedZone(new PointD(8, -3), 3, 0.1);
+                        //    }
+                        //    else
+                        //    {
+                        //        //AddPreferredSegmentZoneList(new PointD(-7, -3), new PointD(-7, 3), 3, 1);
+                        //        //AddPreferedZone(new PointD(-8, 3), 3, 0.1);
+                        //        //AddPreferedZone(new PointD(-8, -3), 3, 0.1);
+                        //    }
+
+                        //    foreach (var adversaire in localWorldMap.obstacleLocationList)
+                        //    {
+                        //        AddAvoidanceConicalZoneList(new PointD(robotCurrentLocation.X, robotCurrentLocation.Y), new PointD(adversaire.X, adversaire.Y), 2);
+                        //        //AddAvoidanceConicalZoneList(Toolbox.OffsetLocation(new PointD(robotCurrentLocation.X, robotCurrentLocation.Y), robotCurrentLocation), Toolbox.OffsetLocation(new PointD(adversaire.X, adversaire.Y), robotCurrentLocation), 2);
+                        //    }
+
+                        //    if (localWorldMap.ballLocationList.Count > 0)
+                        //        robotOrientation = Math.Atan2(localWorldMap.ballLocationList[0].Y - robotCurrentLocation.Y, localWorldMap.ballLocationList[0].X - robotCurrentLocation.X);
+
+                        //    break;
+
+                        //case RoboCupPoste.AttaquantAvecBalle:
+                        //    {
+                        //        /// L'attaquant avec balle doit aller vers le but si il a de l'espace
+                        //        /// Il peut faire des passes à ses coéquipiers démarqués si il est dans une zone un peu dense
+                        //        /// 
+                        //        /// On va placer un défenseur à une distance définie de l'attaquant, sur la ligne attaquant but
+                        //        /// Les zones d'intérêt sont devant les deux attaquants les plus en pointe
+                        //        /// Il faut donc commencer par les trouver
+
+                        //        Dictionary<int, TeamMateRoleClassifier> adversaireClassifier = new Dictionary<int, TeamMateRoleClassifier>();
+                        //        int i = 0;
+                        //        foreach (var adversaire in localWorldMap.obstacleLocationList)
+                        //        {
+                        //            var adv = new TeamMateRoleClassifier(new PointD(adversaire.X, adversaire.Y), RoboCupPoste.Adversaire);
+                        //            adv.DistanceRobotConsidere = Toolbox.Distance(new PointD(adversaire.X, adversaire.Y), new PointD(robotCurrentLocation.X, robotCurrentLocation.Y));
+                        //            adversaireClassifier.Add(i++, adv);
+                        //        }
+
+                        //        /// A présent, on filtre la liste des adversaires de manière à trouver les joueurs les plus proches du robot considéré
+                        //        /// 
+                        //        var teamFiltered1 = adversaireClassifier.OrderBy(elt => elt.Value.DistanceRobotConsidere).ToList();
+
+                        //        if (teamFiltered1.Count > 0)
+                        //        {
+                        //            var adversaireLePlusProche = teamFiltered1[0].Value.Position;
+                        //            if (teamFiltered1[0].Value.DistanceRobotConsidere > 2)
+                        //            {
+                        //                ///On a au moins 2m devant nous, on va vers le but
+                        //                ///TODO : raffiner pour ne prendre en compte que les robots entre le but et nous...
+                        //                AddPreferedZone(offensiveGoalPosition, 5);
+                        //                robotOrientation = Math.Atan2(offensiveGoalPosition.Y - robotCurrentLocation.Y, offensiveGoalPosition.X - robotCurrentLocation.X);
+                        //                /// Si on est suffisament proche du but, on tire
+                        //                if (Toolbox.Distance(new PointD(robotCurrentLocation.X, robotCurrentLocation.Y), offensiveGoalPosition) < 4)
+                        //                {
+                        //                    ///On tire !
+                        //                    OnShootRequest(robotId, 6);
+                        //                }
+                        //            }
+                        //            else
+                        //            {
+                        //                ///Il y a du monde en face, on prépare une passe
+                        //                Dictionary<int, TeamMateRoleClassifier> teamMateClassifier = new Dictionary<int, TeamMateRoleClassifier>();
+                        //                int j = 0;
+                        //                //foreach (var teamMateLoc in localWorldMap.teammateLocationList)
+                        //                //{
+                        //                //    var adv = new TeamMateRoleClassifier(new PointD(adversaire.X, adversaire.Y), RobotRole.Adversaire);
+                        //                //    adv.DistanceRobotConsidere = Toolbox.Distance(new PointD(adversaire.X, adversaire.Y), new PointD(robotCurrentLocation.X, robotCurrentLocation.Y));
+                        //                //    adversaireClassifier.Add(i++, adv);
+                        //                //}
+                        //                AddPreferedZone(offensiveGoalPosition, 2);
+
+
+                        //            }
+                        //            //AddPreferredSegmentZoneList(new PointD(adversaire1.X, adversaire1.Y), new PointD(adversaire2.X, adversaire2.Y), 0.4, 0.1);
+                        //            //AddAvoidanceZone(new PointD(adversaire1.X, adversaire1.Y), 2, 0.5);
+
+                        //            //AddPreferedZone(new PointD((teamFiltered1[0].Value.Position.X + teamFiltered1[1].Value.Position.X) / 2, (teamFiltered1[0].Value.Position.Y + teamFiltered1[0].Value.Position.Y) / 2), 2.5);
+                        //        }
+                        //    }
+
+                        break;
+
                     }
-                    else
-                    {
-                        AddPreferredRectangle(new RectangleD(-RoboCupField.Length / 2, 0, -RoboCupField.Width / 2, RoboCupField.Width / 2), 0.2);
-                        AddPreferedZone(new PointD(-RoboCupField.Length / 4, 0), radiusZonePoste, 0.5);
-                    }
-                    break;
-
-                case RoboCupPoste.DefenderRight:
-                    if (playingSide == PlayingSide.Right)
-                    {
-                        AddPreferredRectangle(new RectangleD(0, RoboCupField.Length / 2, -RoboCupField.Width / 2, RoboCupField.Width / 2), 0.2);
-                        AddPreferedZone(new PointD(RoboCupField.Length / 4, RoboCupField.Width / 4), radiusZonePoste, 0.5);
-                    }
-                    else
-                    {
-                        AddPreferredRectangle(new RectangleD(-RoboCupField.Length / 2, 0, -RoboCupField.Width / 2, RoboCupField.Width / 2), 0.2);
-                        AddPreferedZone(new PointD(-RoboCupField.Length / 4, -RoboCupField.Width / 4), radiusZonePoste, 0.5);
-                    }
-                    break;
-
-                case RoboCupPoste.DefenderLeft:
-                    if (playingSide == PlayingSide.Right)
-                    {
-                        AddPreferredRectangle(new RectangleD(0, RoboCupField.Length / 2, -RoboCupField.Width / 2, RoboCupField.Width / 2), 0.2);
-                        AddPreferedZone(new PointD(RoboCupField.Length / 4, -RoboCupField.Width / 4), radiusZonePoste, 0.5);
-                    }
-                    else
-                    {
-                        AddPreferredRectangle(new RectangleD(-RoboCupField.Length / 2, 0, -RoboCupField.Width / 2, RoboCupField.Width / 2), 0.2);
-                        AddPreferedZone(new PointD(-RoboCupField.Length / 4, RoboCupField.Width / 4), radiusZonePoste, 0.5);
-                    }
-                    break;
-
-                case RoboCupPoste.MidfielderCenter:
-                    if (playingSide == PlayingSide.Right)
-                    {
-                        AddPreferredRectangle(new RectangleD(-RoboCupField.Length / 4, RoboCupField.Length / 4, -RoboCupField.Width / 2, RoboCupField.Width / 2), 0.2);
-                        AddPreferedZone(new PointD(0, 0), radiusZonePoste, 0.5);
-                    }
-                    else
-                    {
-                        AddPreferredRectangle(new RectangleD(-RoboCupField.Length / 4, RoboCupField.Length / 4, -RoboCupField.Width / 2, RoboCupField.Width / 2), 0.2);
-                        AddPreferedZone(new PointD(0, 0), radiusZonePoste, 0.5);
-                    }
-                    break;
-
-                case RoboCupPoste.MidfielderRight:
-                    if (playingSide == PlayingSide.Right)
-                    {
-                        AddPreferredRectangle(new RectangleD(-RoboCupField.Length / 4, RoboCupField.Length / 4, -RoboCupField.Width / 2, RoboCupField.Width / 2), 0.2);
-                        AddPreferedZone(new PointD(0, RoboCupField.Width / 4), radiusZonePoste, 0.5);
-                    }
-                    else
-                    {
-                        AddPreferredRectangle(new RectangleD(-RoboCupField.Length / 4, RoboCupField.Length / 4, -RoboCupField.Width / 2, RoboCupField.Width / 2), 0.2);
-                        AddPreferedZone(new PointD(0, -RoboCupField.Width / 4), radiusZonePoste, 0.5);
-                    }
-                    break;
-
-                case RoboCupPoste.MidfielderLeft:
-                    if (playingSide == PlayingSide.Right)
-                    {
-                        AddPreferredRectangle(new RectangleD(-RoboCupField.Length / 4, RoboCupField.Length / 4, -RoboCupField.Width / 2, RoboCupField.Width / 2), 0.2);
-                        AddPreferedZone(new PointD(0, -RoboCupField.Width / 4), radiusZonePoste, 0.5);
-                    }
-                    else
-                    {
-                        AddPreferredRectangle(new RectangleD(-RoboCupField.Length / 4, RoboCupField.Length / 4, -RoboCupField.Width / 2, RoboCupField.Width / 2), 0.2);
-                        AddPreferedZone(new PointD(0, RoboCupField.Width / 4), radiusZonePoste, 0.5);
-                    }
-                    break;
-
-                case RoboCupPoste.ForwardCenter:
-                    if (playingSide == PlayingSide.Right)
-                    {
-                        AddPreferredRectangle(new RectangleD(-RoboCupField.Length / 2, 0, -RoboCupField.Width / 2, RoboCupField.Width / 2), 0.2);
-                        AddPreferedZone(new PointD(-RoboCupField.Length / 4, 0), radiusZonePoste, 0.2);
-                    }
-                    else
-                    {
-                        AddPreferredRectangle(new RectangleD(0, RoboCupField.Length / 2, -RoboCupField.Width / 2, RoboCupField.Width / 2), 0.2);
-                        AddPreferedZone(new PointD(RoboCupField.Length / 4, 0), radiusZonePoste, 0.2);
-                    }
-                    break;
-
-                case RoboCupPoste.ForwardRight:
-                    if (playingSide == PlayingSide.Right)
-                    {
-                        AddPreferredRectangle(new RectangleD(-RoboCupField.Length / 2, 0, -RoboCupField.Width / 2, RoboCupField.Width / 2), 0.2);
-                        AddPreferedZone(new PointD(-RoboCupField.Length / 4, RoboCupField.Width / 4), radiusZonePoste, 0.2);
-                    }
-                    else
-                    {
-                        AddPreferredRectangle(new RectangleD(0, RoboCupField.Length / 2, -RoboCupField.Width / 2, RoboCupField.Width / 2), 0.2);
-                        AddPreferedZone(new PointD(RoboCupField.Length / 4, -RoboCupField.Width / 4), radiusZonePoste, 0.2);
-                    }
-                    break;
-
-                case RoboCupPoste.ForwardLeft:
-                    if (playingSide == PlayingSide.Right)
-                    {
-                        AddPreferredRectangle(new RectangleD(-RoboCupField.Length / 2, 0, -RoboCupField.Width / 2, RoboCupField.Width / 2), 0.2);
-                        AddPreferedZone(new PointD(-RoboCupField.Length / 4, -RoboCupField.Width / 4), radiusZonePoste, 0.2);
-                    }
-                    else
-                    {
-                        AddPreferredRectangle(new RectangleD(0, RoboCupField.Length / 2, -RoboCupField.Width / 2, RoboCupField.Width / 2), 0.2);
-                        AddPreferedZone(new PointD(RoboCupField.Length * 3 / 4, RoboCupField.Width / 4), radiusZonePoste, 0.2);
-                    }
-                    break;
-
-                    //case RoboCupPoste.DefenderCenter:
-                    //if (localWorldMap.ballLocationList.Count > 0)
-                    //    AddPreferedZone(new PointD(localWorldMap.ballLocationList[0].X, localWorldMap.ballLocationList[0].Y), 3, 0.5);
-                    //if (localWorldMap.ballLocationList.Count > 0)
-                    //    robotOrientation = Math.Atan2(localWorldMap.ballLocationList[0].Y - robotCurrentLocation.Y, localWorldMap.ballLocationList[0].X - robotCurrentLocation.X);
-                    //break;
-
-                    //case RoboCupPoste.DefenseurMarquage:
-                    //    {
-                    //        /// On va placer un défenseur à une distance définie de l'attaquant, sur la ligne attaquant but
-                    //        /// Les zones d'intérêt sont devant les deux attaquants les plus en pointe
-                    //        /// Il faut donc commencer par les trouver
-                    //        Dictionary<int, TeamMateRoleClassifier> adversaireClassifier = new Dictionary<int, TeamMateRoleClassifier>();
-                    //        int i = 0;
-                    //        lock (localWorldMap)
-                    //        {
-                    //            foreach (var adversaire in localWorldMap.obstacleLocationList)
-                    //            {
-                    //                var adv = new TeamMateRoleClassifier(new PointD(adversaire.X, adversaire.Y), RoboCupPoste.Adversaire);
-                    //                adv.DistanceButDefensif = Toolbox.Distance(new PointD(adversaire.X, adversaire.Y), defensiveGoalPosition);
-                    //                adversaireClassifier.Add(i++, adv);
-                    //            }
-                    //        }
-
-                    //        /// A présent, on filtre la liste des adversaires de manière à trouver les joueurs les plus proches du but en défense
-                    //        /// 
-                    //        var teamFiltered1 = adversaireClassifier.OrderBy(elt => elt.Value.DistanceButDefensif).ToList();
-
-                    //        if (teamFiltered1.Count > 1)
-                    //        {
-                    //            if (playingSide == PlayingSide.Right)
-                    //            {
-                    //                AddPreferedZone(new PointD(teamFiltered1[0].Value.Position.X + 2, teamFiltered1[0].Value.Position.Y), 1.5);
-                    //                AddPreferedZone(new PointD(teamFiltered1[1].Value.Position.X + 2, teamFiltered1[1].Value.Position.Y), 1.5);
-                    //            }
-                    //            else
-                    //            {
-                    //                AddPreferedZone(new PointD(teamFiltered1[0].Value.Position.X - 2, teamFiltered1[0].Value.Position.Y), 1.5);
-                    //                AddPreferedZone(new PointD(teamFiltered1[1].Value.Position.X - 2, teamFiltered1[1].Value.Position.Y), 1.5);
-                    //            }
-                    //        }
-
-                    //        if (localWorldMap.ballLocationList.Count > 0)
-                    //        {
-                    //            if (localWorldMap.ballLocationList[0] != null)
-                    //                robotOrientation = Math.Atan2(localWorldMap.ballLocationList[0].Y - robotCurrentLocation.Y, localWorldMap.ballLocationList[0].X - robotCurrentLocation.X);
-                    //        }
-
-                    //    }
-                    //    break;
-
-                    //case RoboCupPoste.DefenseurIntercepteur:
-                    //    {
-                    //        /// On va placer un défenseur à une distance définie de l'attaquant, sur la ligne attaquant but
-                    //        /// Les zones d'intérêt sont devant les deux attaquants les plus en pointe
-                    //        /// Il faut donc commencer par les trouver
-                    //        Dictionary<int, TeamMateRoleClassifier> adversaireClassifier = new Dictionary<int, TeamMateRoleClassifier>();
-                    //        int i = 0;
-                    //        foreach (var adversaire in localWorldMap.obstacleLocationList)
-                    //        {
-                    //            var adv = new TeamMateRoleClassifier(new PointD(adversaire.X, adversaire.Y), RoboCupPoste.Adversaire);
-                    //            adv.DistanceButDefensif = Toolbox.Distance(new PointD(adversaire.X, adversaire.Y), defensiveGoalPosition);
-                    //            adversaireClassifier.Add(i++, adv);
-                    //        }
-
-                    //        /// A présent, on filtre la liste des adversaires de manière à trouver les joueurs les plus proches du but en défense
-                    //        /// 
-                    //        var teamFiltered1 = adversaireClassifier.OrderBy(elt => elt.Value.DistanceButDefensif).ToList();
-
-                    //        if (teamFiltered1.Count > 1)
-                    //        {
-                    //            var adversaire1 = teamFiltered1[0].Value.Position;
-                    //            var adversaire2 = teamFiltered1[1].Value.Position;
-                    //            AddPreferredSegmentZoneList(new PointD(adversaire1.X, adversaire1.Y), new PointD(adversaire2.X, adversaire2.Y), 0.4, 0.1);
-                    //            AddPreferedZone(new PointD((adversaire1.X + adversaire2.X) / 2, (adversaire1.Y + adversaire2.Y) / 2), 0.4, 0.3);
-                    //            AddAvoidanceZone(new PointD(adversaire1.X, adversaire1.Y), 2, 0.5);
-
-                    //            //AddPreferedZone(new PointD((teamFiltered1[0].Value.Position.X + teamFiltered1[1].Value.Position.X) / 2, (teamFiltered1[0].Value.Position.Y + teamFiltered1[0].Value.Position.Y) / 2), 2.5);
-                    //        }
-
-                    //        if (localWorldMap.ballLocationList.Count > 0)
-                    //            robotOrientation = Math.Atan2(localWorldMap.ballLocationList[0].Y - robotCurrentLocation.Y, localWorldMap.ballLocationList[0].X - robotCurrentLocation.X);
-
-                    //    }
-                    //    break;
-                    //case RoboCupPoste.AttaquantDemarque:
-                    //    /// Gestion du cas de l'attaquant démarqué
-                    //    /// Il doit faire en sorte que la ligne de passe entre lui et le porteur du ballon soit libre
-                    //    ///     Pour cela il faudrait idéalement placer une zone de pénalisation conique de centre le joueur dans l'axe de chaque adversaire
-                    //    /// Il doit également se placer dans un position de tir possible 
-                    //    ///     Pour cela il faudrait idéalement placer une zone de pénalisation conique de centre le but dans l'axe de chaque adversaire
-
-                    //    if (playingSide == PlayingSide.Left)
-                    //    {
-                    //        AddPreferredSegmentZoneList(new PointD(7, -3), new PointD(7, 3), 3, 1);
-                    //        //AddPreferedZone(new PointD(8, 3), 3, 0.1);
-                    //        //AddPreferedZone(new PointD(8, -3), 3, 0.1);
-                    //    }
-                    //    else
-                    //    {
-                    //        //AddPreferredSegmentZoneList(new PointD(-7, -3), new PointD(-7, 3), 3, 1);
-                    //        //AddPreferedZone(new PointD(-8, 3), 3, 0.1);
-                    //        //AddPreferedZone(new PointD(-8, -3), 3, 0.1);
-                    //    }
-
-                    //    foreach (var adversaire in localWorldMap.obstacleLocationList)
-                    //    {
-                    //        AddAvoidanceConicalZoneList(new PointD(robotCurrentLocation.X, robotCurrentLocation.Y), new PointD(adversaire.X, adversaire.Y), 2);
-                    //        //AddAvoidanceConicalZoneList(Toolbox.OffsetLocation(new PointD(robotCurrentLocation.X, robotCurrentLocation.Y), robotCurrentLocation), Toolbox.OffsetLocation(new PointD(adversaire.X, adversaire.Y), robotCurrentLocation), 2);
-                    //    }
-
-                    //    if (localWorldMap.ballLocationList.Count > 0)
-                    //        robotOrientation = Math.Atan2(localWorldMap.ballLocationList[0].Y - robotCurrentLocation.Y, localWorldMap.ballLocationList[0].X - robotCurrentLocation.X);
-
-                    //    break;
-
-                    //case RoboCupPoste.AttaquantAvecBalle:
-                    //    {
-                    //        /// L'attaquant avec balle doit aller vers le but si il a de l'espace
-                    //        /// Il peut faire des passes à ses coéquipiers démarqués si il est dans une zone un peu dense
-                    //        /// 
-                    //        /// On va placer un défenseur à une distance définie de l'attaquant, sur la ligne attaquant but
-                    //        /// Les zones d'intérêt sont devant les deux attaquants les plus en pointe
-                    //        /// Il faut donc commencer par les trouver
-
-                    //        Dictionary<int, TeamMateRoleClassifier> adversaireClassifier = new Dictionary<int, TeamMateRoleClassifier>();
-                    //        int i = 0;
-                    //        foreach (var adversaire in localWorldMap.obstacleLocationList)
-                    //        {
-                    //            var adv = new TeamMateRoleClassifier(new PointD(adversaire.X, adversaire.Y), RoboCupPoste.Adversaire);
-                    //            adv.DistanceRobotConsidere = Toolbox.Distance(new PointD(adversaire.X, adversaire.Y), new PointD(robotCurrentLocation.X, robotCurrentLocation.Y));
-                    //            adversaireClassifier.Add(i++, adv);
-                    //        }
-
-                    //        /// A présent, on filtre la liste des adversaires de manière à trouver les joueurs les plus proches du robot considéré
-                    //        /// 
-                    //        var teamFiltered1 = adversaireClassifier.OrderBy(elt => elt.Value.DistanceRobotConsidere).ToList();
-
-                    //        if (teamFiltered1.Count > 0)
-                    //        {
-                    //            var adversaireLePlusProche = teamFiltered1[0].Value.Position;
-                    //            if (teamFiltered1[0].Value.DistanceRobotConsidere > 2)
-                    //            {
-                    //                ///On a au moins 2m devant nous, on va vers le but
-                    //                ///TODO : raffiner pour ne prendre en compte que les robots entre le but et nous...
-                    //                AddPreferedZone(offensiveGoalPosition, 5);
-                    //                robotOrientation = Math.Atan2(offensiveGoalPosition.Y - robotCurrentLocation.Y, offensiveGoalPosition.X - robotCurrentLocation.X);
-                    //                /// Si on est suffisament proche du but, on tire
-                    //                if (Toolbox.Distance(new PointD(robotCurrentLocation.X, robotCurrentLocation.Y), offensiveGoalPosition) < 4)
-                    //                {
-                    //                    ///On tire !
-                    //                    OnShootRequest(robotId, 6);
-                    //                }
-                    //            }
-                    //            else
-                    //            {
-                    //                ///Il y a du monde en face, on prépare une passe
-                    //                Dictionary<int, TeamMateRoleClassifier> teamMateClassifier = new Dictionary<int, TeamMateRoleClassifier>();
-                    //                int j = 0;
-                    //                //foreach (var teamMateLoc in localWorldMap.teammateLocationList)
-                    //                //{
-                    //                //    var adv = new TeamMateRoleClassifier(new PointD(adversaire.X, adversaire.Y), RobotRole.Adversaire);
-                    //                //    adv.DistanceRobotConsidere = Toolbox.Distance(new PointD(adversaire.X, adversaire.Y), new PointD(robotCurrentLocation.X, robotCurrentLocation.Y));
-                    //                //    adversaireClassifier.Add(i++, adv);
-                    //                //}
-                    //                AddPreferedZone(offensiveGoalPosition, 2);
-
-
-                    //            }
-                    //            //AddPreferredSegmentZoneList(new PointD(adversaire1.X, adversaire1.Y), new PointD(adversaire2.X, adversaire2.Y), 0.4, 0.1);
-                    //            //AddAvoidanceZone(new PointD(adversaire1.X, adversaire1.Y), 2, 0.5);
-
-                    //            //AddPreferedZone(new PointD((teamFiltered1[0].Value.Position.X + teamFiltered1[1].Value.Position.X) / 2, (teamFiltered1[0].Value.Position.Y + teamFiltered1[0].Value.Position.Y) / 2), 2.5);
-                    //        }
-                    //    }
-
-                    break;
-
-
             }
         }
 
@@ -686,12 +846,11 @@ namespace StrategyManagerNS
                 Console.WriteLine("Probleme d'ID robot");
         }
 
-        public override void OnRefBoxMsgReceived(object sender, WorldMap.RefBoxMessageArgs e)
+        public override void OnRefBoxMsgReceived(object sender, RefBoxMessageArgs e)
         {
             var command = e.refBoxMsg.command;
             //var robotId = e.refBoxMsg.robotID;
             var targetTeam = e.refBoxMsg.targetTeam;
-
 
             switch (command)
             {

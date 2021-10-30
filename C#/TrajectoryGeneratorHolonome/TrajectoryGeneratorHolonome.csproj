@@ -76,6 +76,10 @@
       <Project>{ecc907ed-f9b2-457f-901e-720987934e47}</Project>
       <Name>AdvancedTimers</Name>
     </ProjectReference>
+    <ProjectReference Include="..\Messages\Messages.csproj">
+      <Project>{ed63bcc4-1a79-4b53-afae-827226c35af7}</Project>
+      <Name>Messages</Name>
+    </ProjectReference>
     <ProjectReference Include="..\PerceptionManagement\PerceptionManagement.csproj">
       <Project>{ca5585eb-5c96-4df3-823c-878c0ad7d739}</Project>
       <Name>PerceptionManagement</Name>
@@ -91,10 +95,6 @@
     <ProjectReference Include="..\Utilities\Utilities.csproj">
       <Project>{8e7d0da4-9a13-4b18-a90e-0243bbcce40a}</Project>
       <Name>Utilities</Name>
-    </ProjectReference>
-    <ProjectReference Include="..\WorldMap\WorldMap.csproj">
-      <Project>{b2d0126f-8c82-4eaa-87e5-67415f589098}</Project>
-      <Name>WorldMap</Name>
     </ProjectReference>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />

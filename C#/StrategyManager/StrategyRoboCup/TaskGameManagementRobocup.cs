@@ -1,17 +1,6 @@
-﻿using Constants;
-using EventArgsLibrary;
-using HerkulexManagerNS;
-using RefereeBoxAdapter;
-using System;
-using System.Collections.Generic;
-using System.Diagnostics;
+﻿using System;
 using System.Linq;
-using System.Text;
-using System.Threading;
-using System.Threading.Tasks;
 using Utilities;
-using WorldMap;
-using static HerkulexManagerNS.HerkulexEventArgs;
 
 namespace StrategyManagerNS
 {
@@ -216,7 +205,7 @@ namespace StrategyManagerNS
                                         //p.missionPhare.Start();
                                         /// On regarde les missions atteignables
                                         /// On commence par récupérer les gobelets restant à aller chercher
-                                        var dictionaryElementsRestants = new Dictionary<int, Eurobot2021ElementDeJeu>();
+                                        //var dictionaryElementsRestants = new Dictionary<int, Eurobot2021ElementDeJeu>();
                                         //lock (p.matchDescriptor.listElementsJeu)
                                         //{
                                         //    if (p.playingColor == StrategyEurobot2021.SideColor.Blue)
@@ -455,36 +444,36 @@ namespace StrategyManagerNS
             }
         }
 
-        void SelectBestStrategy(Dictionary<int, Eurobot2021Gobelet> dictGobeletsRestants, Dictionary<int, Eurobot2021EmplacementDepose> dictEmplacementsUtilisables, Dictionary<int , Eurobot2021StateBrasTurbineRobot> dictBrasVides, Dictionary<int, Eurobot2021StateBrasTurbineRobot> dictBrasAvecGobelets)
+        void SelectBestStrategy()
         {
 
         }
 
-        Dictionary<int, Eurobot2021EmplacementDepose> GetListEmplacementsAntecedentsValides(Dictionary<int, Eurobot2021EmplacementDepose> dictionaryEmplacementsRestants)
-        {
-            Dictionary<int, Eurobot2021EmplacementDepose> dictionaryEmplacementUtilisables = new Dictionary<int, Eurobot2021EmplacementDepose>();
-            if (parent != null)
-            {
-                StrategyEurobot2021 p = parent as StrategyEurobot2021;
-                foreach (var key in dictionaryEmplacementsRestants.Keys)
-                {
-                    bool ok = true;
-                    var currentEmplacement = dictionaryEmplacementsRestants[key];
-                    foreach (var keyPredecesseur in currentEmplacement.UnlockIdList)
-                    {
-                        /// SI un des emplacements prédécesseurs est libre, l'emplacement n'est pas utilisable.
-                        if (p.matchDescriptor.DictionaryEmplacementDepose[keyPredecesseur].IsAvailable == true)
-                            ok = false;
-                    }
-                    /// SI l'emplacement est utilisable après validation des prédécesseurs, on l'ajoute au dictionnaire des emplacements utilisables
-                    if (ok)
-                    {
-                        dictionaryEmplacementUtilisables.Add(key, currentEmplacement);
-                    }
-                }
-            }
-            return dictionaryEmplacementUtilisables;
-        }
+        //Dictionary<int, Eurobot2021EmplacementDepose> GetListEmplacementsAntecedentsValides(Dictionary<int, Eurobot2021EmplacementDepose> dictionaryEmplacementsRestants)
+        //{
+        //    Dictionary<int, Eurobot2021EmplacementDepose> dictionaryEmplacementUtilisables = new Dictionary<int, Eurobot2021EmplacementDepose>();
+        //    if (parent != null)
+        //    {
+        //        StrategyEurobot2021 p = parent as StrategyEurobot2021;
+        //        foreach (var key in dictionaryEmplacementsRestants.Keys)
+        //        {
+        //            bool ok = true;
+        //            var currentEmplacement = dictionaryEmplacementsRestants[key];
+        //            foreach (var keyPredecesseur in currentEmplacement.UnlockIdList)
+        //            {
+        //                /// SI un des emplacements prédécesseurs est libre, l'emplacement n'est pas utilisable.
+        //                if (p.matchDescriptor.DictionaryEmplacementDepose[keyPredecesseur].IsAvailable == true)
+        //                    ok = false;
+        //            }
+        //            /// SI l'emplacement est utilisable après validation des prédécesseurs, on l'ajoute au dictionnaire des emplacements utilisables
+        //            if (ok)
+        //            {
+        //                dictionaryEmplacementUtilisables.Add(key, currentEmplacement);
+        //            }
+        //        }
+        //    }
+        //    return dictionaryEmplacementUtilisables;
+        //}
 
         //void CalculateScore()
         //{
