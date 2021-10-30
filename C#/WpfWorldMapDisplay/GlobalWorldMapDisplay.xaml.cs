@@ -77,7 +77,7 @@ namespace WpfWorldMapDisplay
             waitForDisplayAuthorization.Set();
         }
 
-        public void InitTeamMate(int robotId, string name)
+        public void InitTeamMate(int robotId, string name, Location loc)
         {
             PolygonExtended robotShape = new PolygonExtended();
             robotShape.polygon.Points.Add(new System.Windows.Point(-0.25, -0.25));
@@ -102,7 +102,7 @@ namespace WpfWorldMapDisplay
             ghostShape.borderColor = System.Drawing.Color.Black;
 
             RobotDisplay rd = new RobotDisplay(robotShape, ghostShape, name);
-            rd.SetLocation(new Location(0, 0, 0, 0, 0, 0));
+            rd.SetLocation(loc);
             TeamMatesDisplayDictionary.Add(robotId, rd);
         }
 
@@ -163,6 +163,8 @@ namespace WpfWorldMapDisplay
             ObjectsPolygonSeries.RedrawAll();
             BallPolygon.RedrawAll();
         }
+
+        
 
         public void UpdateGlobalWorldMap(GlobalWorldMap globalWorldMap)
         {

@@ -1,0 +1,34 @@
+﻿<Window x:Class="_StrategyEditor.MainWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:ext="clr-namespace:WpfWorldMapDisplay;assembly=WpfWorldMapDisplay"
+        xmlns:local="clr-namespace:_StrategyEditor"
+        mc:Ignorable="d"
+        Title="Strategy Editor" Height="450" Width="800" SourceInitialized="Window_SourceInitialized" Closing="Window_Closing">
+    <DockPanel>
+        <Menu DockPanel.Dock="Top">
+            <MenuItem Header="New Strategy" Click="MenuItemNewStrategy_Click"/>
+            <MenuItem Header="Load Strategy" Click="MenuItemLoadStrategy_Click"/>
+            <MenuItem Header="Save Strategy" Click="MenuItemSaveStrategy_Click"/>
+
+            <MenuItem Header="Options">
+                <MenuItem Header="Select Strategy Directory" Click="MenuItemSelectStrategyDirectory_Click"/>
+            </MenuItem>
+        </Menu>
+        <Grid>
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="1*"/>
+                <ColumnDefinition Width="200"/>
+            </Grid.ColumnDefinitions>
+            <Viewbox Grid.Column="0" Grid.Row="0" Stretch="Uniform">
+                <ext:GlobalWorldMapDisplay x:Name="globalWorldMapDisplay1" Padding="5" Width="660" Height="420" HorizontalAlignment="Stretch" VerticalAlignment="Stretch" ></ext:GlobalWorldMapDisplay>
+            </Viewbox>
+            <StackPanel Grid.Column="1">
+                <Label Content="Situation de jeu"/>
+                <ComboBox x:Name="ComboBox_Situation" HorizontalAlignment="Stretch" Height="20" />
+            </StackPanel>
+        </Grid>
+    </DockPanel>
+</Window>

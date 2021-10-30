@@ -137,6 +137,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "RefereeAutomatic", "Referee
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Messages", "Messages\Messages.csproj", "{ED63BCC4-1A79-4B53-AFAE-827226C35AF7}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "_StrategyEditor", "_StrategyEditor\_StrategyEditor.csproj", "{2AFABFCE-5B9C-47A6-B678-2FB349E3BE8E}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -951,6 +953,18 @@ Global
 		{ED63BCC4-1A79-4B53-AFAE-827226C35AF7}.Release|x64.Build.0 = Release|Any CPU
 		{ED63BCC4-1A79-4B53-AFAE-827226C35AF7}.Release|x86.ActiveCfg = Release|Any CPU
 		{ED63BCC4-1A79-4B53-AFAE-827226C35AF7}.Release|x86.Build.0 = Release|Any CPU
+		{2AFABFCE-5B9C-47A6-B678-2FB349E3BE8E}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{2AFABFCE-5B9C-47A6-B678-2FB349E3BE8E}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{2AFABFCE-5B9C-47A6-B678-2FB349E3BE8E}.Debug|x64.ActiveCfg = Debug|Any CPU
+		{2AFABFCE-5B9C-47A6-B678-2FB349E3BE8E}.Debug|x64.Build.0 = Debug|Any CPU
+		{2AFABFCE-5B9C-47A6-B678-2FB349E3BE8E}.Debug|x86.ActiveCfg = Debug|Any CPU
+		{2AFABFCE-5B9C-47A6-B678-2FB349E3BE8E}.Debug|x86.Build.0 = Debug|Any CPU
+		{2AFABFCE-5B9C-47A6-B678-2FB349E3BE8E}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{2AFABFCE-5B9C-47A6-B678-2FB349E3BE8E}.Release|Any CPU.Build.0 = Release|Any CPU
+		{2AFABFCE-5B9C-47A6-B678-2FB349E3BE8E}.Release|x64.ActiveCfg = Release|Any CPU
+		{2AFABFCE-5B9C-47A6-B678-2FB349E3BE8E}.Release|x64.Build.0 = Release|Any CPU
+		{2AFABFCE-5B9C-47A6-B678-2FB349E3BE8E}.Release|x86.ActiveCfg = Release|Any CPU
+		{2AFABFCE-5B9C-47A6-B678-2FB349E3BE8E}.Release|x86.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

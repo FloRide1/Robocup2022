@@ -58,6 +58,21 @@ namespace MessagesNS
             TeamId = teamId;
         }
 
+        public void Init()
+        {
+            ballLocationList = new List<Location>();
+            teammateLocationList = new List<Location>();
+            teammateGhostLocationList = new Dictionary<int, Location>();
+            teammateDestinationLocationList = new Dictionary<int, Location>();
+            teammateWayPointList = new Dictionary<int, Location>();
+            opponentLocationList = new List<Location>();
+            obstacleLocationList = new List<LocationExtended>();
+            teammateRoleList = new Dictionary<int, RoboCupPoste>();
+            teammateBallHandlingStateList = new Dictionary<int, BallHandlingState>();
+            teammateDisplayMessageList = new Dictionary<int, string>();
+            teammatePlayingSideList = new Dictionary<int, PlayingSide>();
+        }
+
         public WorldStateMessage ConvertToWorldStateMessage()
         {
             WorldStateMessage wsm = new WorldStateMessage();
