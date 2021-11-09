@@ -85,10 +85,12 @@ namespace WpfWorldMapDisplay
             robotShape.polygon.Points.Add(new System.Windows.Point(0.25, 0));
             //robotShape.polygon.Points.Add(new System.Windows.Point(0.25, 0.25));
             robotShape.polygon.Points.Add(new System.Windows.Point(-0.25, 0.25));
-            robotShape.polygon.Points.Add(new System.Windows.Point(0, 0));
+            robotShape.polygon.Points.Add(new System.Windows.Point(-0.1, 0));
             robotShape.polygon.Points.Add(new System.Windows.Point(-0.25, -0.25));
+            robotShape.polygon.MouseMove += Polygon_MouseMove;
             robotShape.borderColor = Color.Black;
             robotShape.backgroundColor = Color.FromArgb(255, 0, 0, 200);
+
 
             PolygonExtended ghostShape = new PolygonExtended();
             ghostShape.polygon.Points.Add(new System.Windows.Point(-0.27, -0.27));
@@ -100,10 +102,17 @@ namespace WpfWorldMapDisplay
             ghostShape.polygon.Points.Add(new System.Windows.Point(-0.27, -0.27));
             ghostShape.backgroundColor = System.Drawing.Color.FromArgb(20, 0, 255, 0);
             ghostShape.borderColor = System.Drawing.Color.Black;
+            ghostShape.polygon.MouseMove += Polygon_MouseMove;
 
             RobotDisplay rd = new RobotDisplay(robotShape, ghostShape, name);
             rd.SetLocation(loc);
+            
             TeamMatesDisplayDictionary.Add(robotId, rd);
+        }
+
+        private void Polygon_MouseMove(object sender, MouseEventArgs e)
+        {
+            throw new NotImplementedException();
         }
 
         public void InitOpponent(int robotId, string name)
@@ -603,6 +612,26 @@ namespace WpfWorldMapDisplay
                 var hitTestPoint = e.GetPosition(sciChart.GridLinesPanel as UIElement);
                 
             }
+        }
+
+        private void RobotShapesSeries_DragEnter(object sender, DragEventArgs e)
+        {
+
+        }
+
+        private void RobotShapesSeries_DragLeave(object sender, DragEventArgs e)
+        {
+
+        }
+
+        private void sciChart_DragEnter(object sender, DragEventArgs e)
+        {
+
+        }
+
+        private void sciChart_DragOver(object sender, DragEventArgs e)
+        {
+
         }
     }    
 }

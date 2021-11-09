@@ -43,6 +43,11 @@ namespace _StrategyEditor
         {
             foreach(var val in Enum.GetValues(typeof(StoppedGameAction)))
                 ComboBox_Situation.Items.Add(val.ToString());
+
+            for(int i=0; i<5; i++)
+            {
+                globalWorldMapDisplay1.InitTeamMate(i, i.ToString(), new Location(i, 0, 0, 0, 0, 0));
+            }
         }
 
 
