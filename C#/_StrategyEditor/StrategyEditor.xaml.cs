@@ -1,10 +1,15 @@
 ﻿using Constants;
 using MessagesNS;
+using Newtonsoft.Json;
+using PlayBook_NS;
 using SciChart.Charting.Visuals;
 using System;
 using System.Collections.Generic;
+using System.Collections.ObjectModel;
 using System.Configuration;
+using System.IO;
 using System.Linq;
+using System.Runtime.Serialization.Json;
 using System.Text;
 using System.Threading.Tasks;
 using System.Windows;
@@ -28,7 +33,12 @@ namespace _StrategyEditor
     public partial class MainWindow : Window
     {
         string strategyDirectory = "";
+
+        PlayBook playBook = new PlayBook();
+
         GlobalWorldMap strategyMap = new GlobalWorldMap();
+
+        public ObservableCollection<TabItem> Tabs { get; set; }
 
         public MainWindow()
         {
@@ -41,40 +51,102 @@ namespace _StrategyEditor
 
         private void Init()
         {
-            foreach(var val in Enum.GetValues(typeof(StoppedGameAction)))
-                ComboBox_Situation.Items.Add(val.ToString());
+        }
 
-            for(int i=0; i<5; i++)
+        private void DisplayPlayBook()
+        {
+            MyTabControl.Items.Clear();
+            for (int i = 0; i < playBook.playingCards.Count; i++)
             {
-                globalWorldMapDisplay1.InitTeamMate(i, i.ToString(), new Location(i, 0, 0, 0, 0, 0));
+                var playCardName = playBook.playingCards.Keys.ElementAt(i);
+                var playingCard = playBook.playingCards.Values.ElementAt(i);
+                PlayCardDisplayControl playingCardDisplay = new PlayCardDisplayControl();
+                var tabItem = new TabItem();
+                tabItem.Content = playingCardDisplay;
+                tabItem.Header = playCardName;
+
+                GlobalWorldMap gwm = new GlobalWorldMap();
+
+                for(int j=0; j<playingCard.preferredLocation.Values.Count; j++)
+                {
+                    var teammateLocation = playingCard.preferredLocation[j];
+                    playingCardDisplay.globalWorldMapDisplay1.InitTeamMate(j, j.ToString(), teammateLocation);
+                    gwm.teammateLocationList.Add(teammateLocation);
+                }
+
+                playingCardDisplay.UpdateWorldMap(gwm);
+
+                MyTabControl.Items.Add(tabItem);
             }
         }
 
 
         private void MenuItemLoadStrategy_Click(object sender, RoutedEventArgs e)
         {
-            strategyMap.Init();
-            
-            List <PointD> playersList = new List<PointD>() { new PointD(-10.5, 0), new PointD(-7, 3), new PointD(-7, -3), new PointD(-4, 0), new PointD(-1, 1)};
-                strategyMap.teammateLocationList = new List<Location>();
-            int i = 1;
-            foreach (var player in playersList)
+            string output = JsonConvert.SerializeObject(playBook);
+            OpenFileDialog openFileDlg = new OpenFileDialog();
+            openFileDlg.InitialDirectory = strategyDirectory;
+            openFileDlg.Filter = "Play Book Files (.pbf)|*.pbf";
+            var result = openFileDlg.ShowDialog();
+            if (result != System.Windows.Forms.DialogResult.Cancel)
             {
-                //strategyMap.teammateLocationList.Add(new Location(player.X, player.Y, 0, 0, 0, 0));
-                globalWorldMapDisplay1.InitTeamMate(i++, "toto", new Location(player.X, player.Y, 0, 0, 0, 0));
+                string filename = openFileDlg.FileName;
+                var js = new DataContractJsonSerializer(typeof(PlayBook));
+
+                using (FileStream SourceStream = File.Open(filename, FileMode.OpenOrCreate))
+                {
+                    var playbook = (PlayBook)js.ReadObject(SourceStream);
+                }
             }
-            globalWorldMapDisplay1.UpdateGlobalWorldMap(strategyMap);
-            globalWorldMapDisplay1.DisplayWorldMap();
+            
+            //List <PointD> playersList = new List<PointD>() { new PointD(-10.5, 0), new PointD(-7, 3), new PointD(-7, -3), new PointD(-4, 0), new PointD(-1, 1)};
+            //    strategyMap.teammateLocationList = new List<Location>();
+            //int i = 1;
+            //foreach (var player in playersList)
+            //{
+            //    //strategyMap.teammateLocationList.Add(new Location(player.X, player.Y, 0, 0, 0, 0));
+            //    globalWorldMapDisplay1.InitTeamMate(i++, "toto", new Location(player.X, player.Y, 0, 0, 0, 0));
+            //}
+            //globalWorldMapDisplay1.UpdateGlobalWorldMap(strategyMap);
+            //globalWorldMapDisplay1.DisplayWorldMap();
         }
 
         private void MenuItemSaveStrategy_Click(object sender, RoutedEventArgs e)
         {
+            string output = JsonConvert.SerializeObject(playBook);
+            SaveFileDialog openFileDlg = new SaveFileDialog();
+            openFileDlg.InitialDirectory = strategyDirectory;
+            openFileDlg.Filter = "Play Book Files (.pbf)|*.pbf";
+            var result = openFileDlg.ShowDialog();
+            if (result != System.Windows.Forms.DialogResult.Cancel)
+            {
+                if (openFileDlg.FileName != strategyDirectory+"\\")
+                {
+                    string filename = openFileDlg.FileName;
+                    var js = new DataContractJsonSerializer(typeof(PlayBook));
 
+                    using (FileStream SourceStream = File.Open(filename, FileMode.OpenOrCreate))
+                    {
+                        js.WriteObject(SourceStream, playBook);
+                    }
+                }
+            }
         }
 
         private void MenuItemNewStrategy_Click(object sender, RoutedEventArgs e)
         {
-
+            ///Initialisation du playbook
+            playBook = new PlayBook();
+            foreach (var situation in Enum.GetValues(typeof(PlayingSituations))) 
+            {
+                PlayCard playCard = new PlayCard();
+                for (int i = 0; i < 5; i++)
+                {
+                    playCard.preferredLocation.Add(i, new Location(i, 0, 0, 0, 0, 0));
+                }
+                playBook.playingCards.Add(situation.ToString(), playCard);
+            }
+            DisplayPlayBook();
         }
 
         private void MenuItemSelectStrategyDirectory_Click(object sender, RoutedEventArgs e)
@@ -85,6 +157,11 @@ namespace _StrategyEditor
             if (result.ToString() != string.Empty)
             {
                 strategyDirectory = openDirDlg.SelectedPath;
+
+                System.Configuration.Configuration configFile;
+                configFile = ConfigurationManager.OpenExeConfiguration(ConfigurationUserLevel.None);
+                configFile.AppSettings.Settings["StrategyDirectory"].Value = strategyDirectory.ToString();
+                configFile.Save();
             }
         }
 
@@ -155,4 +232,53 @@ namespace _StrategyEditor
             catch { }
         }
     }
+
+    //public interface ITabViewModel
+    //{
+    //    String Header { get; set; }
+    //}
+
+    //// ViewModelA
+
+    //public class ViewModelA : ITabViewModel
+    //{
+    //    public string Header { get; set; }
+    //    public ViewModelA()
+    //    {
+    //    }
+    //}
+
+    //// ViewModelB
+
+    //public class ViewModelB : ITabViewModel
+    //{
+    //    public string Header { get; set; }
+    //    public ViewModelB()
+    //    {
+    //    }
+    //}
+
+    //// ViewModelC
+
+    //public class ViewModelC : ITabViewModel
+    //{
+    //    public string Header { get; set; }
+    //    public ViewModelC()
+    //    {
+    //    }
+    //}
+
+    //public class TabViewModel
+    //{
+    //    public ObservableCollection<ITabViewModel> TabViewModels { get; set; }
+
+    //    public TabViewModel()
+    //    {
+    //        TabViewModels = new ObservableCollection<ITabViewModel>();
+    //        TabViewModels.Add(new ViewModelA { Header = "Tab A" });
+    //        TabViewModels.Add(new ViewModelB { Header = "Tab B" });
+    //        TabViewModels.Add(new ViewModelC { Header = "Tab C" });
+    //        TabViewModels.Add(new PlayCardDisplayModel { Header = "Tab C" });
+    //    }
+    //}
 }

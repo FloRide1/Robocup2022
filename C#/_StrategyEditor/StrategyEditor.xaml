@@ -3,32 +3,53 @@
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
-        xmlns:ext="clr-namespace:WpfWorldMapDisplay;assembly=WpfWorldMapDisplay"
-        xmlns:local="clr-namespace:_StrategyEditor"
+        xmlns:my="clr-namespace:_StrategyEditor"
+        xmlns:local="clr-namespace:_StrategyEditor" xmlns:vm1="clr-namespace:PlayBook_NS;assembly=PlayBook"
         mc:Ignorable="d"
         Title="Strategy Editor" Height="450" Width="800" SourceInitialized="Window_SourceInitialized" Closing="Window_Closing">
+    
     <DockPanel>
         <Menu DockPanel.Dock="Top">
-            <MenuItem Header="New Strategy" Click="MenuItemNewStrategy_Click"/>
-            <MenuItem Header="Load Strategy" Click="MenuItemLoadStrategy_Click"/>
-            <MenuItem Header="Save Strategy" Click="MenuItemSaveStrategy_Click"/>
-
+            <MenuItem Header="Strategy">
+                <MenuItem Header="New Strategy" Click="MenuItemNewStrategy_Click"/>
+                <MenuItem Header="Load Strategy" Click="MenuItemLoadStrategy_Click"/>
+                <MenuItem Header="Save Strategy" Click="MenuItemSaveStrategy_Click"/>
+            </MenuItem>            
             <MenuItem Header="Options">
                 <MenuItem Header="Select Strategy Directory" Click="MenuItemSelectStrategyDirectory_Click"/>
-            </MenuItem>
+            </MenuItem>            
         </Menu>
         <Grid>
-            <Grid.ColumnDefinitions>
-                <ColumnDefinition Width="1*"/>
-                <ColumnDefinition Width="200"/>
-            </Grid.ColumnDefinitions>
-            <Viewbox Grid.Column="0" Grid.Row="0" Stretch="Uniform">
-                <ext:GlobalWorldMapDisplay x:Name="globalWorldMapDisplay1" Padding="5" Width="660" Height="420" HorizontalAlignment="Stretch" VerticalAlignment="Stretch" ></ext:GlobalWorldMapDisplay>
-            </Viewbox>
-            <StackPanel Grid.Column="1">
-                <Label Content="Situation de jeu"/>
-                <ComboBox x:Name="ComboBox_Situation" HorizontalAlignment="Stretch" Height="20" />
-            </StackPanel>
-        </Grid>
+            <!--<Grid.Resources>
+                <local:TabViewModel x:Key="TabVM"></local:TabViewModel>
+            </Grid.Resources>-->
+            <TabControl x:Name="MyTabControl">
+            </TabControl>
+            <!--ItemsSource="{Binding TabViewModels}" DataContext="{StaticResource TabVM}"
+           SelectedItem="{Binding SelectedTabViewModel}" >
+
+                <TabControl.Resources>
+                    <DataTemplate DataType="{x:Type local:ViewModelA}">
+                        <local:ViewAUserControl />
+                    </DataTemplate>
+                    <DataTemplate DataType="{x:Type local:ViewModelB}">
+                        <local:ViewBUserControl />
+                    </DataTemplate>
+                    <DataTemplate DataType="{x:Type local:ViewModelC}">
+                        <local:ViewCUserControl />
+                    </DataTemplate>
+                    <DataTemplate DataType="{x:Type local:PlayCardDisplayModel}">
+                        <local:PlayCardDisplayControl/>
+                    </DataTemplate>
+                </TabControl.Resources>
+
+                <TabControl.ItemContainerStyle>
+                    <Style TargetType="TabItem">
+                        <Setter Property="Header" Value="{Binding Header}" />
+                    </Style>
+                </TabControl.ItemContainerStyle>
+
+            </TabControl>-->
+            </Grid>
     </DockPanel>
 </Window>
