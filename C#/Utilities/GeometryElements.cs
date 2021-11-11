@@ -226,7 +226,7 @@ namespace Utilities
         }
     }
 
-    [ZeroFormattable]
+    [ZeroFormattable][Serializable]
     public class Location
     {
         [Index(0)]

@@ -11,6 +11,7 @@ using System.Windows;
 using System.Windows.Input;
 using System.Threading;
 using MessagesNS;
+using EventArgsLibrary;
 
 namespace WpfWorldMapDisplay
 {
@@ -136,7 +137,7 @@ namespace WpfWorldMapDisplay
 
         public void AddOrUpdateTextAnnotation(string annotationName, string annotationText, double posX, double posY)
         {
-            var textAnnotationList = sciChart.Annotations.Where(annotation => annotation.GetType().Name == "TextAnnotation").ToList();
+            var textAnnotationList = sciChartSurface.Annotations.Where(annotation => annotation.GetType().Name == "TextAnnotation").ToList();
             var annot = textAnnotationList.FirstOrDefault(c => ((TextAnnotation)c).Name == "R" + annotationName + "r");
             if (annot == null)
             {
@@ -150,7 +151,7 @@ namespace WpfWorldMapDisplay
                 textAnnot.FontSize = 10;
                 textAnnot.Foreground = new System.Windows.Media.SolidColorBrush(System.Windows.Media.Color.FromArgb(0x88, 0xFF, 0xFF, 0xFF));
                 textAnnot.FontWeight = FontWeights.Bold;
-                sciChart.Annotations.Add(textAnnot);
+                sciChartSurface.Annotations.Add(textAnnot);
             }
             else
             {
@@ -179,9 +180,9 @@ namespace WpfWorldMapDisplay
         {
             lock (globalWorldMap.teammateLocationList)
             {
-                foreach (var robotLoc in globalWorldMap.teammateLocationList)
+                for(int i=0; i< globalWorldMap.teammateLocationList.Count; i++)
                 {
-                    //UpdateRobotLocation(robotLoc.Key, robotLoc.Value);
+                    UpdateRobotLocation(i, globalWorldMap.teammateLocationList[i]);
                 }
             }
 
@@ -609,7 +610,7 @@ namespace WpfWorldMapDisplay
             if (Keyboard.IsKeyDown(Key.LeftCtrl) || Keyboard.IsKeyDown(Key.RightCtrl))
             {
                 // Perform the hit test relative to the GridLinesPanel
-                var hitTestPoint = e.GetPosition(sciChart.GridLinesPanel as UIElement);
+                var hitTestPoint = e.GetPosition(sciChartSurface.GridLinesPanel as UIElement);
                 
             }
         }
@@ -632,6 +633,44 @@ namespace WpfWorldMapDisplay
         private void sciChart_DragOver(object sender, DragEventArgs e)
         {
 
+        }
+
+        private void sciChart_MouseDoubleClick(object sender, MouseButtonEventArgs e)
+        {
+            Console.WriteLine("Double-click");
+            // Perform the hit test relative to the GridLinesPanel
+            var hitTestPoint = e.GetPosition(sciChartSurface.GridLinesPanel as UIElement);
+            foreach (var serie in sciChartSurface.RenderableSeries)
+            {
+                if (serie.GetType().Name == "FastUniformHeatmapRenderableSeries")
+                {
+                    double xmin = (double)sciChartSurface.XAxes[0].VisibleRange.Min;
+                    double xmax = (double)sciChartSurface.XAxes[0].VisibleRange.Max;
+                    double ymin = (double)sciChartSurface.YAxes[0].VisibleRange.Min;
+                    double ymax = (double)sciChartSurface.YAxes[0].VisibleRange.Max;
+
+                    var width = sciChartSurface.ModifierSurface.ActualWidth;
+                    var height = sciChartSurface.ModifierSurface.ActualHeight;
+
+                    var xHeatMap = xmin + (xmax - xmin) * hitTestPoint.X / width;
+                    var yHeatMap = -(ymin + (ymax - ymin) * hitTestPoint.Y / height);
+
+                    Console.WriteLine("Click on : x=" + xHeatMap + " - y=" + yHeatMap);
+                    OnCtrlClickOnHeatMap(xHeatMap, yHeatMap);
+                }
+            }
+
+        }
+
+        //Event en cas de CTRL+click dans une heatmap
+        public event EventHandler<PositionArgs> OnCtrlClickOnHeatMapEvent;
+        public virtual void OnCtrlClickOnHeatMap(double x, double y)
+        {
+            var handler = OnCtrlClickOnHeatMapEvent;
+            if (handler != null)
+            {
+                handler(this, new PositionArgs { X = x, Y = y });
+            }
         }
     }    
 }

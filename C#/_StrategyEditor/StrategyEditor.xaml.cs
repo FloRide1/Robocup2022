@@ -9,6 +9,8 @@ using System.Collections.ObjectModel;
 using System.Configuration;
 using System.IO;
 using System.Linq;
+using System.Runtime.Serialization;
+using System.Runtime.Serialization.Formatters.Binary;
 using System.Runtime.Serialization.Json;
 using System.Text;
 using System.Threading.Tasks;
@@ -60,21 +62,18 @@ namespace _StrategyEditor
             {
                 var playCardName = playBook.playingCards.Keys.ElementAt(i);
                 var playingCard = playBook.playingCards.Values.ElementAt(i);
-                PlayCardDisplayControl playingCardDisplay = new PlayCardDisplayControl();
+
+                PlayCardDisplayControl playingCardDisplay = new PlayCardDisplayControl(playingCard);
                 var tabItem = new TabItem();
                 tabItem.Content = playingCardDisplay;
                 tabItem.Header = playCardName;
 
-                GlobalWorldMap gwm = new GlobalWorldMap();
-
-                for(int j=0; j<playingCard.preferredLocation.Values.Count; j++)
+                for (int j = 0; j < playingCard.preferredLocation.Values.Count; j++)
                 {
-                    var teammateLocation = playingCard.preferredLocation[j];
-                    playingCardDisplay.globalWorldMapDisplay1.InitTeamMate(j, j.ToString(), teammateLocation);
-                    gwm.teammateLocationList.Add(teammateLocation);
+                    playingCardDisplay.globalWorldMapDisplay1.InitTeamMate(j, j.ToString(), playingCard.preferredLocation.ElementAt(j).Value);
                 }
 
-                playingCardDisplay.UpdateWorldMap(gwm);
+                playingCardDisplay.UpdatePlayingCardDisplay();
 
                 MyTabControl.Items.Add(tabItem);
             }
@@ -83,7 +82,6 @@ namespace _StrategyEditor
 
         private void MenuItemLoadStrategy_Click(object sender, RoutedEventArgs e)
         {
-            string output = JsonConvert.SerializeObject(playBook);
             OpenFileDialog openFileDlg = new OpenFileDialog();
             openFileDlg.InitialDirectory = strategyDirectory;
             openFileDlg.Filter = "Play Book Files (.pbf)|*.pbf";
@@ -91,29 +89,32 @@ namespace _StrategyEditor
             if (result != System.Windows.Forms.DialogResult.Cancel)
             {
                 string filename = openFileDlg.FileName;
-                var js = new DataContractJsonSerializer(typeof(PlayBook));
+                //var js = new DataContractJsonSerializer(typeof(PlayBook));
+                IFormatter formatter = new BinaryFormatter();
 
                 using (FileStream SourceStream = File.Open(filename, FileMode.OpenOrCreate))
                 {
-                    var playbook = (PlayBook)js.ReadObject(SourceStream);
+                    //string json = new StreamReader(SourceStream).ReadToEnd();
+                    playBook = (PlayBook)formatter.Deserialize(SourceStream);
                 }
             }
-            
-            //List <PointD> playersList = new List<PointD>() { new PointD(-10.5, 0), new PointD(-7, 3), new PointD(-7, -3), new PointD(-4, 0), new PointD(-1, 1)};
-            //    strategyMap.teammateLocationList = new List<Location>();
-            //int i = 1;
-            //foreach (var player in playersList)
+
+
+            ///Initialisation du playbook
+            //playBook = new PlayBook();
+            //foreach (var playCard in playBook.playingCards)
             //{
-            //    //strategyMap.teammateLocationList.Add(new Location(player.X, player.Y, 0, 0, 0, 0));
-            //    globalWorldMapDisplay1.InitTeamMate(i++, "toto", new Location(player.X, player.Y, 0, 0, 0, 0));
+            //    foreach (var loc in playCard.Value.preferredLocation)
+            //    { 
+            //        playCard.preferredLocation.Add(i, new Location(i, 0, 0, 0, 0, 0));
+            //    }
+            //    playBook.playingCards.Add(situation.ToString(), playCard);
             //}
-            //globalWorldMapDisplay1.UpdateGlobalWorldMap(strategyMap);
-            //globalWorldMapDisplay1.DisplayWorldMap();
+            DisplayPlayBook();
         }
 
         private void MenuItemSaveStrategy_Click(object sender, RoutedEventArgs e)
         {
-            string output = JsonConvert.SerializeObject(playBook);
             SaveFileDialog openFileDlg = new SaveFileDialog();
             openFileDlg.InitialDirectory = strategyDirectory;
             openFileDlg.Filter = "Play Book Files (.pbf)|*.pbf";
@@ -123,11 +124,14 @@ namespace _StrategyEditor
                 if (openFileDlg.FileName != strategyDirectory+"\\")
                 {
                     string filename = openFileDlg.FileName;
-                    var js = new DataContractJsonSerializer(typeof(PlayBook));
+
+                    IFormatter formatter = new BinaryFormatter();
+                    //var js = new DataContractJsonSerializer(typeof(PlayBook));
 
                     using (FileStream SourceStream = File.Open(filename, FileMode.OpenOrCreate))
                     {
-                        js.WriteObject(SourceStream, playBook);
+                        //js.WriteObject(SourceStream, playBook);
+                        formatter.Serialize(SourceStream, playBook);
                     }
                 }
             }

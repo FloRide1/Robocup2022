@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Newtonsoft.Json;
+using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Linq;
@@ -8,6 +9,7 @@ using Utilities;
 
 namespace PlayBook_NS
 {
+    [Serializable]
     public class PlayBook
     {
         public Dictionary<string, PlayCard> playingCards = new Dictionary<string, PlayCard>();
@@ -17,6 +19,7 @@ namespace PlayBook_NS
         }
     }
 
+    [Serializable]
     public class PlayCard
     {
         public Dictionary<int, Location> preferredLocation = new Dictionary<int, Location>();

@@ -7,7 +7,7 @@
              mc:Ignorable="d" 
              d:DesignHeight="2000" d:DesignWidth="2600"
              xmlns:s="http://schemas.abtsoftware.co.uk/scichart" >
-    <s:SciChartSurface x:Name="sciChart" Padding="0" BorderThickness="0" Grid.Row="0" AllowDrop="True" DragEnter="sciChart_DragEnter" DragOver="sciChart_DragOver">
+    <s:SciChartSurface x:Name="sciChartSurface" Padding="0" BorderThickness="0" Grid.Row="0" AllowDrop="True" DragEnter="sciChart_DragEnter" DragOver="sciChart_DragOver" MouseDoubleClick="sciChart_MouseDoubleClick">
         <!--  Create a X Axis  -->
         <s:SciChartSurface.XAxis>
             <s:NumericAxis VisibleRange="-12,12" IsCenterAxis="False" AutoRange="Never" Visibility="Visible"/>

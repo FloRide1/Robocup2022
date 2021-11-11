@@ -129,6 +129,10 @@
       <Project>{0540b497-b2ce-40a1-84b5-3109ce2f3146}</Project>
       <Name>Constants</Name>
     </ProjectReference>
+    <ProjectReference Include="..\EventArgsLibrary\EventArgsLibrary.csproj">
+      <Project>{9c46a7c0-4675-41be-b282-e6f0825ad73e}</Project>
+      <Name>EventArgsLibrary</Name>
+    </ProjectReference>
     <ProjectReference Include="..\Messages\Messages.csproj">
       <Project>{ed63bcc4-1a79-4b53-afae-827226c35af7}</Project>
       <Name>Messages</Name>
