@@ -57,15 +57,6 @@
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </ApplicationDefinition>
-    <Compile Include="ViewAUserControl.xaml.cs">
-      <DependentUpon>ViewAUserControl.xaml</DependentUpon>
-    </Compile>
-    <Compile Include="ViewBUserControl.xaml.cs">
-      <DependentUpon>ViewBUserControl.xaml</DependentUpon>
-    </Compile>
-    <Compile Include="ViewCUserControl.xaml.cs">
-      <DependentUpon>ViewCUserControl.xaml</DependentUpon>
-    </Compile>
     <Page Include="PlayCardDisplay.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
@@ -85,18 +76,6 @@
       <DependentUpon>StrategyEditor.xaml</DependentUpon>
       <SubType>Code</SubType>
     </Compile>
-    <Page Include="ViewAUserControl.xaml">
-      <SubType>Designer</SubType>
-      <Generator>MSBuild:Compile</Generator>
-    </Page>
-    <Page Include="ViewBUserControl.xaml">
-      <SubType>Designer</SubType>
-      <Generator>MSBuild:Compile</Generator>
-    </Page>
-    <Page Include="ViewCUserControl.xaml">
-      <SubType>Designer</SubType>
-      <Generator>MSBuild:Compile</Generator>
-    </Page>
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Properties\AssemblyInfo.cs">

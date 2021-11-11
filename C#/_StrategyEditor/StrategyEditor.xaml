@@ -20,36 +20,8 @@
             </MenuItem>            
         </Menu>
         <Grid>
-            <!--<Grid.Resources>
-                <local:TabViewModel x:Key="TabVM"></local:TabViewModel>
-            </Grid.Resources>-->
             <TabControl x:Name="MyTabControl">
             </TabControl>
-            <!--ItemsSource="{Binding TabViewModels}" DataContext="{StaticResource TabVM}"
-           SelectedItem="{Binding SelectedTabViewModel}" >
-
-                <TabControl.Resources>
-                    <DataTemplate DataType="{x:Type local:ViewModelA}">
-                        <local:ViewAUserControl />
-                    </DataTemplate>
-                    <DataTemplate DataType="{x:Type local:ViewModelB}">
-                        <local:ViewBUserControl />
-                    </DataTemplate>
-                    <DataTemplate DataType="{x:Type local:ViewModelC}">
-                        <local:ViewCUserControl />
-                    </DataTemplate>
-                    <DataTemplate DataType="{x:Type local:PlayCardDisplayModel}">
-                        <local:PlayCardDisplayControl/>
-                    </DataTemplate>
-                </TabControl.Resources>
-
-                <TabControl.ItemContainerStyle>
-                    <Style TargetType="TabItem">
-                        <Setter Property="Header" Value="{Binding Header}" />
-                    </Style>
-                </TabControl.ItemContainerStyle>
-
-            </TabControl>-->
             </Grid>
     </DockPanel>
 </Window>
