@@ -103,13 +103,13 @@
       <Project>{9C46A7C0-4675-41BE-B282-E6F0825AD73E}</Project>
       <Name>EventArgsLibrary</Name>
     </ProjectReference>
+    <ProjectReference Include="..\Messages\Messages.csproj">
+      <Project>{ed63bcc4-1a79-4b53-afae-827226c35af7}</Project>
+      <Name>Messages</Name>
+    </ProjectReference>
     <ProjectReference Include="..\RefereeBoxAdapter\RefereeBoxAdapter.csproj">
       <Project>{A8C04138-90DC-42F9-AB39-E71125B805B9}</Project>
       <Name>RefereeBoxAdapter</Name>
-    </ProjectReference>
-    <ProjectReference Include="..\WorldMap\WorldMap.csproj">
-      <Project>{B2D0126F-8C82-4EAA-87E5-67415F589098}</Project>
-      <Name>WorldMap</Name>
     </ProjectReference>
     <ProjectReference Include="..\WpfWorldMapDisplay\WpfWorldMapDisplay.csproj">
       <Project>{89604641-927e-47ff-8db6-91cf5c4976c1}</Project>

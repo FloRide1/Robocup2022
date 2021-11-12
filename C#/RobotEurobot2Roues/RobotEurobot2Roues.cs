@@ -54,7 +54,7 @@ namespace RobotEurobot2Roues
             robotMsgGenerator = new MsgGenerator();
             robotMsgProcessor = new MsgProcessor(robotId, competition);
             xBoxManette = new XBoxControllerNS.XBoxController(robotId);
-            strategyManager = new StrategyEurobot(robotId, teamId, "224.16.32.79");
+            strategyManager = new StrategyEurobot(robotId, teamId, TeamIP.Team1IP);
             localWorldMapManager = new LocalWorldMapManager(robotId, teamId, useMulticast: false);
             positioning2Wheels = new Positioning2Wheels();
             trajectoryGenerator = new TrajectoryGeneratorNonHolonome(robotId);

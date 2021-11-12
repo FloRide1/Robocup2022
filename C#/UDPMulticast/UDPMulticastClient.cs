@@ -42,7 +42,6 @@ namespace UDPMulticast
     public class UDPMulticastReceiver
     {
         int Id;
-        //private string multicastIpAddress = "224.16.32.79";
         private string multicastIpAddress;
         private int endPointPort = 4567;
         Socket s;
@@ -82,18 +81,9 @@ namespace UDPMulticast
                 s.BeginReceive(so.buffer, 0, StateObject.BUFFER_SIZE, 0,
                                          new AsyncCallback(ReceiveCallback), so);
                 OnDataReceived(bytesRead);
-                //OnDataReceived(ASCIIEncoding.ASCII.GetBytes(receivedString));
             }
             else
             {
-                //if (so.sb.Length > 1)
-                //{
-                //    //All of the data has been read, so displays it to the console
-                //    string strContent;
-                //    strContent = so.sb.ToString();
-                //    Console.WriteLine(String.Format("Read {0} byte from socket" +
-                //                     "data = {1} ", strContent.Length, strContent));
-                //}
                 s.Close();
             }
 

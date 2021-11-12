@@ -4,23 +4,20 @@ namespace StrategyManagerNS
 {
     public abstract class TaskBase
     {
-        Thread TaskThread;
+        Thread TaskThread;       
+
+        public bool isRunning = false;
+        public int taskPeriod = 20;
+        bool exitRequested = false;
+        public StrategyGenerique parent;
+
+        ///Définition du subState de la tâche permettant d'avoir trois états 
         private SubTaskState _subState;
         public SubTaskState subState
         {
             get { return _subState; }
             private set { _subState = value; }
         }
-
-        public void ResetSubState()
-        {
-            subState = SubTaskState.Entry;
-        }
-
-        public bool isRunning = false;
-        public int taskPeriod = 20;
-        bool exitRequested = false;
-        public StrategyGenerique parent;
 
         public TaskBase()
         {
@@ -34,19 +31,14 @@ namespace StrategyManagerNS
 
         public abstract void Init();
 
+        /// <summary>
+        /// Fonction permettant de passer dans le subState Exit de sortie d'une 
+        /// </summary>
         public void ExitState()
         {
             exitRequested = true;
         }
         public bool isFinished = false;
-
-        //private enum TaskTestState
-        //{
-        //    Init,
-        //    UN,
-        //    DEUX,
-        //    TROIS
-        //}
 
         private void InitTaskThread()
         {
@@ -81,6 +73,12 @@ namespace StrategyManagerNS
                 subState = SubTaskState.Exit;
             }
             /***************** FIN DU NE PAS MODIFIER ***************/
+        }
+
+
+        public void ResetSubState()
+        {
+            subState = SubTaskState.Entry;
         }
     }
 

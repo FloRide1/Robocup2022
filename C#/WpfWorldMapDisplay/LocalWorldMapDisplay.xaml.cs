@@ -1,6 +1,7 @@
 ﻿
 using Constants;
 using EventArgsLibrary;
+using MessagesNS;
 using SciChart.Charting.ChartModifiers;
 using SciChart.Charting.Model.DataSeries;
 using SciChart.Charting.Model.DataSeries.Heatmap2DArrayDataSeries;
@@ -23,7 +24,6 @@ using System.Windows.Input;
 using System.Windows.Media.Imaging;
 using System.Windows.Threading;
 using Utilities;
-using WorldMap;
 
 namespace WpfWorldMapDisplay
 {

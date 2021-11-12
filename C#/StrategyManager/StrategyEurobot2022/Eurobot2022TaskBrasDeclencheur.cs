@@ -42,7 +42,7 @@ namespace StrategyManagerNS
         {
             Init = 512,
             MancheAir = 840,
-            Phare = 840,
+            Phare = 720,
         }
 
         Dictionary<ServoId, int> servoPositionsRequested = new Dictionary<ServoId, int>();
@@ -83,7 +83,7 @@ namespace StrategyManagerNS
                     switch (subState)
                     {
                         case SubTaskState.Entry:
-                            Console.WriteLine("Init Task Bras Declencheur");
+                            //Console.WriteLine("Init Task Bras Declencheur");
                             timestamp = DateTime.Now;
                             servoPositionsRequested = new Dictionary<ServoId, int>();
                             servoPositionsRequested.Add((ServoId)_servoID, (int)TaskBrasServoPositions.Init);
@@ -126,7 +126,7 @@ namespace StrategyManagerNS
                                 ExitState();/// A appeler quand on souhaite passer à Exit       
                             }
                             break;
-                        case SubTaskState.Exit:                             
+                        case SubTaskState.Exit:
                             /// L'état suivant ne doit être défini que dans le substate Exit
                             state = TaskBrasState.Idle;
                             break;

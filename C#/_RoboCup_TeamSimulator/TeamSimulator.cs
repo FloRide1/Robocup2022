@@ -11,12 +11,16 @@ using UdpMulticastInterpreter;
 using WpfTeamInterfaceNS;
 using Utilities;
 using StrategyManagerNS;
+using RefereeAutomaticNS;
+using PhysicalSimulatorNS;
+using RefereeBoxAdapterNS;
 
 namespace TeamSimulator
 {
     static class TeamSimulator
     {
-        static PhysicalSimulator.PhysicalSimulator physicalSimulator;
+        static PhysicalSimulator physicalSimulator;
+        static RefereeAutomatic refereeAutomatic;
         //static GlobalWorldMapManager globalWorldMapManagerTeam1;
         //static GlobalWorldMapManager globalWorldMapManagerTeam2;
 
@@ -29,9 +33,9 @@ namespace TeamSimulator
         static List<UDPMulticastSender> robotUdpMulticastSenderList;
         static List<UDPMulticastReceiver> robotUdpMulticastReceiverList;
         static List<UDPMulticastInterpreter> robotUdpMulticastInterpreterList;
-        static List<GlobalWorldMapManager> globalWorldMapManagerList;
+        //static List<GlobalWorldMapManager> globalWorldMapManagerList;
 
-        static RefereeBoxAdapter.RefereeBoxAdapter refBoxAdapter;
+        static RefereeBoxAdapter refBoxAdapter;
 
         static UDPMulticastSender BaseStationUdpMulticastSenderTeam1;
         static UDPMulticastSender BaseStationUdpMulticastSenderTeam2;
@@ -65,36 +69,37 @@ namespace TeamSimulator
             robotUdpMulticastSenderList = new List<UDPMulticastSender>();
             robotUdpMulticastReceiverList = new List<UDPMulticastReceiver>();
             robotUdpMulticastInterpreterList = new List<UDPMulticastInterpreter>();
-            globalWorldMapManagerList = new List<GlobalWorldMapManager>();
+            //globalWorldMapManagerList = new List<GlobalWorldMapManager>();
 
-            physicalSimulator = new PhysicalSimulator.PhysicalSimulator("RoboCup");
+            physicalSimulator = new PhysicalSimulator("RoboCup");
+            refereeAutomatic = new RefereeAutomatic();
             //globalWorldMapManagerTeam1 = new GlobalWorldMapManager((int)TeamId.Team1);
             //globalWorldMapManagerTeam2 = new GlobalWorldMapManager((int)TeamId.Team2);
 
             //BaseStation RCT
-            BaseStationUdpMulticastSenderTeam1 = new UDPMulticastSender(0, "224.16.32.79");
-            BaseStationUdpMulticastReceiverTeam1 = new UDPMulticastReceiver(0, "224.16.32.79");
+            BaseStationUdpMulticastSenderTeam1 = new UDPMulticastSender(0, TeamIP.Team1IP);
+            BaseStationUdpMulticastReceiverTeam1 = new UDPMulticastReceiver(0, TeamIP.Team1IP);
             BaseStationUdpMulticastInterpreterTeam1 = new UDPMulticastInterpreter(0);
 
             //BaseStation TuE
-            BaseStationUdpMulticastSenderTeam2 = new UDPMulticastSender(0, "224.16.32.63");
-            BaseStationUdpMulticastReceiverTeam2 = new UDPMulticastReceiver(0, "224.16.32.63");
+            BaseStationUdpMulticastSenderTeam2 = new UDPMulticastSender(0, TeamIP.Team2IP);
+            BaseStationUdpMulticastReceiverTeam2 = new UDPMulticastReceiver(0, TeamIP.Team2IP);
             BaseStationUdpMulticastInterpreterTeam2 = new UDPMulticastInterpreter(0);
 
             for (int i = 0; i < nbPlayersTeam1; i++)
             {
-                CreatePlayer((int)TeamId.Team1, i, team1PlayerNames[i], "224.16.32.79");
+                CreatePlayer((int)TeamId.Team1, i, team1PlayerNames[i], TeamIP.Team1IP);
             }
 
             for (int i = 0; i < nbPlayersTeam2; i++)
             {
-                CreatePlayer((int)TeamId.Team2, i, team2PlayerNames[i], "224.16.32.63");
+                CreatePlayer((int)TeamId.Team2, i, team2PlayerNames[i], TeamIP.Team2IP);
             }
 
             //DefineRoles();
             StartInterfaces();
 
-            //refBoxAdapter = new RefereeBoxAdapter.RefereeBoxAdapter();
+            refBoxAdapter = new RefereeBoxAdapter();
 
             ////Event de réception d'une commande de la réferee box
             //refBoxAdapter.OnMulticastSendRefBoxCommandEvent += BaseStationUdpMulticastSenderTeam1.OnMulticastMessageToSendReceived;
@@ -133,21 +138,21 @@ namespace TeamSimulator
             var localWorldMapManager = new LocalWorldMapManager(robotId, TeamNumber, useMulticast: false);
             //var lidarSimulator = new LidarSimulator.LidarSimulator(robotId);
             var perceptionSimulator = new PerceptionManager(robotId, GameMode.RoboCup);
-            var globalWorldMapManager = new GlobalWorldMapManager(robotId, TeamNumber);
+            //var globalWorldMapManager = new GlobalWorldMapManager(robotId, TeamNumber);
             UDPMulticastSender robotUdpMulticastSender = null;
             UDPMulticastReceiver robotUdpMulticastReceiver = null;
             UDPMulticastInterpreter robotUdpMulticastInterpreter = null;
 
             if (TeamNumber == (int)TeamId.Team1)
             {
-                robotUdpMulticastSender = new UDPMulticastSender(robotId, "224.16.32.79");
-                robotUdpMulticastReceiver = new UDPMulticastReceiver(robotId, "224.16.32.79");
+                robotUdpMulticastSender = new UDPMulticastSender(robotId, TeamIP.Team1IP);
+                robotUdpMulticastReceiver = new UDPMulticastReceiver(robotId, TeamIP.Team1IP);
                 robotUdpMulticastInterpreter = new UDPMulticastInterpreter(robotId);
             }
             else if (TeamNumber == (int)TeamId.Team2)
             {
-                robotUdpMulticastSender = new UDPMulticastSender(robotId, "224.16.32.63");
-                robotUdpMulticastReceiver = new UDPMulticastReceiver(robotId, "224.16.32.63");
+                robotUdpMulticastSender = new UDPMulticastSender(robotId, TeamIP.Team2IP);
+                robotUdpMulticastReceiver = new UDPMulticastReceiver(robotId, TeamIP.Team2IP);
                 robotUdpMulticastInterpreter = new UDPMulticastInterpreter(robotId);
             }
 
@@ -174,7 +179,7 @@ namespace TeamSimulator
             kalmanPositioning.OnKalmanLocationEvent += strategyManager.OnPositionRobotReceived;
 
             physicalSimulator.OnPhysicicalObjectListLocationEvent += perceptionSimulator.OnPhysicalObjectListLocationReceived;
-            physicalSimulator.OnPhysicalBallPositionListEvent += perceptionSimulator.OnPhysicalBallPositionListReceived;
+            physicalSimulator.OnPhysicalBallPositionListEvent += perceptionSimulator.OnPhysicalBallPositionListReceived;            
 
             //Update des données de la localWorldMap
             perceptionSimulator.OnPerceptionEvent += localWorldMapManager.OnPerceptionReceived;
@@ -194,7 +199,7 @@ namespace TeamSimulator
             //localWorldMapManager.OnMulticastSendLocalWorldMapEvent += robotUdpMulticastSender.OnMulticastMessageToSendReceived;
             //localWorldMapManager.OnLocalWorldMapToGlobalWorldMapGeneratorEvent += globalWorldMapManager.OnLocalWorldMapReceived;
             localWorldMapManager.OnLocalWorldMapTransferEvent += strategyManager.OnLocalWorldMapReceived;
-            robotUdpMulticastInterpreter.OnLocalWorldMapEvent += globalWorldMapManager.OnLocalWorldMapReceived;
+            //robotUdpMulticastInterpreter.OnLocalWorldMapEvent += globalWorldMapManager.OnLocalWorldMapReceived;
 
             //Event d'interprétation d'une globalWorldMap à sa réception dans le robot
             //globalWorldMapManager.OnGlobalWorldMapEvent += strategyManager.OnGlobalWorldMapReceived;
@@ -213,7 +218,7 @@ namespace TeamSimulator
             robotUdpMulticastReceiverList.Add(robotUdpMulticastReceiver);
             robotUdpMulticastSenderList.Add(robotUdpMulticastSender);
             robotUdpMulticastInterpreterList.Add(robotUdpMulticastInterpreter);
-            globalWorldMapManagerList.Add(globalWorldMapManager);
+            //globalWorldMapManagerList.Add(globalWorldMapManager);
 
             double xInit, yInit, thetaInit;
             if (TeamNumber == (int)TeamId.Team1)
@@ -258,13 +263,16 @@ namespace TeamSimulator
                 }
                                 
                 //On s'abonne aux évènements permettant de visualiser la globalWorldMap générée par les robots en fusionnant les localWorldMap
-                globalWorldMapManagerList[0].OnGlobalWorldMapEvent += TeamConsole.OnGlobalWorldMapReceived;
-                globalWorldMapManagerList[nbPlayersTeam1].OnGlobalWorldMapEvent += TeamConsole.OnGlobalWorldMapReceived;
+                //globalWorldMapManagerList[0].OnGlobalWorldMapEvent += TeamConsole.OnGlobalWorldMapReceived;
+                //globalWorldMapManagerList[nbPlayersTeam1].OnGlobalWorldMapEvent += TeamConsole.OnGlobalWorldMapReceived;
 
                 //Event de simulation de ref box sur le simulateur
                 TeamConsole.OnMulticastSendRefBoxCommandEvent += BaseStationUdpMulticastSenderTeam1.OnMulticastMessageToSendReceived;
                 TeamConsole.OnMulticastSendRefBoxCommandEvent += BaseStationUdpMulticastSenderTeam2.OnMulticastMessageToSendReceived;
-                
+
+                physicalSimulator.OnSimulatorRefboxCommandEvent += refereeAutomatic.OnSimulatorEventReceived;
+                refereeAutomatic.OnRefBoxCommandEvent += TeamConsole.OnExternalRefereeBoxCommandReceived;
+
                 TeamConsole.ShowDialog();
             });
             t1.SetApartmentState(ApartmentState.STA);

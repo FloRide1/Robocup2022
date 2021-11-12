@@ -7,10 +7,11 @@ using System.Windows.Controls;
 using System.Windows.Threading;
 using System.Linq;
 using Utilities;
-using WorldMap;
 using System.Windows;
 using System.Windows.Input;
 using System.Threading;
+using MessagesNS;
+using EventArgsLibrary;
 
 namespace WpfWorldMapDisplay
 {
@@ -77,7 +78,7 @@ namespace WpfWorldMapDisplay
             waitForDisplayAuthorization.Set();
         }
 
-        public void InitTeamMate(int robotId, string name)
+        public void InitTeamMate(int robotId, string name, Location loc)
         {
             PolygonExtended robotShape = new PolygonExtended();
             robotShape.polygon.Points.Add(new System.Windows.Point(-0.25, -0.25));
@@ -85,10 +86,12 @@ namespace WpfWorldMapDisplay
             robotShape.polygon.Points.Add(new System.Windows.Point(0.25, 0));
             //robotShape.polygon.Points.Add(new System.Windows.Point(0.25, 0.25));
             robotShape.polygon.Points.Add(new System.Windows.Point(-0.25, 0.25));
-            robotShape.polygon.Points.Add(new System.Windows.Point(0, 0));
+            robotShape.polygon.Points.Add(new System.Windows.Point(-0.1, 0));
             robotShape.polygon.Points.Add(new System.Windows.Point(-0.25, -0.25));
+            robotShape.polygon.MouseMove += Polygon_MouseMove;
             robotShape.borderColor = Color.Black;
             robotShape.backgroundColor = Color.FromArgb(255, 0, 0, 200);
+
 
             PolygonExtended ghostShape = new PolygonExtended();
             ghostShape.polygon.Points.Add(new System.Windows.Point(-0.27, -0.27));
@@ -100,10 +103,17 @@ namespace WpfWorldMapDisplay
             ghostShape.polygon.Points.Add(new System.Windows.Point(-0.27, -0.27));
             ghostShape.backgroundColor = System.Drawing.Color.FromArgb(20, 0, 255, 0);
             ghostShape.borderColor = System.Drawing.Color.Black;
+            ghostShape.polygon.MouseMove += Polygon_MouseMove;
 
             RobotDisplay rd = new RobotDisplay(robotShape, ghostShape, name);
-            rd.SetLocation(new Location(0, 0, 0, 0, 0, 0));
+            rd.SetLocation(loc);
+            
             TeamMatesDisplayDictionary.Add(robotId, rd);
+        }
+
+        private void Polygon_MouseMove(object sender, MouseEventArgs e)
+        {
+            throw new NotImplementedException();
         }
 
         public void InitOpponent(int robotId, string name)
@@ -127,7 +137,7 @@ namespace WpfWorldMapDisplay
 
         public void AddOrUpdateTextAnnotation(string annotationName, string annotationText, double posX, double posY)
         {
-            var textAnnotationList = sciChart.Annotations.Where(annotation => annotation.GetType().Name == "TextAnnotation").ToList();
+            var textAnnotationList = sciChartSurface.Annotations.Where(annotation => annotation.GetType().Name == "TextAnnotation").ToList();
             var annot = textAnnotationList.FirstOrDefault(c => ((TextAnnotation)c).Name == "R" + annotationName + "r");
             if (annot == null)
             {
@@ -141,7 +151,7 @@ namespace WpfWorldMapDisplay
                 textAnnot.FontSize = 10;
                 textAnnot.Foreground = new System.Windows.Media.SolidColorBrush(System.Windows.Media.Color.FromArgb(0x88, 0xFF, 0xFF, 0xFF));
                 textAnnot.FontWeight = FontWeights.Bold;
-                sciChart.Annotations.Add(textAnnot);
+                sciChartSurface.Annotations.Add(textAnnot);
             }
             else
             {
@@ -164,13 +174,15 @@ namespace WpfWorldMapDisplay
             BallPolygon.RedrawAll();
         }
 
+        
+
         public void UpdateGlobalWorldMap(GlobalWorldMap globalWorldMap)
         {
             lock (globalWorldMap.teammateLocationList)
             {
-                foreach (var robotLoc in globalWorldMap.teammateLocationList)
+                for(int i=0; i< globalWorldMap.teammateLocationList.Count; i++)
                 {
-                    //UpdateRobotLocation(robotLoc.Key, robotLoc.Value);
+                    UpdateRobotLocation(i, globalWorldMap.teammateLocationList[i]);
                 }
             }
 
@@ -598,8 +610,66 @@ namespace WpfWorldMapDisplay
             if (Keyboard.IsKeyDown(Key.LeftCtrl) || Keyboard.IsKeyDown(Key.RightCtrl))
             {
                 // Perform the hit test relative to the GridLinesPanel
-                var hitTestPoint = e.GetPosition(sciChart.GridLinesPanel as UIElement);
+                var hitTestPoint = e.GetPosition(sciChartSurface.GridLinesPanel as UIElement);
                 
+            }
+        }
+
+        private void RobotShapesSeries_DragEnter(object sender, DragEventArgs e)
+        {
+
+        }
+
+        private void RobotShapesSeries_DragLeave(object sender, DragEventArgs e)
+        {
+
+        }
+
+        private void sciChart_DragEnter(object sender, DragEventArgs e)
+        {
+
+        }
+
+        private void sciChart_DragOver(object sender, DragEventArgs e)
+        {
+
+        }
+
+        private void sciChart_MouseDoubleClick(object sender, MouseButtonEventArgs e)
+        {
+            Console.WriteLine("Double-click");
+            // Perform the hit test relative to the GridLinesPanel
+            var hitTestPoint = e.GetPosition(sciChartSurface.GridLinesPanel as UIElement);
+            foreach (var serie in sciChartSurface.RenderableSeries)
+            {
+                if (serie.GetType().Name == "FastUniformHeatmapRenderableSeries")
+                {
+                    double xmin = (double)sciChartSurface.XAxes[0].VisibleRange.Min;
+                    double xmax = (double)sciChartSurface.XAxes[0].VisibleRange.Max;
+                    double ymin = (double)sciChartSurface.YAxes[0].VisibleRange.Min;
+                    double ymax = (double)sciChartSurface.YAxes[0].VisibleRange.Max;
+
+                    var width = sciChartSurface.ModifierSurface.ActualWidth;
+                    var height = sciChartSurface.ModifierSurface.ActualHeight;
+
+                    var xHeatMap = xmin + (xmax - xmin) * hitTestPoint.X / width;
+                    var yHeatMap = -(ymin + (ymax - ymin) * hitTestPoint.Y / height);
+
+                    Console.WriteLine("Click on : x=" + xHeatMap + " - y=" + yHeatMap);
+                    OnCtrlClickOnHeatMap(xHeatMap, yHeatMap);
+                }
+            }
+
+        }
+
+        //Event en cas de CTRL+click dans une heatmap
+        public event EventHandler<PositionArgs> OnCtrlClickOnHeatMapEvent;
+        public virtual void OnCtrlClickOnHeatMap(double x, double y)
+        {
+            var handler = OnCtrlClickOnHeatMapEvent;
+            if (handler != null)
+            {
+                handler(this, new PositionArgs { X = x, Y = y });
             }
         }
     }    

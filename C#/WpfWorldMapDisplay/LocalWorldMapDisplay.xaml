@@ -77,7 +77,7 @@
             </local:PolygonRenderableSeries>
             <s:XyScatterRenderableSeries x:Name="TeammatesPoints" Opacity="0.5">
                 <s:XyScatterRenderableSeries.PointMarker>
-                    <s:EllipsePointMarker Width="8" Height="8" Fill="Blue" Stroke="White" StrokeThickness="1.5"/>
+                    <s:EllipsePointMarker Width="12" Height="12" Fill="Blue" Stroke="White" StrokeThickness="2"/>
                 </s:XyScatterRenderableSeries.PointMarker>
             </s:XyScatterRenderableSeries>
             <s:XyScatterRenderableSeries x:Name="ObstaclePoints" Opacity="0.5">

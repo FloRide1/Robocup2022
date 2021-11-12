@@ -37,7 +37,7 @@ namespace StrategyManagerNS
 
         public void Start()
         {
-            missionZoneMouillage = MissionZoneMouillageState.DeplacementToZoneMoullage;
+            missionZoneMouillage = MissionZoneMouillageState.DeplacementToZoneMouillage;
             isFinished = false;
             ResetSubState();
         }
@@ -46,7 +46,7 @@ namespace StrategyManagerNS
         {
             Init,
             Idle,
-            DeplacementToZoneMoullage,
+            DeplacementToZoneMouillage,
         }
 
         public void Pause()
@@ -91,58 +91,67 @@ namespace StrategyManagerNS
                             break;
                     }
                     break;
-                case MissionZoneMouillageState.DeplacementToZoneMoullage:
+                case MissionZoneMouillageState.DeplacementToZoneMouillage:
                     switch (subState)
                     {
                         case SubTaskState.Entry:
                             ///Deplacement de pôsitionnement sans sortir le bras
-                            foreach(var task in parentStrategie.listTasks)
+                            foreach (var task in parentStrategie.listTasks)
                             {
                                 task.Init();
                             }
 
-                            if (parentStrategie.playingColor == Eurobot2022SideColor.Blue)
+                            if (parentStrategie.playingColor == StrategyEurobot2022.Eurobot2022SideColor.Blue)
                             {
+                                parentStrategie.obstacleFixeListAdditional.Add(new LocationExtended(-0.8, 0.485, 0, ObjectType.Obstacle));
+                                parentStrategie.obstacleFixeListAdditional.Add(new LocationExtended(-0.95, 0.485, 0, ObjectType.Obstacle));
                                 parentStrategie.obstacleFixeListAdditional.Add(new LocationExtended(-1.1, 0.485, 0, ObjectType.Obstacle));
                                 parentStrategie.obstacleFixeListAdditional.Add(new LocationExtended(-1.25, 0.485, 0, ObjectType.Obstacle));
                                 parentStrategie.obstacleFixeListAdditional.Add(new LocationExtended(-1.4, 0.485, 0, ObjectType.Obstacle));
+                                parentStrategie.obstacleFixeListAdditional.Add(new LocationExtended(-0.8, -0.085, 0, ObjectType.Obstacle));
+                                parentStrategie.obstacleFixeListAdditional.Add(new LocationExtended(-0.95, -0.085, 0, ObjectType.Obstacle));
                                 parentStrategie.obstacleFixeListAdditional.Add(new LocationExtended(-1.1, -0.085, 0, ObjectType.Obstacle));
                                 parentStrategie.obstacleFixeListAdditional.Add(new LocationExtended(-1.25, -0.085, 0, ObjectType.Obstacle));
                                 parentStrategie.obstacleFixeListAdditional.Add(new LocationExtended(-1.4, -0.085, 0, ObjectType.Obstacle));
-                                if (parentStrategie.robotType == Eurobot2022RobotType.RobotNord)
+                                if (parentStrategie.robotType == StrategyEurobot2022.Eurobot2022RobotType.RobotSud)
                                 {
-                                    indicativeTime = parentStrategie.SetRobotDestination(new PointD(-1.150, 0.77), Math.PI);
+                                    indicativeTime = parentStrategie.SetRobotDestination(new PointD(-1.36, -0.55), Math.PI);
                                 }
                                 else
                                 {
-                                    indicativeTime = parentStrategie.SetRobotDestination(new PointD(-1.200, -0.45), Math.PI);
+                                    indicativeTime = parentStrategie.SetRobotDestination(new PointD(-1.15, -0.30), Math.PI);
                                 }
                             }
-                            else if (parentStrategie.playingColor == Eurobot2022SideColor.Yellow)
+                            else if (parentStrategie.playingColor == StrategyEurobot2022.Eurobot2022SideColor.Yellow)
                             {
+                                parentStrategie.obstacleFixeListAdditional.Add(new LocationExtended(0.8, 0.485, 0, ObjectType.Obstacle));
+                                parentStrategie.obstacleFixeListAdditional.Add(new LocationExtended(0.95, 0.485, 0, ObjectType.Obstacle));
                                 parentStrategie.obstacleFixeListAdditional.Add(new LocationExtended(1.1, 0.485, 0, ObjectType.Obstacle));
                                 parentStrategie.obstacleFixeListAdditional.Add(new LocationExtended(1.25, 0.485, 0, ObjectType.Obstacle));
                                 parentStrategie.obstacleFixeListAdditional.Add(new LocationExtended(1.4, 0.485, 0, ObjectType.Obstacle));
+                                parentStrategie.obstacleFixeListAdditional.Add(new LocationExtended(0.8, -0.085, 0, ObjectType.Obstacle));
+                                parentStrategie.obstacleFixeListAdditional.Add(new LocationExtended(0.95, -0.085, 0, ObjectType.Obstacle));
                                 parentStrategie.obstacleFixeListAdditional.Add(new LocationExtended(1.1, -0.085, 0, ObjectType.Obstacle));
                                 parentStrategie.obstacleFixeListAdditional.Add(new LocationExtended(1.25, -0.085, 0, ObjectType.Obstacle));
                                 parentStrategie.obstacleFixeListAdditional.Add(new LocationExtended(1.4, -0.085, 0, ObjectType.Obstacle));
-                                if (parentStrategie.robotType == Eurobot2022RobotType.RobotNord)
+                                if (parentStrategie.robotType == StrategyEurobot2022.Eurobot2022RobotType.RobotSud)
                                 {
-                                    indicativeTime = parentStrategie.SetRobotDestination(new PointD(1.150, 0.77), Math.PI);
+                                    indicativeTime = parentStrategie.SetRobotDestination(new PointD(1.36, -0.55), Math.PI);
                                 }
                                 else
                                 {
-                                    indicativeTime = parentStrategie.SetRobotDestination(new PointD(1.200, -0.45), Math.PI);
+                                    indicativeTime = parentStrategie.SetRobotDestination(new PointD(1.15, -0.30), Math.PI);
                                 }
                             }
                             timestamp = DateTime.Now;
                             break;
                         case SubTaskState.EnCours:
-                            if (parentStrategie.isDeplacementFinished || DateTime.Now.Subtract(timestamp).TotalMilliseconds > 5000)
+                            if (parentStrategie.isDeplacementFinished || DateTime.Now.Subtract(timestamp).TotalMilliseconds > 10000)
                                 ExitState();                                /// A appeler quand on souhaite passer à Exit
                             break;
                         case SubTaskState.Exit:
                             Console.WriteLine("Déplacement vers zone de mouillage terminé");
+                            parentStrategie.OnEnableDisableMotor(false);
                             missionZoneMouillage = MissionZoneMouillageState.Idle;                    /// L'état suivant ne doit être défini que dans le substate Exit
                             break;
                     }

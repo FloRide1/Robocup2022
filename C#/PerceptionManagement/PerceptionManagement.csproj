@@ -80,6 +80,10 @@
       <Project>{3C4270CF-77BA-4100-BBAB-6E2802C49478}</Project>
       <Name>LidarProcessor</Name>
     </ProjectReference>
+    <ProjectReference Include="..\Messages\Messages.csproj">
+      <Project>{ed63bcc4-1a79-4b53-afae-827226c35af7}</Project>
+      <Name>Messages</Name>
+    </ProjectReference>
     <ProjectReference Include="..\Perception\Perception.csproj">
       <Project>{dd8fd061-d3b2-43ae-b74d-03d94a2876a3}</Project>
       <Name>Perception</Name>
@@ -91,10 +95,6 @@
     <ProjectReference Include="..\Utilities\Utilities.csproj">
       <Project>{8E7D0DA4-9A13-4B18-A90E-0243BBCCE40A}</Project>
       <Name>Utilities</Name>
-    </ProjectReference>
-    <ProjectReference Include="..\WorldMap\WorldMap.csproj">
-      <Project>{B2D0126F-8C82-4EAA-87E5-67415F589098}</Project>
-      <Name>WorldMap</Name>
     </ProjectReference>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />

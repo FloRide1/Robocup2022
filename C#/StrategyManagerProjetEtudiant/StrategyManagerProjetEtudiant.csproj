@@ -97,10 +97,6 @@
       <Project>{8e7d0da4-9a13-4b18-a90e-0243bbcce40a}</Project>
       <Name>Utilities</Name>
     </ProjectReference>
-    <ProjectReference Include="..\WorldMap\WorldMap.csproj">
-      <Project>{B2D0126F-8C82-4EAA-87E5-67415F589098}</Project>
-      <Name>WorldMap</Name>
-    </ProjectReference>
   </ItemGroup>
   <ItemGroup>
     <None Include="app.config" />

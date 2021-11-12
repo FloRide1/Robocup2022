@@ -79,20 +79,22 @@
     <Compile Include="StrategyEurobot2021\Eurobot2021TaskBrasTurbine.cs" />
     <Compile Include="StrategyEurobot2021\Eurobot2021TaskGameManagementEurobot.cs" />
     <Compile Include="StrategyEurobot2021\Eurobot2021MissionWindFlag.cs" />
+    <Compile Include="StrategyEurobot2022\Eurobot2022EnumsStrategy.cs" />
     <Compile Include="StrategyEurobot2022\Eurobot2022MatchDescriptor.cs" />
     <Compile Include="StrategyEurobot2022\Eurobot2022MissionDeposeGobelet.cs" />
+    <Compile Include="StrategyEurobot2022\Eurobot2022MissionLCDSM.cs" />
     <Compile Include="StrategyEurobot2022\Eurobot2022MissionPhare.cs" />
     <Compile Include="StrategyEurobot2022\Eurobot2022MissionPriseGobelet.cs" />
+    <Compile Include="StrategyEurobot2022\Eurobot2022MissionRamassageAutomatique.cs" />
     <Compile Include="StrategyEurobot2022\Eurobot2022MissionWindFlag.cs" />
     <Compile Include="StrategyEurobot2022\Eurobot2022MissionZoneMouillage.cs" />
+    <Compile Include="StrategyEurobot2022\Eurobot2022Strategy.cs" />
     <Compile Include="StrategyEurobot2022\Eurobot2022TaskAffichageLidarEurobot.cs" />
     <Compile Include="StrategyEurobot2022\Eurobot2022TaskBrasDeclencheur.cs" />
     <Compile Include="StrategyEurobot2022\Eurobot2022TaskBrasDrapeau.cs" />
     <Compile Include="StrategyEurobot2022\Eurobot2022TaskBrasTurbine.cs" />
     <Compile Include="StrategyEurobot2022\Eurobot2022TaskGameManagementEurobot.cs" />
     <Compile Include="StrategyEurobot2022\Eurobot2022TaskParametersModifiersEurobot.cs" />
-    <Compile Include="StrategyEurobot2022\Eurobot2022EnumsStrategy.cs" />
-    <Compile Include="StrategyEurobot2022\StrategyEurobot2022.cs" />
     <Compile Include="StrategyGenerique.cs" />
     <Compile Include="StrategyRoboCup\StrategyRobocup.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
@@ -127,6 +129,10 @@
       <Project>{84E83C7B-C4BF-4547-835F-06743F1D1DFA}</Project>
       <Name>LidarTIM561</Name>
     </ProjectReference>
+    <ProjectReference Include="..\Messages\Messages.csproj">
+      <Project>{ed63bcc4-1a79-4b53-afae-827226c35af7}</Project>
+      <Name>Messages</Name>
+    </ProjectReference>
     <ProjectReference Include="..\Perception\Perception.csproj">
       <Project>{DD8FD061-D3B2-43AE-B74D-03D94A2876A3}</Project>
       <Name>Perception</Name>
@@ -138,10 +144,6 @@
     <ProjectReference Include="..\Utilities\Utilities.csproj">
       <Project>{8e7d0da4-9a13-4b18-a90e-0243bbcce40a}</Project>
       <Name>Utilities</Name>
-    </ProjectReference>
-    <ProjectReference Include="..\WorldMap\WorldMap.csproj">
-      <Project>{B2D0126F-8C82-4EAA-87E5-67415F589098}</Project>
-      <Name>WorldMap</Name>
     </ProjectReference>
   </ItemGroup>
   <ItemGroup>

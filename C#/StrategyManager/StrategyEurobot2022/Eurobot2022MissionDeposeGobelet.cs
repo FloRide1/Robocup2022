@@ -9,13 +9,13 @@ namespace StrategyManagerNS
 {
     public class Eurobot2022MissionDeposeGobelet : MissionBase
     {
-        double rayonRobot= 0.16;
+        double rayonRobot = 0.16;
         double longueurBrasRobot = 0.07;
         double distancePreDepose = 0.15;
         Eurobot2022EmplacementDepose DeposeCourante;
         //PointD GobeletPosition = new PointD(0, 0);
         string BrasUtilise = "";
-        
+
         private enum MissionDeposeGobeletState
         {
             Idle,
@@ -42,7 +42,7 @@ namespace StrategyManagerNS
 
         public void Start(Eurobot2022EmplacementDepose emplacement, string bras)
         {
-            DeposeCourante = emplacement; 
+            DeposeCourante = emplacement;
             BrasUtilise = bras;
             isFinished = false;
             state = MissionDeposeGobeletState.GOTO_PreDepose;
@@ -103,11 +103,11 @@ namespace StrategyManagerNS
                 case MissionDeposeGobeletState.GOTO_Depose:
                     switch (subState)
                     {
-                        case SubTaskState.Entry:                            
+                        case SubTaskState.Entry:
                             //On décale le point robot de la longueur du bras orienté selon l'angle
-                            PointD deposePosition = new PointD(DeposeCourante.Pos.X- (rayonRobot + longueurBrasRobot)*Math.Cos(DeposeCourante.AngleDepose),
+                            PointD deposePosition = new PointD(DeposeCourante.Pos.X - (rayonRobot + longueurBrasRobot) * Math.Cos(DeposeCourante.AngleDepose),
                                 DeposeCourante.Pos.Y - (rayonRobot + longueurBrasRobot) * Math.Sin(DeposeCourante.AngleDepose));
-                                timoutDeplacement = parentStrategie.SetRobotDestination(deposePosition, DeposeCourante.AngleDepose- parentStrategie.matchDescriptor.DictionaryBrasTurbine[BrasUtilise].AngleBras);
+                            timoutDeplacement = parentStrategie.SetRobotDestination(deposePosition, DeposeCourante.AngleDepose - parentStrategie.matchDescriptor.DictionaryBrasTurbine[BrasUtilise].AngleBras);
                             timestamp = DateTime.Now;
                             break;
                         case SubTaskState.EnCours:
@@ -148,7 +148,7 @@ namespace StrategyManagerNS
                             break;
                     }
                     break;
-                
+
                 //case MissionTestRamassageState.GOTO_Depose:
                 //    switch (subState)
                 //    {

@@ -19,7 +19,7 @@
             <ColumnDefinition Width="1*"/>
             <ColumnDefinition Width="1*"/>
             <ColumnDefinition Width="1*"/>
-            <ColumnDefinition Width="90"/>
+            <ColumnDefinition Width="150"/>
         </Grid.ColumnDefinitions>
         <!--<Grid x:Name="TeamDisplayGrid" Grid.Row="0" Grid.Column="0" Grid.ColumnSpan="3">
             <Grid.ColumnDefinitions>
@@ -67,6 +67,7 @@
             <Button x:Name="Button_KickOffT2" HorizontalAlignment="Stretch" Height="20" Margin="3" Content="Kick Off T2" Click="Button_KickOffT2_Click" />
             <Button x:Name="Button_PlayLeftT1" HorizontalAlignment="Stretch" Height="20" Margin="3" Content="T1 plays left" Click="Button_PlayLeftT1_Click"/>
             <Button x:Name="Button_PlayRightT2" HorizontalAlignment="Stretch" Height="20" Margin="3" Content="T1 plays right" Click="Button_PlayRightT2_Click"/>
+            <TextBox x:Name="TextBox_RefBoxCommands" Height="300"/>
         </StackPanel>
 
         <StackPanel  Grid.Column="7" Grid.RowSpan="10" VerticalAlignment="Bottom">

@@ -49,6 +49,10 @@
       <Project>{9C46A7C0-4675-41BE-B282-E6F0825AD73E}</Project>
       <Name>EventArgsLibrary</Name>
     </ProjectReference>
+    <ProjectReference Include="..\Messages\Messages.csproj">
+      <Project>{ed63bcc4-1a79-4b53-afae-827226c35af7}</Project>
+      <Name>Messages</Name>
+    </ProjectReference>
     <ProjectReference Include="..\PerformanceMonitorTools\PerformanceMonitorTools.csproj">
       <Project>{e43fd01a-2803-412c-8b33-256d3f681029}</Project>
       <Name>PerformanceMonitorTools</Name>
@@ -56,10 +60,6 @@
     <ProjectReference Include="..\Utilities\Utilities.csproj">
       <Project>{8E7D0DA4-9A13-4B18-A90E-0243BBCCE40A}</Project>
       <Name>Utilities</Name>
-    </ProjectReference>
-    <ProjectReference Include="..\WorldMap\WorldMap.csproj">
-      <Project>{B2D0126F-8C82-4EAA-87E5-67415F589098}</Project>
-      <Name>WorldMap</Name>
     </ProjectReference>
   </ItemGroup>
   <ItemGroup>

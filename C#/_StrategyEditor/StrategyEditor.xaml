@@ -1,0 +1,27 @@
+﻿<Window x:Class="_StrategyEditor.MainWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:my="clr-namespace:_StrategyEditor"
+        xmlns:local="clr-namespace:_StrategyEditor" xmlns:vm1="clr-namespace:PlayBook_NS;assembly=PlayBook"
+        mc:Ignorable="d"
+        Title="Strategy Editor" Height="450" Width="800" SourceInitialized="Window_SourceInitialized" Closing="Window_Closing">
+    
+    <DockPanel>
+        <Menu DockPanel.Dock="Top">
+            <MenuItem Header="Strategy">
+                <MenuItem Header="New Strategy" Click="MenuItemNewStrategy_Click"/>
+                <MenuItem Header="Load Strategy" Click="MenuItemLoadStrategy_Click"/>
+                <MenuItem Header="Save Strategy" Click="MenuItemSaveStrategy_Click"/>
+            </MenuItem>            
+            <MenuItem Header="Options">
+                <MenuItem Header="Select Strategy Directory" Click="MenuItemSelectStrategyDirectory_Click"/>
+            </MenuItem>            
+        </Menu>
+        <Grid>
+            <TabControl x:Name="MyTabControl">
+            </TabControl>
+            </Grid>
+    </DockPanel>
+</Window>

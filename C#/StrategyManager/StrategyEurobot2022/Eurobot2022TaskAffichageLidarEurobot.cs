@@ -12,7 +12,7 @@ using static HerkulexManagerNS.HerkulexEventArgs;
 
 namespace StrategyManagerNS
 {
-    public class Eurobot2022TaskAffichageLidarEurobot : TaskBase
+    public class Eurobot2022TaskAffichageLidar : TaskBase
     {
         DateTime timestamp;
         TaskAffichageLidarState state = TaskAffichageLidarState.Idle;
@@ -25,12 +25,12 @@ namespace StrategyManagerNS
         int temporisationLigne1 = 1000;
         int temporisationLigne2 = 1000;
 
-        public Eurobot2022TaskAffichageLidarEurobot() : base()
+        public Eurobot2022TaskAffichageLidar() : base()
         {
 
         }
 
-        public Eurobot2022TaskAffichageLidarEurobot(StrategyGenerique sg) : base(sg)
+        public Eurobot2022TaskAffichageLidar(StrategyGenerique sg) : base(sg)
         {
             parent = sg;
         }
@@ -90,7 +90,7 @@ namespace StrategyManagerNS
                     switch (subState)
                     {
                         case SubTaskState.Entry:
-                            Console.WriteLine("Init Task Affichage Lidar");
+                            //Console.WriteLine("Init Task Affichage Lidar");
                             timestamp = DateTime.Now;
                             break;
                         case SubTaskState.EnCours:

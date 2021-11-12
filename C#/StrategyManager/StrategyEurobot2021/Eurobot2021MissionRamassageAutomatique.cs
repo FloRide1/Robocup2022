@@ -185,7 +185,7 @@ namespace StrategyManagerNS
                                 ///On attaque le premier gobelet trouvé au lidar en vérifiant qu'il n'est ni à l'extérieur du terrain ni dans une zone interdite
                                 ///
                                 //ON commence par reconstruire la liste dans le référentiel du terrain
-                                var gobeletListeRefTerrain = new List<GobeletPotentiel>();
+                                var gobeletListeRefTerrain = new List<Eurobot2021GobeletPotentiel>();
                                 if (parentStrategie.GobeletsPotentielsRefTerrain.Count > 0)
                                 {
                                     //Pour l'instant, on ne prend pas les gobelets couchés
@@ -194,9 +194,9 @@ namespace StrategyManagerNS
                                     {
                                         var chosenGobelet = gobeletOrderedList.ElementAt(i);
                                         /// On filtre les gobelets debout et les gobelets couchés
-                                        TypeGobelet typeGobelet = TypeGobelet.Libre;
+                                        Eurobot2021TypeGobelet typeGobelet = Eurobot2021TypeGobelet.Libre;
                                         if (chosenGobelet.Largeur > 0.09)
-                                            typeGobelet = TypeGobelet.LibreCouche;
+                                            typeGobelet = Eurobot2021TypeGobelet.LibreCouche;
 
                                         Eurobot2021Color colorGobelet = Eurobot2021Color.Rouge;
                                         if (chosenGobelet.RssiStdDev > 950)

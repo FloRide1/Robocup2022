@@ -4,13 +4,13 @@ using HeatMap;
 using HerkulexManagerNS;
 using LidarProcessor;
 using LidarSickNS;
+using MessagesNS;
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
 using System.Timers;
 using Utilities;
-using WorldMap;
 using static HerkulexManagerNS.HerkulexEventArgs;
 
 namespace StrategyManagerNS
@@ -50,16 +50,17 @@ namespace StrategyManagerNS
 
         public GameState gameState = GameState.STOPPED;
         public StoppedGameAction stoppedGameAction = StoppedGameAction.NONE;
-               
+        
         public Eurobot2022RobotType robotType = Eurobot2022RobotType.RobotNord;
 
         LidarProcessor.LidarProcessor lidarProcessorTIM561;
 
-        public Eurobot2022MatchDescriptor matchDescriptor = new Eurobot2022MatchDescriptor();
+        public Eurobot2022MatchDescriptor matchDescriptor;
 
-        public Eurobot2022TaskGameManagementEurobot taskGameManagement;
-        public Eurobot2022TaskParametersModifiersEurobot taskParametersModifiers;
-        public Eurobot2022TaskAffichageLidarEurobot taskAffichageLidar;
+        public Eurobot2022TaskGameManagement taskGameManagement;
+        public Eurobot2022TaskDeplacementsParametersModifiers taskDeplacementsParametersModifiers;
+        public Eurobot2022TaskAvoidanceParametersModifiers taskAvoidanceParametersModifiers;
+        public Eurobot2022TaskAffichageLidar taskAffichageLidar;
 
         public Dictionary<string,Eurobot2022TaskBrasTurbine> taskBras_dict = new Dictionary<string,Eurobot2022TaskBrasTurbine>();
         public Eurobot2022TaskBrasDeclencheur taskBrasDeclencheur;
@@ -70,21 +71,22 @@ namespace StrategyManagerNS
         public Eurobot2022MissionPhare missionPhare;
         public Eurobot2022MissionWindFlag missionWindFlag;
         public Eurobot2022MissionZoneMouillage missionZoneMouillage;
+        public Eurobot2022MissionRamassageAutomatique missionRamassageAutomatique;
+
+        public Eurobot2022MissionLCDSM missionLCDSM;
 
         public StrategyEurobot2022(int robotId, int teamId, string teamIpAddress) : base(robotId, teamId, teamIpAddress)
         {
-            //globalWorldMap = new GlobalWorldMap();
-            InitHeatMap();
-            RayonRobot = 0.16;
+            matchDescriptor = new Eurobot2022MatchDescriptor(this);
+            RayonRobot = 0.15;
         }
-
+        
         public List<TaskBase> listTasks { get; private set; }
         public List<MissionBase> listMissions { get; private set; }
 
         public override void InitStrategy(int robotId, int teamId)
         {
-            lidarProcessorTIM561 = new LidarProcessor.LidarProcessor(robotId, GameMode.Eurobot2022);
-            
+            lidarProcessorTIM561 = new LidarProcessor.LidarProcessor(robotId, GameMode.Eurobot);
             listTasks = new List<TaskBase>();
             listMissions = new List<MissionBase>();
 
@@ -115,13 +117,21 @@ namespace StrategyManagerNS
             listMissions.Add(missionDeposeGobelet);
             missionZoneMouillage = new Eurobot2022MissionZoneMouillage(this);
             listMissions.Add(missionZoneMouillage);
+            missionLCDSM = new Eurobot2022MissionLCDSM(this);
+            listMissions.Add(missionLCDSM);
+            missionRamassageAutomatique = new Eurobot2022MissionRamassageAutomatique(this);
+            listMissions.Add(missionRamassageAutomatique);
 
-            taskGameManagement = new Eurobot2022TaskGameManagementEurobot(this);
+            taskGameManagement = new Eurobot2022TaskGameManagement(this);
             listTasks.Add(taskGameManagement);
-            taskAffichageLidar = new Eurobot2022TaskAffichageLidarEurobot(this);
+            taskAffichageLidar = new Eurobot2022TaskAffichageLidar(this);
             listTasks.Add(taskAffichageLidar);
-            taskParametersModifiers = new Eurobot2022TaskParametersModifiersEurobot(this);
-            listTasks.Add(taskParametersModifiers);
+            taskDeplacementsParametersModifiers = new Eurobot2022TaskDeplacementsParametersModifiers(this);
+            listTasks.Add(taskDeplacementsParametersModifiers);
+            taskAvoidanceParametersModifiers = new Eurobot2022TaskAvoidanceParametersModifiers(this);
+            listTasks.Add(taskAvoidanceParametersModifiers);
+            //taskHerkulexCouple = new TaskHerkulexCouple(this);
+            //listTasks.Add(taskHerkulexCouple);
 
             /// Ajout des events
             OnIOValuesFromRobotEvent += OnIOValuesFromRobotEventReceived;
@@ -134,11 +144,14 @@ namespace StrategyManagerNS
                                 1.872659e+00, 1.872659e+00, 1.872659e+00, 1.872659e+00);
 
             OnEnableDisableMotorCurrentData(true);
+            OnEnableDisableRxForwardFromHerkulex(true);
         }
 
-        public bool jackIsPresent = true;
-
+        public bool jackIsPresent = false;
+        public enum Eurobot2022SideColor { Blue, Yellow };
+        public enum Eurobot2022RobotType { RobotSud, RobotNord, None };
         public Eurobot2022SideColor playingColor = Eurobot2022SideColor.Blue;
+        public enum Eurobot2022StrategyType { Soft, LaConchaDeSuMadre };
         public Eurobot2022StrategyType strategyType = Eurobot2022StrategyType.Soft;
         public void OnIOValuesFromRobotEventReceived(object sender, IOValuesEventArgs e)
         {
@@ -154,9 +167,9 @@ namespace StrategyManagerNS
                 robotType = Eurobot2022RobotType.RobotSud;
 
             if (((e.ioValues >> 3) & 0x01) == 0x01)
-                strategyType = Eurobot2022StrategyType.Soft;
-            else
                 strategyType = Eurobot2022StrategyType.LaConchaDeSuMadre;
+            else
+                strategyType = Eurobot2022StrategyType.Soft;
 
             //bool config2 = (((e.ioValues >> 2) & 0x01) == 0x01);
 
@@ -180,33 +193,14 @@ namespace StrategyManagerNS
 
             }
         }
-        //private void ConfigTimer_Elapsed(object sender, ElapsedEventArgs e)
-        //{
-        //    //Ajustement de la distance minimalee de détection des objets
-        //    RayonRobot = 0.15;
-        //    MovingObstacleAvoidanceDistance = 0.4;
-
-        //    //On envoie périodiquement les réglages du PID de vitesse embarqué
-        //    double p = 1.0;
-        //    double ki = 50;
-            
-        //    On4WheelsIndependantSpeedPIDSetup(pM1: p, iM1: ki, 0.0, pM2: p, iM2: ki, 0, pM3: p, iM3: ki, 0, pM4: p, iM4: ki, 0.0,
-        //        pM1Limit: 4.0, iM1Limit: 4.0, 0, pM2Limit: 4.0, iM2Limit: 4.0, 0, pM3Limit: 4.0, iM3Limit: 4.0, 0, pM4Limit: 4.0, iM4Limit: 4.0, 0);
-
-            
-        //    //On4WheelsPolarSpeedPIDSetup(px: p, ix: 00, 0.0, py: p, iy: 00, 0, ptheta: p, itheta: 00, 0,
-        //    //    pxLimit: double.PositiveInfinity, ixLimit: double.PositiveInfinity, 0, pyLimit: double.PositiveInfinity, iyLimit: double.PositiveInfinity, 0, pthetaLimit: double.PositiveInfinity, ithetaLimit: double.PositiveInfinity, 0);
-
-        //    //OnSetAsservissementMode((byte)AsservissementMode.Independant2Wheels);
-        //}
 
         //************************ Events reçus ************************************************/
-              
-        public override void OnRefBoxMsgReceived(object sender, WorldMap.RefBoxMessageArgs e)
+
+        public override void OnRefBoxMsgReceived(object sender, RefBoxMessageArgs e)
         {
             var command = e.refBoxMsg.command;
             var targetTeam = e.refBoxMsg.targetTeam;
-                        
+
         }
 
         public override void DetermineRobotRole() //A définir dans les classes héritées
@@ -258,9 +252,9 @@ namespace StrategyManagerNS
                         }
                     }
                 }
-                foreach (var gobeletTrouve in GobeletsDetectedList)
+                foreach (var gobeletTrouve in GobeletsPotentielsRefTerrain)
                 {
-                    l.PtList.Add(new PointDExtended(new PointD(gobeletTrouve.X, gobeletTrouve.Y), System.Drawing.Color.Blue, 5));
+                    l.PtList.Add(new PointDExtended(gobeletTrouve.Pos, System.Drawing.Color.Blue, 5));
                 }
             }
             catch { }
@@ -273,12 +267,12 @@ namespace StrategyManagerNS
             obstacleFixeList = new List<LocationExtended>();
             /// Définition des zones d'exclusion
             /// Bords du terrain
-            AddStrictlyAllowedRectangle(new RectangleD(-1.5 + RayonRobot, 1.5 - RayonRobot, -1 + RayonRobot, 1 - RayonRobot));
+            AddStrictlyAllowedRectangle(new RectangleD(-1.51 + RayonRobot, 1.51 - RayonRobot, -1 + RayonRobot, 1 - RayonRobot));
 
             ///Girouette
             AddForbiddenRectangle(new RectangleD(-0.15 - RayonRobot, 0.15 + RayonRobot, 0.97, 1));
             obstacleFixeList.Add(new LocationExtended(-0.1, 0.97, 0, ObjectType.Obstacle));
-            obstacleFixeList.Add(new LocationExtended(0.1, 0.97, 0,  ObjectType.Obstacle));
+            obstacleFixeList.Add(new LocationExtended(0.1, 0.97, 0, ObjectType.Obstacle));
 
             ///Tasseaux
             AddForbiddenRectangle(new RectangleD(0 - RayonRobot, 0 + RayonRobot, -1, -0.7 + RayonRobot));
@@ -292,31 +286,39 @@ namespace StrategyManagerNS
             if (playingColor == Eurobot2022SideColor.Blue)
             {
                 /// Zone de départ jaune
-                AddForbiddenRectangle(new RectangleD(1.1, 1.5, - 0.1 - RayonRobot, 0.5 + RayonRobot));
-                AddForbiddenRectangle(new RectangleD(1.1 - RayonRobot, 1.1, -0.1, 0.5));
-                obstacleFixeList.Add(new LocationExtended(1.1, -0.1, 0, ObjectType.Obstacle));
-                obstacleFixeList.Add(new LocationExtended(1.1, 0.5, 0, ObjectType.Obstacle));
+                AddForbiddenRectangle(new RectangleD(0.98, 1.5, -0.1 - RayonRobot, 0.5 + RayonRobot));
+                AddForbiddenRectangle(new RectangleD(0.98 - RayonRobot, 0.98, -0.1, 0.5));
+                obstacleFixeList.Add(new LocationExtended(0.98, -0.1, 0, ObjectType.Obstacle));
+                obstacleFixeList.Add(new LocationExtended(1.2, -0.1, 0, ObjectType.Obstacle));
+                obstacleFixeList.Add(new LocationExtended(1.4, -0.1, 0, ObjectType.Obstacle));
+                obstacleFixeList.Add(new LocationExtended(0.98, 0.5, 0, ObjectType.Obstacle));
+                obstacleFixeList.Add(new LocationExtended(1.2, 0.5, 0, ObjectType.Obstacle));
+                obstacleFixeList.Add(new LocationExtended(1.4, 0.5, 0, ObjectType.Obstacle));
 
                 /// Port opposé jaune
-                AddForbiddenRectangle(new RectangleD(-0.45-RayonRobot, -0.15+RayonRobot, -1, -0.61));
-                AddForbiddenRectangle(new RectangleD(-0.45, -0.15, -0.61, -0.61+RayonRobot));
-                obstacleFixeList.Add(new LocationExtended(-0.15, -0.61, 0, ObjectType.Obstacle));
-                obstacleFixeList.Add(new LocationExtended(-0.45, -0.61, 0, ObjectType.Obstacle));
+                AddForbiddenRectangle(new RectangleD(-0.45 - RayonRobot, -0.15 + RayonRobot, -1, -0.58));
+                AddForbiddenRectangle(new RectangleD(-0.45, -0.15, -0.58, -0.58 + RayonRobot));
+                obstacleFixeList.Add(new LocationExtended(-0.15, -0.58, 0, ObjectType.Obstacle));
+                obstacleFixeList.Add(new LocationExtended(-0.45, -0.58, 0, ObjectType.Obstacle));
 
             }
-            else if(playingColor == Eurobot2022SideColor.Yellow)
+            else if (playingColor == Eurobot2022SideColor.Yellow)
             {
                 /// Zone de départ bleue
-                AddForbiddenRectangle(new RectangleD(-1.5, -1.1, -0.1 - RayonRobot, 0.5 + RayonRobot));
-                AddForbiddenRectangle(new RectangleD(-1.1, -1.1+RayonRobot, -0.1, 0.5));
-                obstacleFixeList.Add(new LocationExtended(-1.1, -0.1, 0, ObjectType.Obstacle));
-                obstacleFixeList.Add(new LocationExtended(-1.1, 0.5, 0, ObjectType.Obstacle));
+                AddForbiddenRectangle(new RectangleD(-1.5, -0.98, -0.1 - RayonRobot, 0.5 + RayonRobot));
+                AddForbiddenRectangle(new RectangleD(-0.98, -0.98 + RayonRobot, -0.1, 0.5));
+                obstacleFixeList.Add(new LocationExtended(-0.98, -0.1, 0, ObjectType.Obstacle));
+                obstacleFixeList.Add(new LocationExtended(-1.2, -0.1, 0, ObjectType.Obstacle));
+                obstacleFixeList.Add(new LocationExtended(-1.4, -0.1, 0, ObjectType.Obstacle));
+                obstacleFixeList.Add(new LocationExtended(-0.98, 0.5, 0, ObjectType.Obstacle));
+                obstacleFixeList.Add(new LocationExtended(-1.2, 0.5, 0, ObjectType.Obstacle));
+                obstacleFixeList.Add(new LocationExtended(-1.4, 0.5, 0, ObjectType.Obstacle));
 
                 /// Port opposé bleu
-                AddForbiddenRectangle(new RectangleD(0.15 - RayonRobot, 0.45 + RayonRobot, -1, -0.61));
-                AddForbiddenRectangle(new RectangleD(0.15, 0.45, -0.61, -0.61 + RayonRobot));
-                obstacleFixeList.Add(new LocationExtended(0.15, -0.61, 0, ObjectType.Obstacle));
-                obstacleFixeList.Add(new LocationExtended(0.45, -0.61, 0, ObjectType.Obstacle));
+                AddForbiddenRectangle(new RectangleD(0.15 - RayonRobot, 0.45 + RayonRobot, -1, -0.58));
+                AddForbiddenRectangle(new RectangleD(0.15, 0.45, -0.58, -0.58 + RayonRobot));
+                obstacleFixeList.Add(new LocationExtended(0.15, -0.58, 0, ObjectType.Obstacle));
+                obstacleFixeList.Add(new LocationExtended(0.45, -0.58, 0, ObjectType.Obstacle));
             }
 
             /// Ajout d'obstacles autour des gobelets déjà déposés
@@ -334,10 +336,10 @@ namespace StrategyManagerNS
 
         public override List<LocationExtended> FilterObstacleList(List<LocationExtended> obstacleList)
         {
-            var obstacleListInField = obstacleList.Where(pt => Math.Abs(pt.X) < 1.45 && Math.Abs(pt.Y) < 0.95).ToList();
-            return obstacleListInField;
+            //var obstacleListInField = obstacleList.Where(pt => Math.Abs(pt.X) < 1.48 && Math.Abs(pt.Y) < 0.98).ToList();
+            //return obstacleListInField;
+            return obstacleList;
         }
-         
 
         public override void IterateStateMachines() //A définir dans les classes héritées
         {
@@ -365,18 +367,55 @@ namespace StrategyManagerNS
             OnMotorCurrentReceiveForwardEvent?.Invoke(sender, e);
         }
 
-        List<PointD> GobeletsDetectedList = new List<PointD>();
+        public List<Eurobot2022GobeletPotentiel> GobeletsPotentielsRefTerrain = new List<Eurobot2022GobeletPotentiel>();
+
         double distanceCentreRobotCentreTIM561 = 0.115;
         public void Lidar_TIM561_PointsAvailable(object sender, RawLidarArgs e)
         {
-            var objectsList = lidarProcessorTIM561.DetectionGobelets(e.PtList, distanceMin: 0.15, distanceMax: 2.0, tailleSegmentationObjet:1, tolerance: 0.1);
+            var objectsList = lidarProcessorTIM561.DetectionGobelets(e.PtList, distanceMin: 0.3, distanceMax: 2.0, tailleSegmentationObjet: 1, tolerance: 0.1);
             var objetsFiltered = objectsList.Where(p => p.Largeur > 0.05 && p.Largeur<0.15).ToList();
-            GobeletsDetectedList = new List<PointD>();
-            foreach (var obj in objectsList)
+            GobeletsPotentielsRefTerrain = new List<Eurobot2022GobeletPotentiel>();
+            foreach (var obj in objetsFiltered)
             {
-                GobeletsDetectedList.Add(new PointD(robotCurrentLocation.X + distanceCentreRobotCentreTIM561*Math.Cos(robotCurrentLocation.Theta)+ obj.DistanceMoyenne * Math.Cos(obj.AngleMoyen + robotCurrentLocation.Theta),
-                    robotCurrentLocation.Y + distanceCentreRobotCentreTIM561 * Math.Sin(robotCurrentLocation.Theta) + obj.DistanceMoyenne * Math.Sin(obj.AngleMoyen + robotCurrentLocation.Theta)));
+                /// Filtrage par position des gobelets détectés, de manière à prendre seulement dans un rectanlge donné
+                var objPositionRefTerrain = new PointD(robotCurrentLocation.X + distanceCentreRobotCentreTIM561 * Math.Cos(robotCurrentLocation.Theta) + obj.DistanceMoyenne * Math.Cos(obj.AngleMoyen + robotCurrentLocation.Theta),
+                                    robotCurrentLocation.Y + distanceCentreRobotCentreTIM561 * Math.Sin(robotCurrentLocation.Theta) + obj.DistanceMoyenne * Math.Sin(obj.AngleMoyen + robotCurrentLocation.Theta));
+
+                if (Math.Abs(objPositionRefTerrain.X) < 0.9 && objPositionRefTerrain.Y > -0.55 && objPositionRefTerrain.Y < 0.95) //Filtrage Zone de ramassage possible
+                {
+                    GobeletsPotentielsRefTerrain.Add(
+                    new Eurobot2022GobeletPotentiel(objPositionRefTerrain, obj.Largeur, obj.RssiMoyen, obj.RssiCentral, obj.RssiStdDev));
+                }
             }
+        }
+
+        public Dictionary<int, Int16> HerkulexMesuredTorque = new Dictionary<int, Int16>();
+
+        public void OnTorqueInfo(object sender, TorqueEventArgs e)
+        {
+            if (HerkulexMesuredTorque.ContainsKey(e.servoID))
+                HerkulexMesuredTorque[e.servoID] = (Int16)e.Value;
+            else
+                HerkulexMesuredTorque.Add(e.servoID, (Int16)e.Value);
+            //Console.WriteLine("Torque ID " + e.servoID + "=" + e.Value.ToString("X2"));
+        }
+    }
+
+    public class Eurobot2022GobeletPotentiel
+    {
+        public PointD Pos;
+        public double Largeur;
+        public double RssiMoyen;
+        public double RssiCentral;
+        public double RssiStdDev;
+
+        public Eurobot2022GobeletPotentiel(PointD pos, double largeur, double rssiMoyen, double rssiCentral, double rssiStdDev)
+        {
+            Pos = pos;
+            Largeur = largeur;
+            RssiMoyen = rssiMoyen;
+            RssiCentral = rssiCentral;
+            RssiStdDev = rssiStdDev;
         }
     }
 }

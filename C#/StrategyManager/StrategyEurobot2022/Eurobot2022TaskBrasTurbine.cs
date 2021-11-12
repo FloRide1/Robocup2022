@@ -16,13 +16,13 @@ namespace StrategyManagerNS
     {
         DateTime timestamp;
         TaskBrasState state = TaskBrasState.Idle;
-        ServoId _servoID;
+        public ServoId _servoID;
         Eurobot2022PilotageTurbineID _turbineID;
 
         ushort intensiteTurbineDeplacement = 1450;
-        ushort intensiteTurbineDeplacementDistributeur = 1400;
+        ushort intensiteTurbineDeplacementDistributeur = 1450;
 
-        
+
 
         public Eurobot2022TaskBrasTurbine() : base()
         {
@@ -54,12 +54,12 @@ namespace StrategyManagerNS
         enum TaskBrasServoPositions
         {
             Init = 512,
-            GobeletLibre = 760,
-            GobeletCouche = 785,
+            GobeletLibre = 773,
+            GobeletCouche = 850,
             GobeletDistributeurPreparation = 680,
             GobeletDistributeur = 730
         }
-               
+
         Dictionary<ServoId, int> servoPositionsRequested = new Dictionary<ServoId, int>();
 
         public override void Init()
@@ -128,7 +128,7 @@ namespace StrategyManagerNS
                     switch (subState)
                     {
                         case SubTaskState.Entry:
-                            Console.WriteLine("Init Task Bras Turbine");
+                            //Console.WriteLine("Init Task Bras Turbine");
                             timestamp = DateTime.Now;
                             servoPositionsRequested = new Dictionary<ServoId, int>();
                             servoPositionsRequested.Add((ServoId)_servoID, (int)TaskBrasServoPositions.Init);
@@ -163,18 +163,18 @@ namespace StrategyManagerNS
                             timestamp = DateTime.Now;
                             servoPositionsRequested = new Dictionary<ServoId, int>();
                             /// On allume la turbine a 50%
-                            parent.OnPilotageTurbine((byte)_turbineID, 1550);
+                            parent.OnPilotageTurbine((byte)_turbineID, 1570);
                             /// On descend le servo
                             servoPositionsRequested.Add((ServoId)_servoID, (int)TaskBrasServoPositions.GobeletLibre);
                             parent.OnHerkulexSetPosition(servoPositionsRequested);
                             break;
                         case SubTaskState.EnCours:
-                            if (DateTime.Now.Subtract(timestamp).TotalMilliseconds > 800.0)
+                            if (DateTime.Now.Subtract(timestamp).TotalMilliseconds > 400.0)
                             {
                                 ExitState();/// A appeler quand on souhaite passer à Exit       
                             }
                             break;
-                        case SubTaskState.Exit:                             
+                        case SubTaskState.Exit:
                             /// L'état suivant ne doit être défini que dans le substate Exit
                             /// On part en Idle après avoir demandé l'attrapage d'un gobelet
                             /// La turbine est active à ce moment là à puissance de prise normale                            
@@ -192,17 +192,21 @@ namespace StrategyManagerNS
                             timestamp = DateTime.Now;
                             servoPositionsRequested = new Dictionary<ServoId, int>();
                             /// On allume la turbine a 40%
-                            parent.OnPilotageTurbine((byte)_turbineID, 1400); 
+                            parent.OnPilotageTurbine((byte)_turbineID, 1600);
                             servoPositionsRequested.Add((ServoId)_servoID, (int)TaskBrasServoPositions.GobeletCouche);
                             parent.OnHerkulexSetPosition(servoPositionsRequested);
                             break;
                         case SubTaskState.EnCours:
-                            if (DateTime.Now.Subtract(timestamp).TotalMilliseconds > 1000.0)
+                            if (DateTime.Now.Subtract(timestamp).TotalMilliseconds > 800.0)
                             {
                                 ExitState();/// A appeler quand on souhaite passer à Exit       
                             }
                             break;
-                        case SubTaskState.Exit:                             /// L'état suivant ne doit être défini que dans le substate Exit
+                        case SubTaskState.Exit:
+                            /// L'état suivant ne doit être défini que dans le substate Exit
+                            /// On part en Idle après avoir demandé l'attrapage d'un gobelet
+                            /// La turbine est active à ce moment là à puissance de prise normale                            
+                            parent.OnPilotageTurbine((byte)_turbineID, intensiteTurbineDeplacement);
                             state = TaskBrasState.Idle;
                             break;
                     }
@@ -220,7 +224,7 @@ namespace StrategyManagerNS
                             parent.OnHerkulexSetPosition(servoPositionsRequested);
                             break;
                         case SubTaskState.EnCours:
-                            if (DateTime.Now.Subtract(timestamp).TotalMilliseconds > 500.0)
+                            //if (DateTime.Now.Subtract(timestamp).TotalMilliseconds > 200.0)
                             {
                                 ExitState();/// A appeler quand on souhaite passer à Exit       
                             }
@@ -242,7 +246,7 @@ namespace StrategyManagerNS
                             parent.OnHerkulexSetPosition(servoPositionsRequested);
                             break;
                         case SubTaskState.EnCours:
-                            if (DateTime.Now.Subtract(timestamp).TotalMilliseconds > 500.0)
+                            if (DateTime.Now.Subtract(timestamp).TotalMilliseconds > 400.0)
                             {
                                 ExitState();/// A appeler quand on souhaite passer à Exit       
                             }
@@ -264,7 +268,7 @@ namespace StrategyManagerNS
                             parent.OnHerkulexSetPosition(servoPositionsRequested);
                             break;
                         case SubTaskState.EnCours:
-                            if (DateTime.Now.Subtract(timestamp).TotalMilliseconds > 1000.0)
+                            if (DateTime.Now.Subtract(timestamp).TotalMilliseconds > 200.0)
                             {
                                 ExitState();/// A appeler quand on souhaite passer à Exit       
                             }
@@ -284,7 +288,7 @@ namespace StrategyManagerNS
                             parent.OnHerkulexSetPosition(servoPositionsRequested);
                             break;
                         case SubTaskState.EnCours:
-                            if (DateTime.Now.Subtract(timestamp).TotalMilliseconds > 1000.0)
+                            if (DateTime.Now.Subtract(timestamp).TotalMilliseconds > 400.0)
                             {
                                 ExitState();                                /// A appeler quand on souhaite passer à Exit         
                             }

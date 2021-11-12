@@ -182,10 +182,6 @@
       <Project>{01E89552-13A5-4A24-80B2-9246700F72FD}</Project>
       <Name>WorldMapManager</Name>
     </ProjectReference>
-    <ProjectReference Include="..\WorldMap\WorldMap.csproj">
-      <Project>{B2D0126F-8C82-4EAA-87E5-67415F589098}</Project>
-      <Name>WorldMap</Name>
-    </ProjectReference>
     <ProjectReference Include="..\WpfRobotHolo4RouesInterface\RobotInterface\WpfRobot4RouesInterface.csproj">
       <Project>{1cdc0611-a2e5-42e8-a28b-ba4269343c68}</Project>
       <Name>WpfRobot4RouesInterface</Name>

@@ -1,12 +1,12 @@
 ﻿using Constants;
 using EventArgsLibrary;
 using HeatMap;
+using MessagesNS;
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
 using Utilities;
-using WorldMap;
 
 namespace WayPointGenerator
 {

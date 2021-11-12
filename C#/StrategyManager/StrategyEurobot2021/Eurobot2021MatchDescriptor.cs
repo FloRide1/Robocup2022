@@ -123,71 +123,71 @@ namespace StrategyManagerNS
                 listElementsJeu.Add(1001, new Eurobot2021PositionTerrain(0.65, 0.70, null, Eurobot2021TeamReservation.ReservedBlue));
 
                 /// Manche à air
-                listElementsJeu.Add(100, new Eurobot2021MancheAir(TypeELementDeJeu.MancheAir, 1.270, -1.00, Eurobot2021TeamReservation.ReservedYellow, null));
-                listElementsJeu.Add(101, new Eurobot2021MancheAir(TypeELementDeJeu.MancheAir, 0.865, -1.00, Eurobot2021TeamReservation.ReservedYellow, null));
-                listElementsJeu.Add(102, new Eurobot2021MancheAir(TypeELementDeJeu.MancheAir, -1.270, -1.00, Eurobot2021TeamReservation.ReservedBlue, null));
-                listElementsJeu.Add(103, new Eurobot2021MancheAir(TypeELementDeJeu.MancheAir, -0.865, -1.00, Eurobot2021TeamReservation.ReservedBlue, null));
+                listElementsJeu.Add(100, new Eurobot2021MancheAir(Eurobot2021TypeElementDeJeu.MancheAir, 1.270, -1.00, Eurobot2021TeamReservation.ReservedYellow, null));
+                listElementsJeu.Add(101, new Eurobot2021MancheAir(Eurobot2021TypeElementDeJeu.MancheAir, 0.865, -1.00, Eurobot2021TeamReservation.ReservedYellow, null));
+                listElementsJeu.Add(102, new Eurobot2021MancheAir(Eurobot2021TypeElementDeJeu.MancheAir, -1.270, -1.00, Eurobot2021TeamReservation.ReservedBlue, null));
+                listElementsJeu.Add(103, new Eurobot2021MancheAir(Eurobot2021TypeElementDeJeu.MancheAir, -0.865, -1.00, Eurobot2021TeamReservation.ReservedBlue, null));
 
                 /// Phares
-                listElementsJeu.Add(104, new Eurobot2021Phare(TypeELementDeJeu.Phare, 1.19, 1.00, Eurobot2021TeamReservation.ReservedYellow, null));
-                listElementsJeu.Add(105, new Eurobot2021Phare(TypeELementDeJeu.Phare, -1.19, 1.00, Eurobot2021TeamReservation.ReservedBlue, null));
+                listElementsJeu.Add(104, new Eurobot2021Phare(Eurobot2021TypeElementDeJeu.Phare, 1.19, 1.00, Eurobot2021TeamReservation.ReservedYellow, null));
+                listElementsJeu.Add(105, new Eurobot2021Phare(Eurobot2021TypeElementDeJeu.Phare, -1.19, 1.00, Eurobot2021TeamReservation.ReservedBlue, null));
 
                 /// Gobelets de champ
-                listElementsJeu.Add(1, new Eurobot2021Gobelet(1.200, -0.200, Eurobot2021Color.Rouge, TypeGobelet.Libre, Eurobot2021TeamReservation.ReservedYellow, null));
-                listElementsJeu.Add(2, new Eurobot2021Gobelet(1.200, 0.600, Eurobot2021Color.Vert, TypeGobelet.Libre, Eurobot2021TeamReservation.ReservedYellow, null));
-                listElementsJeu.Add(3, new Eurobot2021Gobelet(1.050, -0.080, Eurobot2021Color.Vert, TypeGobelet.Libre, Eurobot2021TeamReservation.ReservedYellow, null));
-                listElementsJeu.Add(4, new Eurobot2021Gobelet(1.050, 0.490, Eurobot2021Color.Rouge, TypeGobelet.Libre, Eurobot2021TeamReservation.ReservedYellow, null));
-                listElementsJeu.Add(5, new Eurobot2021Gobelet(0.830, 0.900, Eurobot2021Color.Vert, TypeGobelet.Libre, Eurobot2021TeamReservation.Shared, Math.PI / 2));
-                listElementsJeu.Add(6, new Eurobot2021Gobelet(0.550, 0.600, Eurobot2021Color.Rouge, TypeGobelet.Libre, Eurobot2021TeamReservation.Shared, null));
-                listElementsJeu.Add(7, new Eurobot2021Gobelet(0.400, 0.200, Eurobot2021Color.Vert, TypeGobelet.Libre, Eurobot2021TeamReservation.Shared, null));
-                listElementsJeu.Add(8, new Eurobot2021Gobelet(0.230, -0.200, Eurobot2021Color.Rouge, TypeGobelet.Libre, Eurobot2021TeamReservation.Shared, null));
-                listElementsJeu.Add(9, new Eurobot2021Gobelet(-0.230, -0.200, Eurobot2021Color.Vert, TypeGobelet.Libre, Eurobot2021TeamReservation.Shared, null));
-                listElementsJeu.Add(10, new Eurobot2021Gobelet(-0.400, 0.200, Eurobot2021Color.Rouge, TypeGobelet.Libre, Eurobot2021TeamReservation.Shared, null));
-                listElementsJeu.Add(11, new Eurobot2021Gobelet(-0.550, 0.600, Eurobot2021Color.Vert, TypeGobelet.Libre, Eurobot2021TeamReservation.Shared, null));
-                listElementsJeu.Add(12, new Eurobot2021Gobelet(-0.830, 0.900, Eurobot2021Color.Rouge, TypeGobelet.Libre, Eurobot2021TeamReservation.Shared, Math.PI / 2));
-                listElementsJeu.Add(13, new Eurobot2021Gobelet(-1.050, -0.080, Eurobot2021Color.Rouge, TypeGobelet.Libre, Eurobot2021TeamReservation.ReservedBlue, null));
-                listElementsJeu.Add(14, new Eurobot2021Gobelet(-1.050, 0.490, Eurobot2021Color.Vert, TypeGobelet.Libre, Eurobot2021TeamReservation.ReservedBlue, null));
-                listElementsJeu.Add(15, new Eurobot2021Gobelet(-1.200, -0.200, Eurobot2021Color.Vert, TypeGobelet.Libre, Eurobot2021TeamReservation.ReservedBlue, null));
-                listElementsJeu.Add(16, new Eurobot2021Gobelet(-1.200, 0.6, Eurobot2021Color.Rouge, TypeGobelet.Libre, Eurobot2021TeamReservation.ReservedBlue, null));
+                listElementsJeu.Add(1, new Eurobot2021Gobelet(1.200, -0.200, Eurobot2021Color.Rouge, Eurobot2021TypeGobelet.Libre, Eurobot2021TeamReservation.ReservedYellow, null));
+                listElementsJeu.Add(2, new Eurobot2021Gobelet(1.200, 0.600, Eurobot2021Color.Vert, Eurobot2021TypeGobelet.Libre, Eurobot2021TeamReservation.ReservedYellow, null));
+                listElementsJeu.Add(3, new Eurobot2021Gobelet(1.050, -0.080, Eurobot2021Color.Vert, Eurobot2021TypeGobelet.Libre, Eurobot2021TeamReservation.ReservedYellow, null));
+                listElementsJeu.Add(4, new Eurobot2021Gobelet(1.050, 0.490, Eurobot2021Color.Rouge, Eurobot2021TypeGobelet.Libre, Eurobot2021TeamReservation.ReservedYellow, null));
+                listElementsJeu.Add(5, new Eurobot2021Gobelet(0.830, 0.900, Eurobot2021Color.Vert, Eurobot2021TypeGobelet.Libre, Eurobot2021TeamReservation.Shared, Math.PI / 2));
+                listElementsJeu.Add(6, new Eurobot2021Gobelet(0.550, 0.600, Eurobot2021Color.Rouge, Eurobot2021TypeGobelet.Libre, Eurobot2021TeamReservation.Shared, null));
+                listElementsJeu.Add(7, new Eurobot2021Gobelet(0.400, 0.200, Eurobot2021Color.Vert, Eurobot2021TypeGobelet.Libre, Eurobot2021TeamReservation.Shared, null));
+                listElementsJeu.Add(8, new Eurobot2021Gobelet(0.230, -0.200, Eurobot2021Color.Rouge, Eurobot2021TypeGobelet.Libre, Eurobot2021TeamReservation.Shared, null));
+                listElementsJeu.Add(9, new Eurobot2021Gobelet(-0.230, -0.200, Eurobot2021Color.Vert, Eurobot2021TypeGobelet.Libre, Eurobot2021TeamReservation.Shared, null));
+                listElementsJeu.Add(10, new Eurobot2021Gobelet(-0.400, 0.200, Eurobot2021Color.Rouge, Eurobot2021TypeGobelet.Libre, Eurobot2021TeamReservation.Shared, null));
+                listElementsJeu.Add(11, new Eurobot2021Gobelet(-0.550, 0.600, Eurobot2021Color.Vert, Eurobot2021TypeGobelet.Libre, Eurobot2021TeamReservation.Shared, null));
+                listElementsJeu.Add(12, new Eurobot2021Gobelet(-0.830, 0.900, Eurobot2021Color.Rouge, Eurobot2021TypeGobelet.Libre, Eurobot2021TeamReservation.Shared, Math.PI / 2));
+                listElementsJeu.Add(13, new Eurobot2021Gobelet(-1.050, -0.080, Eurobot2021Color.Rouge, Eurobot2021TypeGobelet.Libre, Eurobot2021TeamReservation.ReservedBlue, null));
+                listElementsJeu.Add(14, new Eurobot2021Gobelet(-1.050, 0.490, Eurobot2021Color.Vert, Eurobot2021TypeGobelet.Libre, Eurobot2021TeamReservation.ReservedBlue, null));
+                listElementsJeu.Add(15, new Eurobot2021Gobelet(-1.200, -0.200, Eurobot2021Color.Vert, Eurobot2021TypeGobelet.Libre, Eurobot2021TeamReservation.ReservedBlue, null));
+                listElementsJeu.Add(16, new Eurobot2021Gobelet(-1.200, 0.6, Eurobot2021Color.Rouge, Eurobot2021TypeGobelet.Libre, Eurobot2021TeamReservation.ReservedBlue, null));
 
                 /// Gobelets des petits ports
-                listElementsJeu.Add(17, new Eurobot2021Gobelet(0.495, -0.955, Eurobot2021Color.Vert, TypeGobelet.Libre, Eurobot2021TeamReservation.ReservedBlue, -Math.PI / 3));
-                listElementsJeu.Add(18, new Eurobot2021Gobelet(0.435, -0.65, Eurobot2021Color.Rouge, TypeGobelet.Libre, Eurobot2021TeamReservation.ReservedBlue, -Math.PI / 2));
-                listElementsJeu.Add(19, new Eurobot2021Gobelet(0.165, -0.65, Eurobot2021Color.Vert, TypeGobelet.Libre, Eurobot2021TeamReservation.ReservedBlue, -Math.PI / 2));
-                listElementsJeu.Add(20, new Eurobot2021Gobelet(0.105, -0.955, Eurobot2021Color.Rouge, TypeGobelet.Libre, Eurobot2021TeamReservation.ReservedBlue, -2 * Math.PI / 3));
+                listElementsJeu.Add(17, new Eurobot2021Gobelet(0.495, -0.955, Eurobot2021Color.Vert, Eurobot2021TypeGobelet.Libre, Eurobot2021TeamReservation.ReservedBlue, -Math.PI / 3));
+                listElementsJeu.Add(18, new Eurobot2021Gobelet(0.435, -0.65, Eurobot2021Color.Rouge, Eurobot2021TypeGobelet.Libre, Eurobot2021TeamReservation.ReservedBlue, -Math.PI / 2));
+                listElementsJeu.Add(19, new Eurobot2021Gobelet(0.165, -0.65, Eurobot2021Color.Vert, Eurobot2021TypeGobelet.Libre, Eurobot2021TeamReservation.ReservedBlue, -Math.PI / 2));
+                listElementsJeu.Add(20, new Eurobot2021Gobelet(0.105, -0.955, Eurobot2021Color.Rouge, Eurobot2021TypeGobelet.Libre, Eurobot2021TeamReservation.ReservedBlue, -2 * Math.PI / 3));
 
-                listElementsJeu.Add(21, new Eurobot2021Gobelet(-0.105, -0.955, Eurobot2021Color.Vert, TypeGobelet.Libre, Eurobot2021TeamReservation.ReservedYellow, -Math.PI / 3));
-                listElementsJeu.Add(22, new Eurobot2021Gobelet(-0.165, -0.650, Eurobot2021Color.Rouge, TypeGobelet.Libre, Eurobot2021TeamReservation.ReservedYellow, -Math.PI / 2));
-                listElementsJeu.Add(23, new Eurobot2021Gobelet(-0.435, -0.650, Eurobot2021Color.Vert, TypeGobelet.Libre, Eurobot2021TeamReservation.ReservedYellow, -Math.PI / 2));
-                listElementsJeu.Add(24, new Eurobot2021Gobelet(-0.495, -0.955, Eurobot2021Color.Rouge, TypeGobelet.Libre, Eurobot2021TeamReservation.ReservedYellow, -2 * Math.PI / 3));
+                listElementsJeu.Add(21, new Eurobot2021Gobelet(-0.105, -0.955, Eurobot2021Color.Vert, Eurobot2021TypeGobelet.Libre, Eurobot2021TeamReservation.ReservedYellow, -Math.PI / 3));
+                listElementsJeu.Add(22, new Eurobot2021Gobelet(-0.165, -0.650, Eurobot2021Color.Rouge, Eurobot2021TypeGobelet.Libre, Eurobot2021TeamReservation.ReservedYellow, -Math.PI / 2));
+                listElementsJeu.Add(23, new Eurobot2021Gobelet(-0.435, -0.650, Eurobot2021Color.Vert, Eurobot2021TypeGobelet.Libre, Eurobot2021TeamReservation.ReservedYellow, -Math.PI / 2));
+                listElementsJeu.Add(24, new Eurobot2021Gobelet(-0.495, -0.955, Eurobot2021Color.Rouge, Eurobot2021TypeGobelet.Libre, Eurobot2021TeamReservation.ReservedYellow, -2 * Math.PI / 3));
 
                 // Ecueil privé jaune
-                listElementsJeu.Add(25, new Eurobot2021Gobelet(1.567, -0.750, Eurobot2021Color.Vert, TypeGobelet.Distributeur, Eurobot2021TeamReservation.ReservedYellow, 0));
-                listElementsJeu.Add(26, new Eurobot2021Gobelet(1.567, -0.675, Eurobot2021Color.Rouge, TypeGobelet.Distributeur, Eurobot2021TeamReservation.ReservedYellow, 0));
-                listElementsJeu.Add(27, new Eurobot2021Gobelet(1.567, -0.6, Eurobot2021Color.Vert, TypeGobelet.Distributeur, Eurobot2021TeamReservation.ReservedYellow, 0));
-                listElementsJeu.Add(28, new Eurobot2021Gobelet(1.567, -0.525, Eurobot2021Color.Rouge, TypeGobelet.Distributeur, Eurobot2021TeamReservation.ReservedYellow, 0));
-                listElementsJeu.Add(29, new Eurobot2021Gobelet(1.567, -0.45, Eurobot2021Color.Vert, TypeGobelet.Distributeur, Eurobot2021TeamReservation.ReservedYellow, 0));
+                listElementsJeu.Add(25, new Eurobot2021Gobelet(1.567, -0.750, Eurobot2021Color.Vert, Eurobot2021TypeGobelet.Distributeur, Eurobot2021TeamReservation.ReservedYellow, 0));
+                listElementsJeu.Add(26, new Eurobot2021Gobelet(1.567, -0.675, Eurobot2021Color.Rouge, Eurobot2021TypeGobelet.Distributeur, Eurobot2021TeamReservation.ReservedYellow, 0));
+                listElementsJeu.Add(27, new Eurobot2021Gobelet(1.567, -0.6, Eurobot2021Color.Vert, Eurobot2021TypeGobelet.Distributeur, Eurobot2021TeamReservation.ReservedYellow, 0));
+                listElementsJeu.Add(28, new Eurobot2021Gobelet(1.567, -0.525, Eurobot2021Color.Rouge, Eurobot2021TypeGobelet.Distributeur, Eurobot2021TeamReservation.ReservedYellow, 0));
+                listElementsJeu.Add(29, new Eurobot2021Gobelet(1.567, -0.45, Eurobot2021Color.Vert, Eurobot2021TypeGobelet.Distributeur, Eurobot2021TeamReservation.ReservedYellow, 0));
 
                 /// Ecueil partagé coté jaune
-                listElementsJeu.Add(30, new Eurobot2021Gobelet(0.8, 1.067, Eurobot2021Color.Rouge, TypeGobelet.Distributeur, Eurobot2021TeamReservation.Shared, Math.PI / 2));
-                listElementsJeu.Add(31, new Eurobot2021Gobelet(0.725, 1.067, Eurobot2021Color.Neutre, TypeGobelet.Distributeur, Eurobot2021TeamReservation.Shared, Math.PI / 2));
-                listElementsJeu.Add(32, new Eurobot2021Gobelet(0.65, 1.067, Eurobot2021Color.Neutre, TypeGobelet.Distributeur, Eurobot2021TeamReservation.Shared, Math.PI / 2));
-                listElementsJeu.Add(33, new Eurobot2021Gobelet(0.575, 1.067, Eurobot2021Color.Neutre, TypeGobelet.Distributeur, Eurobot2021TeamReservation.Shared, Math.PI / 2));
-                listElementsJeu.Add(34, new Eurobot2021Gobelet(0.5, 1.067, Eurobot2021Color.Vert, TypeGobelet.Distributeur, Eurobot2021TeamReservation.Shared, Math.PI / 2));
+                listElementsJeu.Add(30, new Eurobot2021Gobelet(0.8, 1.067, Eurobot2021Color.Rouge, Eurobot2021TypeGobelet.Distributeur, Eurobot2021TeamReservation.Shared, Math.PI / 2));
+                listElementsJeu.Add(31, new Eurobot2021Gobelet(0.725, 1.067, Eurobot2021Color.Neutre, Eurobot2021TypeGobelet.Distributeur, Eurobot2021TeamReservation.Shared, Math.PI / 2));
+                listElementsJeu.Add(32, new Eurobot2021Gobelet(0.65, 1.067, Eurobot2021Color.Neutre, Eurobot2021TypeGobelet.Distributeur, Eurobot2021TeamReservation.Shared, Math.PI / 2));
+                listElementsJeu.Add(33, new Eurobot2021Gobelet(0.575, 1.067, Eurobot2021Color.Neutre, Eurobot2021TypeGobelet.Distributeur, Eurobot2021TeamReservation.Shared, Math.PI / 2));
+                listElementsJeu.Add(34, new Eurobot2021Gobelet(0.5, 1.067, Eurobot2021Color.Vert, Eurobot2021TypeGobelet.Distributeur, Eurobot2021TeamReservation.Shared, Math.PI / 2));
 
                 /// Ecueil partagé coté bleu
-                listElementsJeu.Add(35, new Eurobot2021Gobelet(-0.5, 1.067, Eurobot2021Color.Rouge, TypeGobelet.Distributeur, Eurobot2021TeamReservation.Shared, Math.PI / 2));
-                listElementsJeu.Add(36, new Eurobot2021Gobelet(-0.575, 1.067, Eurobot2021Color.Neutre, TypeGobelet.Distributeur, Eurobot2021TeamReservation.Shared, Math.PI / 2));
-                listElementsJeu.Add(37, new Eurobot2021Gobelet(-0.65, 1.067, Eurobot2021Color.Neutre, TypeGobelet.Distributeur, Eurobot2021TeamReservation.Shared, Math.PI / 2));
-                listElementsJeu.Add(38, new Eurobot2021Gobelet(-0.725, 1.067, Eurobot2021Color.Neutre, TypeGobelet.Distributeur, Eurobot2021TeamReservation.Shared, Math.PI / 2));
-                listElementsJeu.Add(39, new Eurobot2021Gobelet(-0.8, 1.067, Eurobot2021Color.Vert, TypeGobelet.Distributeur, Eurobot2021TeamReservation.Shared, Math.PI / 2));
+                listElementsJeu.Add(35, new Eurobot2021Gobelet(-0.5, 1.067, Eurobot2021Color.Rouge, Eurobot2021TypeGobelet.Distributeur, Eurobot2021TeamReservation.Shared, Math.PI / 2));
+                listElementsJeu.Add(36, new Eurobot2021Gobelet(-0.575, 1.067, Eurobot2021Color.Neutre, Eurobot2021TypeGobelet.Distributeur, Eurobot2021TeamReservation.Shared, Math.PI / 2));
+                listElementsJeu.Add(37, new Eurobot2021Gobelet(-0.65, 1.067, Eurobot2021Color.Neutre, Eurobot2021TypeGobelet.Distributeur, Eurobot2021TeamReservation.Shared, Math.PI / 2));
+                listElementsJeu.Add(38, new Eurobot2021Gobelet(-0.725, 1.067, Eurobot2021Color.Neutre, Eurobot2021TypeGobelet.Distributeur, Eurobot2021TeamReservation.Shared, Math.PI / 2));
+                listElementsJeu.Add(39, new Eurobot2021Gobelet(-0.8, 1.067, Eurobot2021Color.Vert, Eurobot2021TypeGobelet.Distributeur, Eurobot2021TeamReservation.Shared, Math.PI / 2));
 
                 /// Ecueil privé bleu
-                listElementsJeu.Add(40, new Eurobot2021Gobelet(-1.567, -0.75, Eurobot2021Color.Rouge, TypeGobelet.Distributeur, Eurobot2021TeamReservation.ReservedBlue, Math.PI));
-                listElementsJeu.Add(41, new Eurobot2021Gobelet(-1.567, -0.675, Eurobot2021Color.Vert, TypeGobelet.Distributeur, Eurobot2021TeamReservation.ReservedBlue, Math.PI));
-                listElementsJeu.Add(42, new Eurobot2021Gobelet(-1.567, -0.6, Eurobot2021Color.Rouge, TypeGobelet.Distributeur, Eurobot2021TeamReservation.ReservedBlue, Math.PI));
-                listElementsJeu.Add(43, new Eurobot2021Gobelet(-1.567, -0.525, Eurobot2021Color.Vert, TypeGobelet.Distributeur, Eurobot2021TeamReservation.ReservedBlue, Math.PI));
-                listElementsJeu.Add(44, new Eurobot2021Gobelet(-1.567, -0.450, Eurobot2021Color.Rouge, TypeGobelet.Distributeur, Eurobot2021TeamReservation.ReservedBlue, Math.PI));
+                listElementsJeu.Add(40, new Eurobot2021Gobelet(-1.567, -0.75, Eurobot2021Color.Rouge, Eurobot2021TypeGobelet.Distributeur, Eurobot2021TeamReservation.ReservedBlue, Math.PI));
+                listElementsJeu.Add(41, new Eurobot2021Gobelet(-1.567, -0.675, Eurobot2021Color.Vert, Eurobot2021TypeGobelet.Distributeur, Eurobot2021TeamReservation.ReservedBlue, Math.PI));
+                listElementsJeu.Add(42, new Eurobot2021Gobelet(-1.567, -0.6, Eurobot2021Color.Rouge, Eurobot2021TypeGobelet.Distributeur, Eurobot2021TeamReservation.ReservedBlue, Math.PI));
+                listElementsJeu.Add(43, new Eurobot2021Gobelet(-1.567, -0.525, Eurobot2021Color.Vert, Eurobot2021TypeGobelet.Distributeur, Eurobot2021TeamReservation.ReservedBlue, Math.PI));
+                listElementsJeu.Add(44, new Eurobot2021Gobelet(-1.567, -0.450, Eurobot2021Color.Rouge, Eurobot2021TypeGobelet.Distributeur, Eurobot2021TeamReservation.ReservedBlue, Math.PI));
             }
         }
 
@@ -421,7 +421,7 @@ namespace StrategyManagerNS
         Neutre
     }
 
-    public enum TypeGobelet
+    public enum Eurobot2021TypeGobelet
     {
         Libre,
         LibreCouche,
@@ -435,7 +435,7 @@ namespace StrategyManagerNS
         ReservedYellow,
     }
 
-    public enum TypeELementDeJeu
+    public enum Eurobot2021TypeElementDeJeu
     {
         Gobelet,
         Phare,
@@ -452,17 +452,17 @@ namespace StrategyManagerNS
         public Eurobot2021RobotType RobotAttributionYellow;
         public Eurobot2021RobotType RobotAttributionBlue;
         public Eurobot2021TeamReservation ReservationToTeam = Eurobot2021TeamReservation.Shared;
-        public TypeELementDeJeu elementDeJeu = TypeELementDeJeu.Gobelet;
+        public Eurobot2021TypeElementDeJeu elementDeJeu = Eurobot2021TypeElementDeJeu.Gobelet;
         public bool isAvailable;
     }
 
     public class Eurobot2021Gobelet : Eurobot2021ElementDeJeu
     {
         public Eurobot2021Color Color;
-        public TypeGobelet Type;
+        public Eurobot2021TypeGobelet Type;
         public int? NbDeposeToTrigger = null;
 
-        public Eurobot2021Gobelet(double x, double y, Eurobot2021Color color, TypeGobelet type,
+        public Eurobot2021Gobelet(double x, double y, Eurobot2021Color color, Eurobot2021TypeGobelet type,
             Eurobot2021TeamReservation reserved, double? anglePrise,
             Eurobot2021RobotType robotAttributionBlue = Eurobot2021RobotType.None, Eurobot2021RobotType robotAttributionYellow = Eurobot2021RobotType.None,
             double priorityBlue = 1.0, double priorityYellow = 1.0, int? nbDeposeToTrigger = null)
@@ -500,7 +500,7 @@ namespace StrategyManagerNS
 
     public class Eurobot2021MancheAir : Eurobot2021ElementDeJeu
     {
-        public Eurobot2021MancheAir(TypeELementDeJeu mancheAir, double x, double y, Eurobot2021TeamReservation reserved, double? anglePrise,
+        public Eurobot2021MancheAir(Eurobot2021TypeElementDeJeu mancheAir, double x, double y, Eurobot2021TeamReservation reserved, double? anglePrise,
             Eurobot2021RobotType robotAttributionBlue = Eurobot2021RobotType.None, Eurobot2021RobotType robotAttributionYellow = Eurobot2021RobotType.None,
             double priorityBlue = 1.0, double priorityYellow = 1.0)
         {
@@ -518,7 +518,7 @@ namespace StrategyManagerNS
 
     public class Eurobot2021Phare : Eurobot2021ElementDeJeu
     {
-        public Eurobot2021Phare(TypeELementDeJeu phare, double x, double y, Eurobot2021TeamReservation reserved, double? anglePrise,
+        public Eurobot2021Phare(Eurobot2021TypeElementDeJeu phare, double x, double y, Eurobot2021TeamReservation reserved, double? anglePrise,
             Eurobot2021RobotType robotAttributionBlue = Eurobot2021RobotType.None, Eurobot2021RobotType robotAttributionYellow = Eurobot2021RobotType.None,
             double priorityBlue = 1.0, double priorityYellow = 1.0)
         {

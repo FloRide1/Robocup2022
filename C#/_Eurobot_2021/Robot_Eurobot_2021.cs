@@ -151,7 +151,7 @@ namespace Robot
             switch (competition)
             {
                 case GameMode.RoboCup:
-                    strategyManager = new StrategyRoboCup(robotId, teamId, "224.16.32.79");
+                    strategyManager = new StrategyRoboCup(robotId, teamId, TeamIP.Team1IP);
                     break;
                 case GameMode.Eurobot2021:
                     strategyManager = new StrategyEurobot2021(robotId, teamId, "224.16.32.79");
@@ -159,10 +159,9 @@ namespace Robot
                 case GameMode.Demo:
                     break;
             }
-            //strategyManager = new StrategyManagerNS.StrategyManager(robotId, teamId, "224.16.32.79", competition);
             
-            robotUdpMulticastSender = new UDPMulticastSender(robotId, "224.16.32.79");
-            robotUdpMulticastReceiver = new UDPMulticastReceiver(robotId, "224.16.32.79");
+            robotUdpMulticastSender = new UDPMulticastSender(robotId, TeamIP.Team1IP);
+            robotUdpMulticastReceiver = new UDPMulticastReceiver(robotId, TeamIP.Team1IP);
             robotUdpMulticastInterpreter = new UDPMulticastInterpreter(robotId);
 
             //Ajout des actionneurs presents sur le robot

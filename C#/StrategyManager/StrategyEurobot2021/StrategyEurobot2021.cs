@@ -4,13 +4,13 @@ using HeatMap;
 using HerkulexManagerNS;
 using LidarProcessor;
 using LidarSickNS;
+using MessagesNS;
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
 using System.Timers;
 using Utilities;
-using WorldMap;
 using static HerkulexManagerNS.HerkulexEventArgs;
 
 namespace StrategyManagerNS
@@ -196,7 +196,7 @@ namespace StrategyManagerNS
 
         //************************ Events reçus ************************************************/
 
-        public override void OnRefBoxMsgReceived(object sender, WorldMap.RefBoxMessageArgs e)
+        public override void OnRefBoxMsgReceived(object sender, RefBoxMessageArgs e)
         {
             var command = e.refBoxMsg.command;
             var targetTeam = e.refBoxMsg.targetTeam;
@@ -367,14 +367,14 @@ namespace StrategyManagerNS
             OnMotorCurrentReceiveForwardEvent?.Invoke(sender, e);
         }
 
-        public List<GobeletPotentiel> GobeletsPotentielsRefTerrain = new List<GobeletPotentiel>();
+        public List<Eurobot2021GobeletPotentiel> GobeletsPotentielsRefTerrain = new List<Eurobot2021GobeletPotentiel>();
 
         double distanceCentreRobotCentreTIM561 = 0.115;
         public void Lidar_TIM561_PointsAvailable(object sender, RawLidarArgs e)
         {
             var objectsList = lidarProcessorTIM561.DetectionGobelets(e.PtList, distanceMin: 0.3, distanceMax: 2.0, tailleSegmentationObjet: 1, tolerance: 0.1);
             var objetsFiltered = objectsList.Where(p => p.Largeur > 0.05 && p.Largeur<0.15).ToList();
-            GobeletsPotentielsRefTerrain = new List<GobeletPotentiel>();
+            GobeletsPotentielsRefTerrain = new List<Eurobot2021GobeletPotentiel>();
             foreach (var obj in objetsFiltered)
             {
                 /// Filtrage par position des gobelets détectés, de manière à prendre seulement dans un rectanlge donné
@@ -384,7 +384,7 @@ namespace StrategyManagerNS
                 if (Math.Abs(objPositionRefTerrain.X) < 0.9 && objPositionRefTerrain.Y > -0.55 && objPositionRefTerrain.Y < 0.95) //Filtrage Zone de ramassage possible
                 {
                     GobeletsPotentielsRefTerrain.Add(
-                    new GobeletPotentiel(objPositionRefTerrain, obj.Largeur, obj.RssiMoyen, obj.RssiCentral, obj.RssiStdDev));
+                    new Eurobot2021GobeletPotentiel(objPositionRefTerrain, obj.Largeur, obj.RssiMoyen, obj.RssiCentral, obj.RssiStdDev));
                 }
             }
         }
@@ -401,7 +401,7 @@ namespace StrategyManagerNS
         }
     }
 
-    public class GobeletPotentiel
+    public class Eurobot2021GobeletPotentiel
     {
         public PointD Pos;
         public double Largeur;
@@ -409,7 +409,7 @@ namespace StrategyManagerNS
         public double RssiCentral;
         public double RssiStdDev;
 
-        public GobeletPotentiel(PointD pos, double largeur, double rssiMoyen, double rssiCentral, double rssiStdDev)
+        public Eurobot2021GobeletPotentiel(PointD pos, double largeur, double rssiMoyen, double rssiCentral, double rssiStdDev)
         {
             Pos = pos; 
             Largeur = largeur; 
