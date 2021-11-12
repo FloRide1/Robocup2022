@@ -15,7 +15,8 @@ namespace Constants
     public enum GameMode
     {
         RoboCup,
-        Eurobot,
+        Eurobot2021,
+        Eurobot2022,
         Cachan,
         Demo
     }

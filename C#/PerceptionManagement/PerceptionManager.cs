@@ -178,7 +178,18 @@ namespace PerceptionManagement
 
                         //Code spécifique Eurobot
                         //On s'occupe des obstacles dans le terrain qui sont a priori des robots
-                        if((competition == GameMode.Eurobot && Math.Abs(xObjetRefTerrain) < 1.47 && Math.Abs(yObjetRefTerrain) < 0.97) || competition != GameMode.Eurobot)
+                        if((competition == GameMode.Eurobot2021 && Math.Abs(xObjetRefTerrain) < 1.47 && Math.Abs(yObjetRefTerrain) < 0.97) || competition != GameMode.Eurobot2021)
+                        {
+                            if (!(Math.Abs(xObjetRefTerrain) < 0.2) || !(yObjetRefTerrain > 0.94))
+                            {
+                                if (distance > 0.1) //On exclut les obstacles trop proches
+                                {
+                                    physicalObjectList.Add(new LocationExtended(xObjetRefTerrain, yObjetRefTerrain, 0, 0, 0, 0, ObjectType.Obstacle));
+                                }
+                            }
+                        }
+
+                        if ((competition == GameMode.Eurobot2022 && Math.Abs(xObjetRefTerrain) < 1.47 && Math.Abs(yObjetRefTerrain) < 0.97) || competition != GameMode.Eurobot2022)
                         {
                             if (!(Math.Abs(xObjetRefTerrain) < 0.2) || !(yObjetRefTerrain > 0.94))
                             {

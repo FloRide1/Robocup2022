@@ -86,7 +86,7 @@ namespace StrategyManagerNS
 
         public override void InitStrategy(int robotId, int teamId)
         {
-            lidarProcessorTIM561 = new LidarProcessor.LidarProcessor(robotId, GameMode.Eurobot);
+            lidarProcessorTIM561 = new LidarProcessor.LidarProcessor(robotId, GameMode.Eurobot2021);
             listTasks = new List<TaskBase>();
             listMissions = new List<MissionBase>();
 

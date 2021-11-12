@@ -59,12 +59,19 @@ namespace RobotInterface
             var currentDir = Directory.GetCurrentDirectory();
             var racineProjets = Directory.GetParent(currentDir);
             var imagePath = racineProjets.Parent.Parent.FullName.ToString() + "\\Images\\";
-            if (gameMode == GameMode.Eurobot)
+            if (gameMode == GameMode.Eurobot2021)
             {
                 worldMapDisplayStrategy.Init(gameMode, LocalWorldMapDisplayType.StrategyMap);
                 worldMapDisplayStrategy.SetFieldImageBackGround(imagePath + "Eurobot2020.png");
                 worldMapDisplayWaypoint.Init(gameMode, LocalWorldMapDisplayType.WayPointMap);
                 worldMapDisplayWaypoint.SetFieldImageBackGround(imagePath + "Eurobot2020.png");
+            }
+            else if (gameMode == GameMode.Eurobot2022)
+            {
+                worldMapDisplayStrategy.Init(gameMode, LocalWorldMapDisplayType.StrategyMap);
+                worldMapDisplayStrategy.SetFieldImageBackGround(imagePath + "Eurobot2022.png");
+                worldMapDisplayWaypoint.Init(gameMode, LocalWorldMapDisplayType.WayPointMap);
+                worldMapDisplayWaypoint.SetFieldImageBackGround(imagePath + "Eurobot2022.png");
             }
             else if (gameMode == GameMode.RoboCup)
             {
@@ -72,8 +79,17 @@ namespace RobotInterface
                 //worldMapDisplayWaypoint.Init(gameMode, LocalWorldMapDisplayType.WayPointMap, imagePath + "RoboCup.png");
             }
 
-            worldMapDisplayStrategy.InitTeamMate((int)TeamId.Team1 + (int)RobotId.Robot1, GameMode.Eurobot, "Wally");
-            worldMapDisplayWaypoint.InitTeamMate((int)TeamId.Team1 + (int)RobotId.Robot1, GameMode.Eurobot, "Wally");
+            if(gameMode == GameMode.Eurobot2021)
+            {
+                worldMapDisplayStrategy.InitTeamMate((int)TeamId.Team1 + (int)RobotId.Robot1, GameMode.Eurobot2021, "Wally");
+                worldMapDisplayWaypoint.InitTeamMate((int)TeamId.Team1 + (int)RobotId.Robot1, GameMode.Eurobot2021, "Wally");
+            }
+            else if (gameMode == GameMode.Eurobot2022)
+            {
+                worldMapDisplayStrategy.InitTeamMate((int)TeamId.Team1 + (int)RobotId.Robot1, GameMode.Eurobot2022, "Wally");
+                worldMapDisplayWaypoint.InitTeamMate((int)TeamId.Team1 + (int)RobotId.Robot1, GameMode.Eurobot2022, "Wally");
+            }
+
 
             worldMapDisplayStrategy.OnCtrlClickOnHeatMapEvent += WorldMapDisplay_OnCtrlClickOnHeatMapEvent;
             worldMapDisplayWaypoint.OnCtrlClickOnHeatMapEvent += WorldMapDisplay_OnCtrlClickOnHeatMapEvent;

@@ -98,7 +98,24 @@ namespace MessageProcessorNS
                                 gyroZ = tab.GetFloat();
                                 break;
 
-                            case GameMode.Eurobot: //La carte de mesure est placée verticalement
+                            case GameMode.Eurobot2021: //La carte de mesure est placée verticalement
+                                nbMessageIMUReceived++;
+                                timeStamp = (uint)(payload[3] | payload[2] << 8 | payload[1] << 16 | payload[0] << 24);
+                                tab = payload.GetRange(4, 4);
+                                accelY = -tab.GetFloat();
+                                tab = payload.GetRange(8, 4);
+                                accelZ = tab.GetFloat();
+                                tab = payload.GetRange(12, 4);
+                                accelX = -tab.GetFloat();
+                                tab = payload.GetRange(16, 4);
+                                gyroY = -tab.GetFloat();
+                                tab = payload.GetRange(20, 4);
+                                gyroZ = tab.GetFloat();
+                                tab = payload.GetRange(24, 4);
+                                gyroX = -tab.GetFloat();
+                                break;
+
+                            case GameMode.Eurobot2022: //La carte de mesure est placée verticalement
                                 nbMessageIMUReceived++;
                                 timeStamp = (uint)(payload[3] | payload[2] << 8 | payload[1] << 16 | payload[0] << 24);
                                 tab = payload.GetRange(4, 4);

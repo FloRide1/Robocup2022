@@ -33,7 +33,7 @@ namespace RobotEurobot2Roues
         static TrajectoryGeneratorNonHolonome trajectoryGenerator;
 
         static WpfRobot2RouesInterface interfaceRobot;
-        static GameMode competition = GameMode.Eurobot;
+        static GameMode competition = GameMode.Eurobot2022;
 
         static bool usingXBoxController;
 

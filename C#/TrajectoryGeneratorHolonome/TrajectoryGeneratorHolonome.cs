@@ -72,7 +72,18 @@ namespace TrajectoryGeneratorHolonomeNS
                         vitesseRotationOrientationRobotMax = 2 * Math.PI * 2.0; //en rad.s-1
                     }
                     break;
-                case GameMode.Eurobot:
+                case GameMode.Eurobot2021:
+                    {
+                        accelLineaireMax = 0.5; //en m.s-2
+                        accelRotationCapVitesseMax = 1.0 * Math.PI * 1.0; //en rad.s-2
+                        accelRotationOrientationRobotMax = 1.0 * Math.PI * 1.0; //en rad.s-2
+
+                        vitesseLineaireMax = 1.2; //en m.s-1
+                        vitesseRotationCapVitesseMax = 1.0 * Math.PI * 2.0; //en rad.s-1
+                        vitesseRotationOrientationRobotMax = 0.8 * Math.PI * 2.0; //en rad.s-1
+                    }
+                    break;
+                case GameMode.Eurobot2022:
                     {
                         accelLineaireMax = 0.5; //en m.s-2
                         accelRotationCapVitesseMax = 1.0 * Math.PI * 1.0; //en rad.s-2
@@ -98,7 +109,15 @@ namespace TrajectoryGeneratorHolonomeNS
                         PID_Theta = new AsservissementPID(kp: 12.0, ki: 0.0, kd: 1.0, 10, 10, 10);
                     }
                     break;
-                case GameMode.Eurobot:
+                case GameMode.Eurobot2021:
+                    {
+                        PID_X = new AsservissementPID(kp: 60.0, ki: 0.0, kd: 1.00, 40, 10, 10);
+                        PID_Y = new AsservissementPID(kp: 60.0, ki: 0.0, kd: 1.00, 40, 10, 10);
+                        PID_Theta = new AsservissementPID(kp: 40.0, ki: 0.0, kd: 1.0, 40 * 2 * Math.PI, 10 * 2 * Math.PI, 10 * 2 * Math.PI);
+                    }
+                    break;
+                    break;
+                case GameMode.Eurobot2022:
                     {
                         PID_X = new AsservissementPID(kp: 60.0, ki: 0.0, kd: 1.00, 40, 10, 10);
                         PID_Y = new AsservissementPID(kp: 60.0, ki: 0.0, kd: 1.00, 40, 10, 10);

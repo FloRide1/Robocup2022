@@ -65,7 +65,7 @@ namespace Robot
         }
         #endregion
 
-        static GameMode competition = GameMode.Eurobot;
+        static GameMode competition = GameMode.Eurobot2021;
 
         static bool usingXBoxController; 
         static bool usingRobotInterface = true;
@@ -138,7 +138,7 @@ namespace Robot
             imuProcessor = new ImuProcessor.ImuProcessor(robotId);
             
             lidar_OMD60M_TCP = new LidaRxR2000(50, R2000SamplingRate._72kHz);
-            if (competition == GameMode.Eurobot)
+            if (competition == GameMode.Eurobot2021)
                 lidar_TIM561 = new TIM561(robotId, 17422959, -Math.PI / 3, Math.PI / 3, isUpsideDown: true);
             perceptionManager = new PerceptionManager(robotId, competition);
             //kalmanPositioning = new KalmanPositioning.KalmanPositioning(robotId, 50, 0.2, 0.2, 0.2, 0.01, 0.01, 0.01, 0.005);
@@ -153,7 +153,7 @@ namespace Robot
                 case GameMode.RoboCup:
                     strategyManager = new StrategyRoboCup(robotId, teamId, "224.16.32.79");
                     break;
-                case GameMode.Eurobot:
+                case GameMode.Eurobot2021:
                     strategyManager = new StrategyEurobot2021(robotId, teamId, "224.16.32.79");
                     break;
                 case GameMode.Demo:
@@ -231,7 +231,7 @@ namespace Robot
 
             strategyManager.OnMessageEvent += lidar_OMD60M_TCP.OnMessageReceivedEvent;
 
-            if (competition == GameMode.Eurobot)
+            if (competition == GameMode.Eurobot2021)
             {
                 ((StrategyEurobot2021)strategyManager).OnHerkulexPositionRequestEvent += herkulexManager.OnHerkulexPositionRequest;
                 //((StrategyEurobot2021)strategyManager).OnHerkulexEnableDisableTorqueEvent += herkulexManager.OnEnableDisableServosRequest;
@@ -257,10 +257,10 @@ namespace Robot
             herkulexManager.OnHerkulexSendToSerialEvent += robotMsgGenerator.GenerateMessageForwardHerkulex;
             robotMsgProcessor.OnRAWUART2MessageDecodedEvent += herkulexManager.OnHerkulexDecodeInputData;
 
-            if(competition == GameMode.Eurobot)
+            if(competition == GameMode.Eurobot2021)
                 herkulexManager.OnTorqueFromHerkulexGeneratedEvent += ((StrategyEurobot2021)strategyManager).OnTorqueInfo;
 
-            if(competition == GameMode.Eurobot)            
+            if(competition == GameMode.Eurobot2021)            
                 lidar_TIM561.OnLidarDecodedFrameEvent += ((StrategyEurobot2021)strategyManager).Lidar_TIM561_PointsAvailable;         
 
             lidar_OMD60M_TCP.OnLidarDecodedFrameEvent += perceptionManager.OnRawLidarDataReceived;

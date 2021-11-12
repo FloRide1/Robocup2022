@@ -34,7 +34,10 @@ namespace WayPointGenerator
                 case GameMode.RoboCup:
                     waypointHeatMap = new Heatmap(22.0, 14.0, (int)Math.Pow(2, 8), robotId);
                     break;
-                case GameMode.Eurobot:
+                case GameMode.Eurobot2021:
+                    waypointHeatMap = new Heatmap(3.0, 2.0, (int)Math.Pow(2, 5), robotId);
+                    break;
+                case GameMode.Eurobot2022:
                     waypointHeatMap = new Heatmap(3.0, 2.0, (int)Math.Pow(2, 5), robotId);
                     break;
                 case GameMode.Demo:

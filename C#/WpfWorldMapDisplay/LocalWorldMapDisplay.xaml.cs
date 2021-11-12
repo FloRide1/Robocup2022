@@ -148,7 +148,14 @@ namespace WpfWorldMapDisplay
                     WidthGameArea = 4;
                     InitCachanField();
                     break;
-                case GameMode.Eurobot:
+                case GameMode.Eurobot2021:
+                    LengthDisplayArea = 3.4;
+                    WidthDisplayArea = 2.4;
+                    LengthGameArea = 3.0;
+                    WidthGameArea = 2.0;
+                    InitEurobotField();
+                    break;
+                case GameMode.Eurobot2022:
                     LengthDisplayArea = 3.4;
                     WidthDisplayArea = 2.4;
                     LengthGameArea = 3.0;
@@ -259,7 +266,36 @@ namespace WpfWorldMapDisplay
                         robot = rd;
                     }
                     break;
-                case GameMode.Eurobot:
+                case GameMode.Eurobot2021:
+                    {
+                        PolygonExtended robotShape = new PolygonExtended();
+                        robotShape.polygon.Points.Add(new System.Windows.Point(-0.12, -0.12));
+                        robotShape.polygon.Points.Add(new System.Windows.Point(0.12, -0.12));
+                        robotShape.polygon.Points.Add(new System.Windows.Point(0.02, 0));
+                        robotShape.polygon.Points.Add(new System.Windows.Point(0.12, 0.12));
+                        robotShape.polygon.Points.Add(new System.Windows.Point(-0.12, 0.12));
+                        robotShape.polygon.Points.Add(new System.Windows.Point(-0.12, -0.12));
+                        robotShape.borderColor = System.Drawing.Color.Blue;
+                        robotShape.backgroundColor = System.Drawing.Color.DarkRed;
+
+                        PolygonExtended ghostShape = new PolygonExtended();
+                        ghostShape.polygon.Points.Add(new Point(-0.14, -0.14));
+                        ghostShape.polygon.Points.Add(new Point(0.14, -0.14));
+                        ghostShape.polygon.Points.Add(new Point(0.14, 0.02));
+                        ghostShape.polygon.Points.Add(new Point(0.14, 0.14));
+                        ghostShape.polygon.Points.Add(new Point(-0.14, 0.14));
+                        ghostShape.polygon.Points.Add(new Point(-0.14, -0.14));
+                        ghostShape.backgroundColor = System.Drawing.Color.FromArgb(20, 0, 255, 0);
+                        ghostShape.borderColor = System.Drawing.Color.Black;
+
+                        RobotDisplay rd = new RobotDisplay(robotShape, ghostShape, playerName);
+                        rd.SetLocation(new Location(0, 0, 0, 0, 0, 0));
+
+                        //TeamMatesDisplayDictionary.AddOrUpdate(robotId, rd, (key, value) => rd);
+                        robot = rd;
+                    }
+                    break;
+                case GameMode.Eurobot2022:
                     {
                         PolygonExtended robotShape = new PolygonExtended();
                         robotShape.polygon.Points.Add(new System.Windows.Point(-0.12, -0.12));

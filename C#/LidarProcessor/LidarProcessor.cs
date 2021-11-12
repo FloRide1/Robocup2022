@@ -79,11 +79,15 @@ namespace LidarProcessor
 
             List<SegmentExtended> lidarSegmentsProcessedList = new List<SegmentExtended>();
 
+            List<LidarDetectedObject> balisesCatadioptriqueList;
+            List<LidarDetectedObject> objetsProchesList;
+            PolarPointListExtended objectList = new PolarPointListExtended();
+
             switch (competition)
             {
-                case GameMode.Eurobot:
-                    //Pré-détection des balises par RSSI et taille
-                    var balisesCatadioptriqueList = DetectionBalisesCatadioptriquesParRssiEtTaille(ptList, 4.0);
+                case GameMode.Eurobot2021:
+                    //Pré-détection des balises par RSSI et taille                    
+                    balisesCatadioptriqueList = DetectionBalisesCatadioptriquesParRssiEtTaille(ptList, 4.0);
                     //Filtrage des balises par configurations géométriques
                     balisesCatadioptriqueList = FiltrageBalisesParConfigurationGeometriques(balisesCatadioptriqueList, 0.1);
 
@@ -94,8 +98,8 @@ namespace LidarProcessor
                         LidarPtsProcessedList.Add(pt);
                     }
 
-                    var objetsProchesList = DetectionObjetsProches(ptList, 0.17, 3.0, 0.2);
-                    var objectList = new PolarPointListExtended();
+                    objetsProchesList = DetectionObjetsProches(ptList, 0.17, 3.0, 0.2);
+                    //var objectList = new PolarPointListExtended();
 
                     //Affichage des objets proches
                     foreach (var objet in objetsProchesList)
@@ -108,6 +112,37 @@ namespace LidarProcessor
                     OnLidarBalisesListExtracted(robotId, balisesCatadioptriqueList);
                     OnLidarObjectProcessed(robotId, objetsProchesList);           
                     
+                    ///On transmet la liste des points lidar processés
+                    OnLidarPtProcessed(robotId, LidarPtsProcessedList);
+                    break;
+
+                case GameMode.Eurobot2022:
+                    //Pré-détection des balises par RSSI et taille                    
+                    balisesCatadioptriqueList = DetectionBalisesCatadioptriquesParRssiEtTaille(ptList, 4.0);
+                    //Filtrage des balises par configurations géométriques
+                    balisesCatadioptriqueList = FiltrageBalisesParConfigurationGeometriques(balisesCatadioptriqueList, 0.1);
+
+                    //Affichage des balises
+                    foreach (var balise in balisesCatadioptriqueList)
+                    {
+                        var pt = new PolarPointRssiExtended(new PolarPointRssi(balise.AngleMoyen, balise.DistanceMoyenne, 0), 10, Color.Gold);
+                        LidarPtsProcessedList.Add(pt);
+                    }
+
+                    objetsProchesList = DetectionObjetsProches(ptList, 0.17, 3.0, 0.2);
+                    //var objectList = new PolarPointListExtended();
+
+                    //Affichage des objets proches
+                    foreach (var objet in objetsProchesList)
+                    {
+                        ///On insère l'objet dans la liste des pts lidar processés à afficher en rouge
+                        var pt = new PolarPointRssiExtended(new PolarPointRssi(objet.AngleMoyen, objet.DistanceMoyenne, 0), 6, Color.Red);
+                        LidarPtsProcessedList.Add(pt); /// Pour l'affichage seulement                        
+                    }
+
+                    OnLidarBalisesListExtracted(robotId, balisesCatadioptriqueList);
+                    OnLidarObjectProcessed(robotId, objetsProchesList);
+
                     ///On transmet la liste des points lidar processés
                     OnLidarPtProcessed(robotId, LidarPtsProcessedList);
                     break;

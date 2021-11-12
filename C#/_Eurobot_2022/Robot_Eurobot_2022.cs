@@ -65,7 +65,7 @@ namespace Robot
         }
         #endregion
 
-        static GameMode competition = GameMode.Eurobot;
+        static GameMode competition = GameMode.Eurobot2022;
 
         static bool usingXBoxController; 
         static bool usingRobotInterface = true;
@@ -153,7 +153,7 @@ namespace Robot
                 case GameMode.RoboCup:
                     strategyManager = new StrategyRoboCup(robotId, teamId, "224.16.32.79");
                     break;
-                case GameMode.Eurobot:
+                case GameMode.Eurobot2022:
                     strategyManager = new StrategyEurobot2021(robotId, teamId, "224.16.32.79");
                     break;
                 case GameMode.Demo:
@@ -231,7 +231,7 @@ namespace Robot
 
             strategyManager.OnMessageEvent += lidar_OMD60M_TCP.OnMessageReceivedEvent;
 
-            if (competition == GameMode.Eurobot)
+            if (competition == GameMode.Eurobot2022)
             {
                 ((StrategyEurobot2021)strategyManager).OnHerkulexPositionRequestEvent += herkulexManager.OnHerkulexPositionRequest;
                 ((StrategyEurobot2021)strategyManager).OnHerkulexEnableDisableTorqueEvent += herkulexManager.OnEnableDisableServosRequest;
