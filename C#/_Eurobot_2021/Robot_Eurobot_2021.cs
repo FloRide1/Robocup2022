@@ -32,7 +32,7 @@ namespace Robot
         Replay,
         Standard,
         NoLidar,
-        NoCamera
+        NoCamera,
     }
     class Robot_Eurobot_2021
     {
